@@ -1,4 +1,4 @@
-# Group "GROUP NAME"
+# Group "PAKO"
 
 ## Members
 - s337165 Simone Pio Candido
