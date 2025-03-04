@@ -3,7 +3,7 @@
 ## Members
 - s337165 Simone Pio Candido
 
-# Exercise "NAME OF EXERCISE"
+# Exercise ["Rescuing Surplus Food"](https://polito-webapp1.github.io/lab-2025/Lab00/SurplusFood.pdf)
 
 # Lab Journal
 
