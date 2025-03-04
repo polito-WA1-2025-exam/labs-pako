@@ -43,7 +43,7 @@ npm install dayjs
 
 # Lab Journal
 
-## Lab 1
+## [Lab 1](https://polito-webapp1.github.io/lab-2025/Lab01/Lab01.pdf)
 
 The application is structured around the following main objects and their relationships:
 
