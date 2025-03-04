@@ -1,6 +1,7 @@
 # Table of contents
 <!-- TOC -->
 
+- [Table of contents](#table-of-contents)
 - [Group "PAKO"](#group-pako)
     - [Members](#members)
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
@@ -77,7 +78,7 @@ The application is structured around the following main objects and their relati
 #### ShoppingCart
 - `id`: Unique identifier  
 - `userId`: References the `User` who owns the cart  
-- `bags`: List of selected `Bag` objects (max 1 per establishment per day)  
+- `reservations`: List of selected `Reservation` objects
 - `allergies`: Optional text field for allergies  
 - `requests`: Optional text field for special requests  
 
@@ -101,6 +102,6 @@ The application is structured around the following main objects and their relati
 - **One `Bag` belongs to one `Establishment`.**  
 - **One `Bag` (if reserved) belongs to one `User`.**  
 - **One `User` has one `ShoppingCart`.**  
-- **One `ShoppingCart` contains multiple `Bags` (max 1 per establishment per day).**  
+- **One `ShoppingCart` contains multiple `Reservations`.**  
 - **One `User` can have multiple `Reservations`.**  
 - **One `Reservation` links one `User` to one `Bag`.**  

@@ -1,0 +1,25 @@
+{
+  "name": "rescuing-surplus-food",
+  "version": "1.0.0",
+  "description": "desing and implement a web application for rescuing surplus food",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polito-WA1-2025-exam/labs-pako.git"
+  },
+  "keywords": [
+    "webapp1"
+  ],
+  "author": "simone candido",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/polito-WA1-2025-exam/labs-pako/issues"
+  },
+  "homepage": "https://github.com/polito-WA1-2025-exam/labs-pako#readme",
+  "dependencies": {
+    "dayjs": "^1.11.13"
+  }
+}
