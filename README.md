@@ -3,8 +3,18 @@
 - [Group "PAKO"](#group-pako)
     - [Members](#members)
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
-- [Lab Journal](#lab-journal)
 - [Prerequisites](#prerequisites)
+    - [Dependencies](#dependencies)
+- [Lab Journal](#lab-journal)
+    - [Lab 1](#lab-1)
+        - [Objects and Properties](#objects-and-properties)
+            - [FoodItem](#fooditem)
+            - [Bag](#bag)
+            - [Establishment](#establishment)
+            - [ShoppingCart](#shoppingcart)
+            - [User](#user)
+            - [Reservation](#reservation)
+        - [Relationships](#relationships)
 
 <!-- /TOC -->
 
