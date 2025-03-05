@@ -16,9 +16,9 @@ this project uses the following dependencies
   npm init # if not already done 
   npm install dayjs
 ``` 
-### Lab Journal
+# Lab Journal
 ___
-## Lab_1
+### Lab_1
 here the following structure that I made reading the document:
 - - -
 # Bag
