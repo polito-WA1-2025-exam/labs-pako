@@ -21,7 +21,7 @@ here the following structure that I made reading the document:
 - - -
 # Bag
 - Bag_ID
-- Type_of_Bag : "Surprise" or "Regular"
+- Type_of_Bag : 'Surprise' or 'Regular'
 - Content : ONLY for regular bags
 - Price
 - Size
