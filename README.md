@@ -11,9 +11,9 @@ If not, you can download version 22.x (LTS) from Node.js official website.
 
 this project uses the following dependencies
 -  **day.js** , used for date handling and formatting
-  To install "day.js,run:
-  'npm init # if not already done'
-  'npm install dayjs'
+  To install 'day.js' ,run:
+  **npm init # if not already done **
+  **npm install dayjs' **
 ### Lab Journal
 ___
 ## Lab_1
