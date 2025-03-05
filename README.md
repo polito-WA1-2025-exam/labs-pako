@@ -1,16 +1,21 @@
 # Group "PAKO-Lucio"
 
 ## Members
-- 
 - s348016 Lucio Fuoco
 # Exercise "Rescuing Surplus Food"
 
 # Prerequisites
 Before starting, ensure that Node.js is installed on your computer.
 If not, you can download version 22.x (LTS) from Node.js official website.
+# Dependencies
 
+this project uses the following dependencies
+-  **day.js** , used for date handling and formatting
+  To install "day.js,run:
+  'npm init # if not already done'
+  'npm install dayjs'
 # Lab Journal
-
+___
 # Lab_1
 here the following structure that I made reading the document:
 
