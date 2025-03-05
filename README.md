@@ -14,11 +14,11 @@ this project uses the following dependencies
   To install "day.js,run:
   'npm init # if not already done'
   'npm install dayjs'
-# Lab Journal
+### Lab Journal
 ___
-# Lab_1
+## Lab_1
 here the following structure that I made reading the document:
-
+- - -
 # Bag
 - Bag_ID
 - Type_of_Bag : "Surprise" or "Regular"
