@@ -14,7 +14,6 @@
             - [Bag](#bag)
             - [Establishment](#establishment)
             - [ShoppingCart](#shoppingcart)
-            - [User](#user)
             - [Reservation](#reservation)
         - [Relationships](#relationships)
 
@@ -81,14 +80,6 @@ The application is structured around the following main objects and their relati
 - `reservations`: List of selected `Reservation` objects
 - `allergies`: Optional text field for allergies  
 - `requests`: Optional text field for special requests  
-
-#### User
-- `id`: Unique identifier  
-- `name`: User's full name  
-- `email`: Login email  
-- `password`: Hashed password  
-- `shoppingCart`: Reference to the `ShoppingCart`  
-- `reservations`: List of `Reservation` objects  
 
 #### Reservation
 - `id`: Unique identifier  
