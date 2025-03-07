@@ -18,44 +18,109 @@ function Bag(id, type, size, content=[], price, establishmentId, timeToPickUp, s
     this.userId = userId;
     this.removedItems = removedItems;
 
-    this.addFoddItem = function (foodItem) {
-        if(this.type.toLowerCase()==="surprise"){
+    this.addFoodItem = function (foodItem) {
+        if(this.type.toLowerCase()==="regular"){
             this.content.push(foodItem);
+            console.log("Added Food Item into Bag");
+            return true;
         }
-        console.log("Added Food Item into Bag");
+        console.log("Cannot add specific food items to surprise bags");
+        return false;
+    }
+
+    this.removeFoodItem = function(foodItemId) {
+        if(this.type.toLowerCase() !== "regular") { 
+            console.log("Cannot remove food items from surprise bags");
+            return false;
+        }
+        
+        if(this.removedItems.length >= 2) {
+            console.log("Cannot remove more than 2 items from a regular bag");
+            return false;
+        }
+        
+        const index = this.content.findIndex(item => item.id === foodItemId);
+        if(index !== -1) {
+            const removedItem = this.content.splice(index, 1)[0];
+            this.removedItems.push(removedItem);
+            console.log(`Removed ${removedItem.name} from the bag`);
+            return true;
+        }
+        
+        console.log("Food item not found in the bag");
+        return false;
+    }
+
+    this.reserve = function(userId) {
+        if(this.state === "available") {
+            this.state = "reserved";
+            this.userId = userId;
+            console.log(`Bag ${this.id} reserved by user ${userId}`);
+            return true;
+        }
+        console.log(`Bag ${this.id} is not available for reservation`);
+        return false;
+    }
+
+    this.release = function() {
+        if(this.state === "reserved") {
+            this.state = "available";
+            this.userId = null;
+            console.log(`Bag ${this.id} released and now available`);
+            return true;
+        }
+        console.log(`Bag ${this.id} is not reserved`);
+        return false;
     }
 
     this.display = () => {
         console.log(`Type: ${this.type}`);
-        console.log(`Food Items: ${this.content}`);
-        console.log(`Price: ${this.price}`);
         console.log(`Size: ${this.size}`);
+        console.log(`Price: ${this.price}`);
         console.log(`Establishment ID: ${this.establishmentId}`);
         console.log(`Time to pick up: ${this.timeToPickUp}`);
-        console.log(`Contents:`);
-        this.content.forEach(item => console.log(`  - ${item.quantity}x ${item.name}`));
+        console.log(`State: ${this.state}`);
+        if(this.type.toLowerCase() === "regular") {
+            console.log(`Contents:`);
+            this.content.forEach(item => console.log(`  - ${item.quantity}x ${item.name}`));
+        }
         console.log('--------------------------');
     }
     
 }
 
-function Establishment(id, name, address, phoneNumber, category, type, bags=[]){
+function Establishment(id, name, address, phoneNumber, category, type){
     this.id = id;
     this.name = name;
     this.address = address;
     this.phoneNumber = phoneNumber;
-    this.category = category; //type of cousine for restaurant, food category for store
-    this.type = type; //restaurant or store
-    this.bags = bags;
+    this.category = category; // type of cuisine for restaurant, food category for store
+    this.type = type; // restaurant or store
+    this.bags = [];
 
     this.addBag = function(bag) {
-        if (!this.bags.some(b => b.establishmentId === bag.establishmentId)) {
-            this.bags.push(bag);
-            console.log("Bag added into establishment.");
+        this.bags.push(bag);
+        console.log(`Bag ${bag.id} added to establishment ${this.name}`);
+        return true;
+    }
+
+    this.removeBag = function(bagId) {
+        const index = this.bags.findIndex(bag => bag.id === bagId);
+        if(index !== -1) {
+            this.bags.splice(index, 1);
+            console.log(`Bag ${bagId} removed from establishment ${this.name}`);
             return true;
         }
-        console.log("There is already a bag from this establishment.");
-        return false; //There is already a bag from this establishment
+        console.log(`Bag ${bagId} not found in establishment ${this.name}`);
+        return false;
+    }
+
+    this.getAvailableBags = function() {
+        return this.bags.filter(bag => bag.state === "available");
+    }
+
+    this.getReservedBags = function() {
+        return this.bags.filter(bag => bag.state === "reserved");
     }
 
     this.display = () => {
@@ -64,9 +129,10 @@ function Establishment(id, name, address, phoneNumber, category, type, bags=[]){
         console.log(`Phone Number: ${this.phoneNumber}`);
         console.log(`Category: ${this.category}`);
         console.log(`Type: ${this.type}`);
+        console.log(`Available Bags: ${this.getAvailableBags().length}`);
+        console.log(`Reserved Bags: ${this.getReservedBags().length}`);
         console.log('--------------------------');
     }
-
 }
 
 function ShoppingCart(id, userId = null, reservations = [], allergies = [], requests = []) {
@@ -106,10 +172,18 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
     };
 
     // Adds an allergy to the list
-    this.addAllergy = (allergy) => this.allergies.push(allergy);
+    this.addAllergy = (allergy) => {
+        this.allergies.push(allergy);
+        console.log(`Allergy '${allergy}' added to the cart`);
+        return true;
+    };
 
     // Adds a special request
-    this.addRequest = (request) => this.requests.push(request);
+    this.addRequest = (request) => {
+        this.requests.push(request);
+        console.log(`Request '${request}' added to the cart`);
+        return true;
+    };
 
     // Calculates the total price of all reservations in the cart
     this.totalPrice = () => 
@@ -123,14 +197,16 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
             console.log("Some bags are unavailable. Order canceled.");
             return false;
         }
-        this.reservations.forEach(reservation => reservation.bags.forEach(bag => bag.state = "reserved"));
+        this.reservations.forEach(reservation => {
+            reservation.bags.forEach(bag => bag.reserve(this.userId));
+            reservation.status = "active";
+        });
         console.log("Order confirmed.");
-        //TODO: update inventory
         return true;
     };
 
     // Removes a food item from a regular bag in a reservation
-    this.removeFoodItemFromRegularBag = (reservationId, bagId, foodItem) => {
+    this.removeFoodItemFromRegularBag = (reservationId, bagId, foodItemId) => {
         const reservation = this.reservations.find(r => r.id === reservationId);
         if (!reservation) {
             console.log("Reservation not found.");
@@ -143,24 +219,7 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
             return false;
         }
     
-        if (!bag.removedItems) {
-            bag.removedItems = [];
-        }
-    
-        if (bag.removedItems.length >= 2) {
-            console.log("You can only remove up to two items.");
-            return false;
-        }
-    
-        const itemIndex = bag.content.findIndex(item => item.id === foodItem.id);
-        if (itemIndex !== -1) {
-            bag.removedItems.push(bag.content.splice(itemIndex, 1)[0]);
-            console.log(`${foodItem.name} removed from the bag.`);
-            return true;
-        }
-    
-        console.log("Item not found in the bag.");
-        return false;
+        return bag.removeFoodItem(foodItemId);
     };
     
     // Displays details of a regular bag in a reservation
@@ -168,38 +227,64 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
         const reservation = this.reservations.find(r => r.id === reservationId);
         if (!reservation) {
             console.log("Reservation not found.");
-            return;
+            return null;
         }
     
         const bag = reservation.bags.find(b => b.id === bagId);
         if (bag && bag.type === "regular") {
             bag.display();
+            return bag;
         } else {
             console.log("Bag not found or not a regular bag.");
+            return null;
         }
     };
 
     this.display = function () {
         console.log(`\nShopping Cart ID: ${this.id}`);
         console.log(`User ID: ${this.userId}`);
+        console.log(`Allergies: ${this.allergies.join(', ') || 'None'}`);
+        console.log(`Special Requests: ${this.requests.join(', ') || 'None'}`);
+        console.log(`Total Price: $${this.totalPrice().toFixed(2)}`);
         console.log(`Reservations:`);
         this.reservations.forEach(reservation => reservation.display());
     };
-
 }
 
-// TODO : add user object?
-/*
-function User(id, name, email, password, shoppingCartId=null, reservations=[]){
+function User(id, name, email, password){
     this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
-    this.shoppingCartId = shoppingCartId; //TODO: check this strcutre, maybe you add this.shoppingCart = new ShoppingCart(id); ??
-    this.reservations = reservations;
+    this.shoppingCart = new ShoppingCart(id, id);
+    this.reservations = [];
 
-    this.addReservation = (reservation) => this.reservations.push(reservation); 
-}*/
+    this.addReservation = function(reservation) {
+        this.reservations.push(reservation);
+        console.log(`Reservation ${reservation.id} added to user ${this.name}`);
+        return true;
+    }
+
+    this.removeReservation = function(reservationId) {
+        const index = this.reservations.findIndex(r => r.id === reservationId);
+        if(index !== -1) {
+            const reservation = this.reservations.splice(index, 1)[0];
+            reservation.cancelReservation();
+            console.log(`Reservation ${reservationId} removed from user ${this.name}`);
+            return true;
+        }
+        console.log(`Reservation ${reservationId} not found for user ${this.name}`);
+        return false;
+    }
+
+    this.display = function() {
+        console.log(`User ID: ${this.id}`);
+        console.log(`Name: ${this.name}`);
+        console.log(`Email: ${this.email}`);
+        console.log(`Reservations: ${this.reservations.length}`);
+        console.log('--------------------------');
+    }
+}
 
 function Reservation(id, userId=null, bags=[], timestamp, status="active"){
     this.id = id;
@@ -208,37 +293,44 @@ function Reservation(id, userId=null, bags=[], timestamp, status="active"){
     this.timestamp = timestamp;
     this.status = status;
 
-    //TODO: review this method, add tests.
-    // Adds a bag to the cart if it meets all constraints
+    // Adds a bag to the reservation if it meets all constraints
     this.addBag = (bag) => {
         let now = dayjs(); // Current time
         let pickUpTime = dayjs(bag.timeToPickUp); // Bag's pick-up time
 
-        // Check if the bag is already in the cart
+        // Check if the bag is already in the reservation
         if (this.bags.some(b => b.id === bag.id)) {
-            console.log("Bag is already in the cart.");
+            console.log("Bag is already in the reservation.");
             return false;
         }
 
         // Ensure pick-up time is in the future
-        const isFutureTime = pickUpTime.isAfter(now, 'minute');
-        const isValidTodayTime = pickUpTime.isAfter(now, 'day') || pickUpTime.hour() > now.hour();
-
-        // Bag must be available and within valid pick-up time constraints
-        if (isFutureTime && isValidTodayTime && bag.state === "available") {
+        if (pickUpTime.isAfter(now) && bag.state === "available") {
             this.bags.push(bag);
             console.log("Bag added to the reservation.");
             return true;
         }
 
+        console.log("Bag cannot be added: either pick-up time is not in the future or bag is not available.");
+        return false;
+    };
+
+    this.removeBag = (bagId) => {
+        const index = this.bags.findIndex(bag => bag.id === bagId);
+        if (index !== -1) {
+            this.bags.splice(index, 1);
+            console.log("Bag removed from the reservation.");
+            return true;
+        }
+        console.log("Bag not found in the reservation.");
         return false;
     };
 
     this.cancelReservation = function () {
-        this.bags.forEach(bag => bag.state = "available");
-        this.bags = []; // Clear the bags
-        this.status = "canceled"
+        this.bags.forEach(bag => bag.release());
+        this.status = "canceled";
         console.log("Reservation canceled.");
+        return true;
     };   
 
     this.display = function() {
@@ -249,31 +341,224 @@ function Reservation(id, userId=null, bags=[], timestamp, status="active"){
         console.log(`Bags:`);
         this.bags.forEach(bag => bag.display());
     }
-   
 }
 
+// Container objects for collections
+function FoodItemCollection() {
+    this.items = [];
+
+    this.add = function(foodItem) {
+        this.items.push(foodItem);
+        return foodItem;
+    }
+
+    this.getById = function(id) {
+        return this.items.find(item => item.id === id);
+    }
+
+    this.getAll = function() {
+        return [...this.items];
+    }
+
+    this.remove = function(id) {
+        const index = this.items.findIndex(item => item.id === id);
+        if(index !== -1) {
+            return this.items.splice(index, 1)[0];
+        }
+        return null;
+    }
+}
+
+function BagCollection() {
+    this.bags = [];
+
+    this.add = function(bag) {
+        this.bags.push(bag);
+        return bag;
+    }
+
+    this.getById = function(id) {
+        return this.bags.find(bag => bag.id === id);
+    }
+
+    this.getAll = function() {
+        return [...this.bags];
+    }
+
+    this.getAvailable = function() {
+        return this.bags.filter(bag => bag.state === "available");
+    }
+
+    this.getReserved = function() {
+        return this.bags.filter(bag => bag.state === "reserved");
+    }
+
+    this.getByEstablishment = function(establishmentId) {
+        return this.bags.filter(bag => bag.establishmentId === establishmentId);
+    }
+
+    this.getByType = function(type) {
+        return this.bags.filter(bag => bag.type === type);
+    }
+
+    this.getBySize = function(size) {
+        return this.bags.filter(bag => bag.size === size);
+    }
+
+    this.remove = function(id) {
+        const index = this.bags.findIndex(bag => bag.id === id);
+        if(index !== -1) {
+            return this.bags.splice(index, 1)[0];
+        }
+        return null;
+    }
+}
+
+function EstablishmentCollection() {
+    this.establishments = [];
+
+    this.add = function(establishment) {
+        this.establishments.push(establishment);
+        return establishment;
+    }
+
+    this.getById = function(id) {
+        return this.establishments.find(est => est.id === id);
+    }
+
+    this.getAll = function() {
+        return [...this.establishments];
+    }
+
+    this.getSortedByName = function() {
+        return [...this.establishments].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    this.getByType = function(type) {
+        return this.establishments.filter(est => est.type === type);
+    }
+
+    this.getByCategory = function(category) {
+        return this.establishments.filter(est => est.category === category);
+    }
+
+    this.remove = function(id) {
+        const index = this.establishments.findIndex(est => est.id === id);
+        if(index !== -1) {
+            return this.establishments.splice(index, 1)[0];
+        }
+        return null;
+    }
+}
+
+function UserCollection() {
+    this.users = [];
+
+    this.add = function(user) {
+        this.users.push(user);
+        return user;
+    }
+
+    this.getById = function(id) {
+        return this.users.find(user => user.id === id);
+    }
+
+    this.getByEmail = function(email) {
+        return this.users.find(user => user.email === email);
+    }
+
+    this.getAll = function() {
+        return [...this.users];
+    }
+
+    this.remove = function(id) {
+        const index = this.users.findIndex(user => user.id === id);
+        if(index !== -1) {
+            return this.users.splice(index, 1)[0];
+        }
+        return null;
+    }
+}
+
+function ReservationCollection() {
+    this.reservations = [];
+
+    this.add = function(reservation) {
+        this.reservations.push(reservation);
+        return reservation;
+    }
+
+    this.getById = function(id) {
+        return this.reservations.find(res => res.id === id);
+    }
+
+    this.getByUserId = function(userId) {
+        return this.reservations.filter(res => res.userId === userId);
+    }
+
+    this.getActive = function() {
+        return this.reservations.filter(res => res.status === "active");
+    }
+
+    this.getCanceled = function() {
+        return this.reservations.filter(res => res.status === "canceled");
+    }
+
+    this.getAll = function() {
+        return [...this.reservations];
+    }
+
+    this.remove = function(id) {
+        const index = this.reservations.findIndex(res => res.id === id);
+        if(index !== -1) {
+            return this.reservations.splice(index, 1)[0];
+        }
+        return null;
+    }
+}
+
+// Create global collections
+const foodItems = new FoodItemCollection();
+const bags = new BagCollection();
+const establishments = new EstablishmentCollection();
+const users = new UserCollection();
+const reservations = new ReservationCollection();
+
 function createObjects(){
+    // Create users
+    const user1 = users.add(new User("user123", "John Doe", "john@example.com", "password123"));
+    const user2 = users.add(new User("user456", "Jane Smith", "jane@example.com", "password456"));
+    
     // Creation of 3 restaurants/stores
-    const establishment1 = new Establishment(1, "Ristorante Bella Italia", "Via Roma 10, Milano", "0234567890", "Italian", "restaurant");
-    const establishment2 = new Establishment(2, "Sushi Master", "Piazza Venezia 5, Roma", "0645678901", "Japanese", "restaurant");
-    const establishment3 = new Establishment(3, "Supermarket Fresh", "Corso Torino 15, Napoli", "0816789012", "Grocery", "store");
+    const establishment1 = establishments.add(new Establishment(1, "Ristorante Bella Italia", "Via Roma 10, Milano", "0234567890", "Italian", "restaurant"));
+    const establishment2 = establishments.add(new Establishment(2, "Sushi Master", "Piazza Venezia 5, Roma", "0645678901", "Japanese", "restaurant"));
+    const establishment3 = establishments.add(new Establishment(3, "Supermarket Fresh", "Corso Torino 15, Napoli", "0816789012", "Grocery", "store"));
+    const establishment4 = establishments.add(new Establishment(4, "Bakery Delight", "Via Garibaldi 8, Firenze", "0551234567", "Bakery", "store"));
+    const establishment5 = establishments.add(new Establishment(5, "Trattoria del Gusto", "Corso Vittorio Emanuele 20, Palermo", "0912345678", "Italian", "restaurant"));
 
     // Creation of some food items
-    const food1 = new FoodItem(1, "Pizza Margherita", 1);
-    const food2 = new FoodItem(2, "Pasta alla Carbonara", 1);
-    const food3 = new FoodItem(3, "Sushi Misto", 8);
-    const food4 = new FoodItem(4, "Banana", 3);
-    const food5 = new FoodItem(5, "Mela Rossa", 2);
+    const food1 = foodItems.add(new FoodItem(1, "Pizza Margherita", 1));
+    const food2 = foodItems.add(new FoodItem(2, "Pasta alla Carbonara", 1));
+    const food3 = foodItems.add(new FoodItem(3, "Sushi Misto", 8));
+    const food4 = foodItems.add(new FoodItem(4, "Banana", 3));
+    const food5 = foodItems.add(new FoodItem(5, "Mela Rossa", 2));
+    const food6 = foodItems.add(new FoodItem(6, "Croissant", 2));
+    const food7 = foodItems.add(new FoodItem(7, "Pane", 1));
+    const food8 = foodItems.add(new FoodItem(8, "Arancini", 3));
 
     // Creation of some bags (surprise and regular)
-    const surpriseBag1 = new Bag(101, "surprise", "medium", [], 5.99, 1, dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm'));
-    const regularBag1 = new Bag(102, "regular", "small", [food1, food2], 6.99, 1, dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm'));
+    const surpriseBag1 = bags.add(new Bag(101, "surprise", "medium", [], 5.99, 1, dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm')));
+    const regularBag1 = bags.add(new Bag(102, "regular", "small", [food1, food2], 6.99, 1, dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm')));
 
-    const surpriseBag2 = new Bag(103, "surprise", "large", [], 7.99, 2, dayjs().add(2, 'day').format('YYYY-MM-DD HH:mm'));
-    const regularBag2 = new Bag(104, "regular", "medium", [food3, food4], 8.49, 2, dayjs().add(2, 'day').format('YYYY-MM-DD HH:mm'));
+    const surpriseBag2 = bags.add(new Bag(103, "surprise", "large", [], 7.99, 2, dayjs().add(2, 'day').format('YYYY-MM-DD HH:mm')));
+    const regularBag2 = bags.add(new Bag(104, "regular", "medium", [food3, food4], 8.49, 2, dayjs().add(2, 'day').format('YYYY-MM-DD HH:mm')));
 
-    const surpriseBag3 = new Bag(105, "surprise", "small", [], 4.49, 3, dayjs().add(3, 'day').format('YYYY-MM-DD HH:mm'));
-    const regularBag3 = new Bag(106, "regular", "large", [food4, food5], 5.99, 3, dayjs().add(3, 'day').format('YYYY-MM-DD HH:mm'));
+    const surpriseBag3 = bags.add(new Bag(105, "surprise", "small", [], 4.49, 3, dayjs().add(3, 'day').format('YYYY-MM-DD HH:mm')));
+    const regularBag3 = bags.add(new Bag(106, "regular", "large", [food4, food5], 5.99, 3, dayjs().add(3, 'day').format('YYYY-MM-DD HH:mm')));
+    
+    const regularBag4 = bags.add(new Bag(107, "regular", "medium", [food6, food7], 4.99, 4, dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm')));
+    const surpriseBag4 = bags.add(new Bag(108, "surprise", "small", [], 3.99, 5, dayjs().add(2, 'day').format('YYYY-MM-DD HH:mm')));
+    const regularBag5 = bags.add(new Bag(109, "regular", "large", [food8], 6.49, 5, dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm')));
 
     // Adding bags to establishments
     establishment1.addBag(surpriseBag1);
@@ -282,38 +567,95 @@ function createObjects(){
     establishment2.addBag(regularBag2);
     establishment3.addBag(surpriseBag3);
     establishment3.addBag(regularBag3);
+    establishment4.addBag(regularBag4);
+    establishment5.addBag(surpriseBag4);
+    establishment5.addBag(regularBag5);
 
     // Creation of reservations
-    const reservation1 = new Reservation(201, "user123", [surpriseBag1, regularBag1], dayjs().format('YYYY-MM-DD HH:mm'));
-    const reservation2 = new Reservation(202, "user456", [regularBag2], dayjs().format('YYYY-MM-DD HH:mm'));
+    const reservation1 = reservations.add(new Reservation(201, "user123", [surpriseBag1], dayjs().format('YYYY-MM-DD HH:mm')));
+    const reservation2 = reservations.add(new Reservation(202, "user456", [regularBag2], dayjs().format('YYYY-MM-DD HH:mm')));
+    
+    // Add reservations to users
+    user1.addReservation(reservation1);
+    user2.addReservation(reservation2);
 
-    // Creation of a shopping cart
-    const shoppingCart = new ShoppingCart(301, "user123");
-    shoppingCart.addReservation(reservation1);
+    // Add to shopping carts
+    user1.shoppingCart.addReservation(reservation1);
+    user2.shoppingCart.addReservation(reservation2);
+    
+    // Add allergies and requests
+    user1.shoppingCart.addAllergy("Gluten");
+    user1.shoppingCart.addRequest("Please keep items separate");
+    
+    // Display all data
+    displayAllData();
+}
 
-    // TODO: adding a function to display the data without using global variables
-    console.log("----- ESTABLISHMENTS -----");
-    establishment1.display();
-    establishment2.display();
-    establishment3.display();
-
-    console.log("----- BAGS -----");
-    surpriseBag1.display();
-    surpriseBag2.display();
-    regularBag1.display();
-    regularBag2.display();
-    surpriseBag3.display();
-
-    console.log("----- RESERVATIONS -----");
-    reservation1.display();
-    reservation2.display();
-
-    console.log("----- SHOPPING CART -----");
-    shoppingCart.display();
+function displayAllData() {
+    console.log("\n===== FOOD RESCUE APPLICATION DATA =====\n");
+    
+    console.log("----- USERS -----");
+    users.getAll().forEach(user => user.display());
+    
+    console.log("\n----- ESTABLISHMENTS (Sorted by Name) -----");
+    establishments.getSortedByName().forEach(est => est.display());
+    
+    console.log("\n----- AVAILABLE BAGS -----");
+    bags.getAvailable().forEach(bag => bag.display());
+    
+    console.log("\n----- RESERVED BAGS -----");
+    bags.getReserved().forEach(bag => bag.display());
+    
+    console.log("\n----- ACTIVE RESERVATIONS -----");
+    reservations.getActive().forEach(res => res.display());
+    
+    console.log("\n----- SHOPPING CARTS -----");
+    users.getAll().forEach(user => user.shoppingCart.display());
+    
+    console.log("\n===== END OF DATA =====");
 }
 
 function main(){
     createObjects();
+    
+    // Example of using the collections
+    console.log("\n===== EXAMPLES OF USING COLLECTIONS =====\n");
+    
+    // Get all restaurants
+    console.log("----- ALL RESTAURANTS -----");
+    const allRestaurants = establishments.getByType("restaurant");
+    allRestaurants.forEach(rest => console.log(rest.name));
+    
+    // Get all surprise bags
+    console.log("\n----- ALL SURPRISE BAGS -----");
+    const surpriseBags = bags.getByType("surprise");
+    console.log(`Total surprise bags: ${surpriseBags.length}`);
+    
+    // Get all medium-sized bags
+    console.log("\n----- ALL MEDIUM BAGS -----");
+    const mediumBags = bags.getBySize("medium");
+    console.log(`Total medium bags: ${mediumBags.length}`);
+    
+    // Get all bags from a specific establishment
+    console.log("\n----- BAGS FROM ESTABLISHMENT 1 -----");
+    const bagsFromEst1 = bags.getByEstablishment(1);
+    console.log(`Total bags from Establishment 1: ${bagsFromEst1.length}`);
+    
+    // Example of removing a food item from a regular bag
+    console.log("\n----- REMOVING FOOD ITEM FROM BAG -----");
+    const user = users.getById("user123");
+    const reservation = reservations.getByUserId("user123")[0];
+    
+    // Add a regular bag to the reservation for testing
+    const regularBag = bags.getById(102);
+    reservation.addBag(regularBag);
+    
+    // Remove a food item
+    user.shoppingCart.removeFoodItemFromRegularBag(reservation.id, regularBag.id, 1);
+    
+    // View the updated bag
+    console.log("\n----- UPDATED BAG AFTER REMOVING ITEM -----");
+    user.shoppingCart.viewDetailsOfRegularBag(reservation.id, regularBag.id);
 }
 
 main();

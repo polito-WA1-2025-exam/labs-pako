@@ -23,6 +23,8 @@
 
 ## Members
 - s337165 Simone Pio Candido
+- s348016 Lucio Fuoco
+- s346267 Emre Elçi
 
 # Exercise ["Rescuing Surplus Food"](https://polito-webapp1.github.io/lab-2025/Lab00/SurplusFood.pdf)
 
