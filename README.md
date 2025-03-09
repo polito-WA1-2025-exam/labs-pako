@@ -6,6 +6,7 @@
 - [Group "PAKO"](#group-pako)
     - [Members](#members)
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
+- [Style approach](#style-approach)
 - [Prerequisites](#prerequisites)
     - [Dependencies](#dependencies)
 - [Project Structure](#project-structure)
@@ -17,6 +18,7 @@
             - [Bag](#bag)
             - [Establishment](#establishment)
             - [ShoppingCart](#shoppingcart)
+            - [User](#user)
             - [Reservation](#reservation)
         - [Relationships](#relationships)
 
@@ -32,6 +34,10 @@
 - 
 
 # Exercise ["Rescuing Surplus Food"](https://polito-webapp1.github.io/lab-2025/Lab00/SurplusFood.pdf)
+
+# Style approach
+
+We will loosely follow the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html). This means we’ll always insert semicolons after each statement (as mentioned by our professor in the first lesson).
 
 # Prerequisites
 
@@ -131,6 +137,14 @@ The application is structured around the following main objects and their relati
 - `reservations`: List of selected `Reservation` objects
 - `allergies`: Optional text field for allergies  
 - `requests`: Optional text field for special requests  
+
+#### User
+- `id`: Unique identifier  
+- `name`: Name of the user  
+- `email`: Email address of the user  
+- `password`: Password for the user's account  
+- `shoppingCart`: References the `ShoppingCart` associated with the user  
+- `reservations`: List of `Reservation` objects made by the user  
 
 #### Reservation
 - `id`: Unique identifier  
