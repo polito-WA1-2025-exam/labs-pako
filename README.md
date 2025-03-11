@@ -31,7 +31,7 @@
 - s348016 Lucio Fuoco
 - s346267 Emre Elçi
 - s336914 Giovanni Martinese
-- 
+- s347289 Taha Yusuf Gandhi
 
 # Exercise ["Rescuing Surplus Food"](https://polito-webapp1.github.io/lab-2025/Lab00/SurplusFood.pdf)
 
