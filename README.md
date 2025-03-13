@@ -21,6 +21,7 @@
             - [User](#user)
             - [Reservation](#reservation)
         - [Relationships](#relationships)
+    - [Lab 2](#lab-2)
 
 <!-- /TOC -->
 
@@ -47,11 +48,12 @@ If not, you can download version 22.x (LTS) from [Node.js official website](http
 ## Dependencies
 The project uses the following dependencies:
 - [day.js](https://day.js.org/) - Used for date handling and formatting.
+- [sqlite3](https://www.npmjs.com/package/sqlite3) - SQLite database driver for Node.js.
 
-To install `day.js`, run:
+To install dependencies, run:
 ```sh
 npm init # if not already done
-npm install dayjs
+npm install dayjs sqlite3
 ```
 
 # Project Structure
@@ -61,6 +63,11 @@ The project structure is organized as follows:
 ```
 node_modules/                # Installed modules via npm
 src/                         # Main source code directory
+│
+├── db/
+│   ├── TODO:
+│   ├── TODO:
+│   ├── TODO:
 │
 ├── models/                  # Domain models
 │   ├── Bag.mjs              # Bag model
@@ -76,7 +83,9 @@ src/                         # Main source code directory
 │   └── UserCollection.mjs   # User collection
 │
 ├── services/                # Project services
-│   └── dataService.mjs      # Data handling service
+│   ├── dataService.mjs      # Data handling service
+|   ├── TODO:
+│   └── TODO: anything to maipulate query, for example query for bag (bagService.mjs)
 │
 ├── index.mjs                # Main entry point of the application
 │
@@ -161,3 +170,5 @@ The application is structured around the following main objects and their relati
 - **One `ShoppingCart` contains multiple `Reservations`.**  
 - **One `User` can have multiple `Reservations`.**  
 - **One `Reservation` links one `User` to one `Bag`.**  
+
+## [Lab 2](https://polito-webapp1.github.io/lab-2025/Lab02/Lab02.pdf)
