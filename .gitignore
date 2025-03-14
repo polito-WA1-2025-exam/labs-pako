@@ -10,6 +10,9 @@ yarn-error.log
 *.sublime-workspace
 *.sublime-project
 
+# Database
+*.db
+
 # Operative System
 .DS_Store
 Thumbs.db
