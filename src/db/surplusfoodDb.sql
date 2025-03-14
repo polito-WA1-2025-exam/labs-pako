@@ -15,7 +15,7 @@ CREATE TABLE BagFoodItem (
     FOREIGN KEY (BagID) REFERENCES Bag(BagID),
     FOREIGN KEY (FoodItemID) REFERENCES FoodItem(FoodItemID)
 );
--- TODO: Remember food item FK in RemovedItems (bagFoodItem)
+
 CREATE TABLE Bag (
     BagID INTEGER PRIMARY KEY AUTOINCREMENT,
     Type TEXT NOT NULL,
@@ -32,14 +32,6 @@ CREATE TABLE Bag (
     FOREIGN KEY (EstablishmentID) REFERENCES Establishment(EstablishmentID)
 );
 
-CREATE TABLE RemovedItems (
-    RemovedItemID INTEGER PRIMARY KEY AUTOINCREMENT,
-    TimeStamp DATETIME PRIMARY KEY  DEFAULT CURRENT_TIMESTAMP,
-    Quantity INTEGER,
-    BagID INTEGER,
-    FOREIGN KEY (BagID) REFERENCES Bag(BagID)
-)
-
 CREATE TABLE User (
     UserID INTEGER PRIMARY KEY AUTOINCREMENT,
     Username TEXT NOT NULL,
@@ -47,7 +39,6 @@ CREATE TABLE User (
     CreationDate DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Todo contet should be more a collection of bag IDs
 CREATE TABLE Establishment (
     EstablishmentID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
@@ -61,23 +52,21 @@ CREATE TABLE Establishment (
 
 CREATE TABLE Reservation (
     ReservationID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Content TEXT,
     TimeStamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Status TEXT DEFAULT 'reserverd',
-    BagID INTEGER,
+    Status TEXT DEFAULT 'pending',
     UserID INTEGER,
     CreationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (BagID) REFERENCES Bag(BagID),
     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
 CREATE TABLE ShoppingCart (
     ShoppingCartID INTEGER PRIMARY KEY AUTOINCREMENT,
-    ReservationID INTEGER,
+    Reservations TEXT,
     Allergies TEXT,
     Requests TEXT,
     UserID INTEGER UNIQUE,
-    FOREIGN KEY (UserID) REFERENCES User(UserID),
-    FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
 -- -------------Insert Example Data (check if it make sense)----------------------
