@@ -9,6 +9,7 @@
 - [Style approach](#style-approach)
 - [Prerequisites](#prerequisites)
     - [Dependencies](#dependencies)
+    - [Database Management](#Database-Management)
 - [Project Structure](#project-structure)
     - [Folder and File Descriptions](#folder-and-file-descriptions)
 - [Lab Journal](#lab-journal)
@@ -66,6 +67,12 @@ To install dependencies, run:
 npm init # if not already done
 npm install dayjs sqlite3
 ```
+
+## Database Management
+If you want to browse the content of the database, you can use one of the following tools:
+
+a. **Visual Studio Code SQLite Viewer extension**  
+   You can install this extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer) for easy browsing and management of SQLite databases directly within Visual Studio Code.
 
 # Project Structure
 
