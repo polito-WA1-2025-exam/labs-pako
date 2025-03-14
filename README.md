@@ -190,6 +190,8 @@ This database schema is designed to manage food items, bags, users, establishmen
 
 [Link for schema](https://drawsql.app/teams/pako-1/diagrams/lab2)
 
+![Schema DB](docs/images/schemaDBv2.png)
+
 #### **Tables and Attributes**  
 
 ##### **FoodItem**  
