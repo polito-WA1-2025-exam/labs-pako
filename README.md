@@ -22,6 +22,17 @@
             - [Reservation](#reservation)
         - [Relationships](#relationships)
     - [Lab 2](#lab-2)
+        - [Database Schema Documentation](#database-schema-documentation)
+            - [Tables and Attributes](#tables-and-attributes)
+                - [FoodItem](#fooditem)
+                - [Bag](#bag)
+                - [BagFoodItem](#bagfooditem)
+                - [RemovedItems](#removeditems)
+                - [User](#user)
+                - [Establishment](#establishment)
+                - [Reservation](#reservation)
+                - [ShoppingCart](#shoppingcart)
+            - [Relationships Overview](#relationships-overview)
 
 <!-- /TOC -->
 
@@ -172,3 +183,103 @@ The application is structured around the following main objects and their relati
 - **One `Reservation` links one `User` to one `Bag`.**  
 
 ## [Lab 2](https://polito-webapp1.github.io/lab-2025/Lab02/Lab02.pdf)
+
+### **Database Schema Documentation**  
+
+This database schema is designed to manage food items, bags, users, establishments, reservations, and shopping carts. Below is a description of the main tables and their attributes.
+
+[Link for schema](https://drawsql.app/teams/pako-1/diagrams/lab2)
+
+#### **Tables and Attributes**  
+
+##### **FoodItem**  
+Stores information about individual food items.  
+- `FoodItemID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for each food item.  
+- `Name` (TEXT, NOT NULL) – Name of the food item.  
+- `Quantity` (INTEGER, DEFAULT 0) – Available quantity of the food item.  
+- `CreationDate` (DATETIME, DEFAULT CURRENT_TIMESTAMP) – Timestamp when the food item was added.  
+
+---
+
+##### **Bag**  
+Represents a bag that contains food items, associated with users and establishments.  
+- `BagID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for the bag.  
+- `Type` (TEXT, NOT NULL) – Type of bag.  
+- `Size` (TEXT) – Size of the bag.  
+- `Content` (TEXT) – Description of the bag’s content.  
+- `Price` (REAL) – Price of the bag.  
+- `State` (TEXT, DEFAULT 'available') – Current state of the bag (e.g., available, reserved, sold).  
+- `UserID` (INTEGER, FK) – Reference to the user associated with the bag.  
+- `EstablishmentID` (INTEGER, FK) – Reference to the establishment providing the bag.  
+- `TimeToPickUp` (DATETIME) – Pickup time for the bag.  
+- `RemovedItems` (TEXT) – List of removed food items.  
+- `CreationDate` (DATETIME, DEFAULT CURRENT_TIMESTAMP) – Timestamp when the bag was created.  
+
+---
+
+##### **BagFoodItem**  
+A bridge table for the many-to-many relationship between `Bag` and `FoodItem`.  
+- `BagID` (INTEGER, PK, FK) – Reference to a `Bag`.  
+- `FoodItemID` (INTEGER, PK, FK) – Reference to a `FoodItem`.  
+- `Quantity` (INTEGER) – Number of food items in the bag.  
+
+---
+
+##### **RemovedItems**  
+Tracks items removed from bags.  
+- `RemovedItemID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for removed items.  
+- `TimeStamp` (DATETIME, PK, DEFAULT CURRENT_TIMESTAMP) – Timestamp of removal.  
+- `Quantity` (INTEGER) – Number of items removed.  
+- `BagID` (INTEGER, FK) – Reference to the bag from which items were removed.  
+
+---
+
+##### **User**  
+Stores user information.  
+- `UserID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for the user.  
+- `Username` (TEXT, NOT NULL) – User's name.  
+- `Email` (TEXT, NOT NULL, UNIQUE) – User's email address.  
+- `CreationDate` (DATETIME, DEFAULT CURRENT_TIMESTAMP) – Timestamp when the user was created.  
+
+---
+
+##### **Establishment**  
+Represents an establishment offering food bags.  
+- `EstablishmentID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for the establishment.  
+- `Name` (TEXT, NOT NULL) – Name of the establishment.  
+- `Address` (TEXT, NOT NULL) – Address of the establishment.  
+- `PhoneNumber` (TEXT) – Contact phone number.  
+- `Category` (TEXT) – Category of the establishment (e.g., restaurant, grocery store).  
+- `Type` (TEXT) – Type of the establishment.  
+- `Content` (TEXT) – Description of available bags.  
+- `CreationDate` (DATETIME, DEFAULT CURRENT_TIMESTAMP) – Timestamp when the establishment was added.  
+
+---
+
+##### **Reservation**  
+Stores reservations of bags by users.  
+- `ReservationID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for the reservation.  
+- `TimeStamp` (DATETIME, DEFAULT CURRENT_TIMESTAMP) – Time when the reservation was made.  
+- `Status` (TEXT, DEFAULT 'reserved') – Status of the reservation.  
+- `BagID` (INTEGER, FK) – Reference to the reserved bag.  
+- `UserID` (INTEGER, FK) – Reference to the user who made the reservation.  
+- `CreationDate` (DATETIME, DEFAULT CURRENT_TIMESTAMP) – Timestamp when the reservation was created.  
+
+---
+
+##### **ShoppingCart**  
+Manages user-specific shopping preferences and reservations.  
+- `ShoppingCartID` (INTEGER, PK, AUTOINCREMENT) – Unique identifier for the shopping cart.  
+- `ReservationID` (INTEGER, FK) – Reference to an active reservation.  
+- `Allergies` (TEXT) – Notes on user allergies.  
+- `Requests` (TEXT) – Additional requests by the user.  
+- `UserID` (INTEGER, UNIQUE, FK) – Reference to the user (each user can have only one shopping cart).  
+
+---
+
+#### **Relationships Overview**  
+- `FoodItem` and `Bag` have a many-to-many relationship through `BagFoodItem`.  
+- `Bag` is linked to `User` and `Establishment`.  
+- `RemovedItems` tracks items removed from `Bag`.  
+- `Reservation` links `User` and `Bag`, tracking reservations.  
+- `ShoppingCart` connects `User` to a `Reservation`, storing additional user preferences.  
