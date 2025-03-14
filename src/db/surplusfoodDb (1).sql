@@ -1,5 +1,4 @@
 -- database: :memory:
-
 -- Init Tables
 CREATE TABLE FoodItem (
     FoodItemID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,26 +17,28 @@ CREATE TABLE BagFoodItem (
 );
 -- TODO: Remember food item FK in RemovedItems (bagFoodItem)
 CREATE TABLE Bag (
-    BagID INTEGER PRIMARY KEY,
-    RemovedItems TEXT,
+    BagID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Type TEXT NOT NULL,
+    Size TEXT,
+    Content TEXT,
     Price REAL,
     State TEXT DEFAULT 'available',
     UserID INTEGER,
     EstablishmentID INTEGER,
     TimeToPickUp DATETIME,
+    RemovedItems TEXT,
     CreationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES User(UserID),
     FOREIGN KEY (EstablishmentID) REFERENCES Establishment(EstablishmentID)
 );
 
 CREATE TABLE RemovedItems (
-    RemovedItemID INTEGER,
-    CreationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    RemovedItemID INTEGER PRIMARY KEY AUTOINCREMENT,
+    TimeStamp DATETIME PRIMARY KEY  DEFAULT CURRENT_TIMESTAMP,
     Quantity INTEGER,
     BagID INTEGER,
-    PRIMARY KEY (RemovedItemID, CreationDate),
     FOREIGN KEY (BagID) REFERENCES Bag(BagID)
-);
+)
 
 CREATE TABLE User (
     UserID INTEGER PRIMARY KEY AUTOINCREMENT,
