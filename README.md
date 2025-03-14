@@ -83,9 +83,8 @@ node_modules/                # Installed modules via npm
 src/                         # Main source code directory
 │
 ├── db/
-│   ├── TODO:
-│   ├── TODO:
-│   ├── TODO:
+│   ├── surplusfoodDb.sql
+│   ├── database.db
 │
 ├── models/                  # Domain models
 │   ├── Bag.mjs              # Bag model
@@ -102,7 +101,7 @@ src/                         # Main source code directory
 │
 ├── services/                # Project services
 │   ├── dataService.mjs      # Data handling service
-|   ├── TODO:
+│   ├── TODO:
 │   └── TODO: anything to maipulate query, for example query for bag (bagService.mjs)
 │
 ├── index.mjs                # Main entry point of the application
