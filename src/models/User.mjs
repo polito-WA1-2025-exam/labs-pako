@@ -2,13 +2,14 @@ import ShoppingCart from './ShoppingCart.mjs';
 /*
  Constructor function to create on object User
  */
-function User(id, name, email, password){
+function User(id, name, email, creationDate = null, password = null){
     this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
     this.shoppingCart = new ShoppingCart(id, id);
     this.reservations = [];
+    this.creationDate = creationDate;
 
     this.addReservation = function(reservation) {
         this.reservations.push(reservation);
@@ -33,6 +34,7 @@ function User(id, name, email, password){
         console.log(`Name: ${this.name}`);
         console.log(`Email: ${this.email}`);
         console.log(`Reservations: ${this.reservations.length}`);
+        console.log(`Creation Date: ${this.creationDate}`);
         console.log('--------------------------');
     }
 }

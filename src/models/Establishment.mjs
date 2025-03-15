@@ -45,6 +45,8 @@ function Establishment(id, name, address, phoneNumber, category, type, content=n
         console.log(`Type: ${this.type}`);
         console.log(`Available Bags: ${this.getAvailableBags().length}`);
         console.log(`Reserved Bags: ${this.getReservedBags().length}`);
+        console.log(`Content: ${this.content}`);
+        console.log(`Creation Date: ${this.creationDate}`);
         console.log('--------------------------');
     }
 }
