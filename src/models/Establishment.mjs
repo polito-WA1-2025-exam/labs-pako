@@ -1,7 +1,7 @@
 /**
  * Constructor function for creating a Establishment object.
  */
-function Establishment(id, name, address, phoneNumber, category, type){
+function Establishment(id, name, address, phoneNumber, category, type, content=null, creationDate=null){
     this.id = id;
     this.name = name;
     this.address = address;
@@ -9,6 +9,8 @@ function Establishment(id, name, address, phoneNumber, category, type){
     this.category = category; // type of cuisine for restaurant, food category for store
     this.type = type; // restaurant or store
     this.bags = [];
+    this.content = content;
+    this.creationDate = creationDate;
 
     this.addBag = function(bag) {
         this.bags.push(bag);

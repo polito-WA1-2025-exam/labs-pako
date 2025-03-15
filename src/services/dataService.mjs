@@ -10,6 +10,8 @@ import ReservationCollection from '../models/ReservationCollection.mjs';
 import User from '../models/User.mjs';
 import UserCollection from '../models/UserCollection.mjs';
 import getAllFoodItems from '../queries/foodItemQueries.mjs';
+import getAllEstablishments from '../queries/establishmentQueries.mjs';
+import dbConnection from '../db/dbConnection.mjs';
 export function createObjects() {
     // Create global collections
     const foodItems = new FoodItemCollection();
@@ -119,6 +121,11 @@ export async function retrieveAllData(){
     const foodItems = await getAllFoodItems();
     console.log("\n----- FOOD ITEMS -----");
     foodItems.forEach(item => item.display());
+
+    const establishments = await getAllEstablishments();
+    console.log("\n----- ESTABLISHMENTS-----");
+    establishments.forEach(est => est.display());
+
+    await dbConnection.closeConnection(); // TODO: how to manage close connetion for db in efficiently way?, it is corret ?
 }
 
-// TODO: how to manage close connetion for db in efficiently way?

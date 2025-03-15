@@ -9,12 +9,12 @@ export async function getAllFoodItems() {
             if (err) {
                 reject(err);
             } else {
-                // Mappa i campi del risultato del database ai campi corretti del costruttore di FoodItem
+                // Map fields of result from database to fields of FoodItem constructor
                 const foodItems = rows.map(row => new FoodItem(
-                    row.FoodItemID, // Mappa FoodItemID a id
-                    row.Name,        // Mappa Name a name
-                    row.Quantity,    // Mappa Quantity a quantity
-                    row.CreationDate // Mappa CreationDate a creationDate
+                    row.FoodItemID,  // Map fooditem to id
+                    row.Name,        // Map name to name
+                    row.Quantity,    // Map Quantity to quantity
+                    row.CreationDate // Map CreationDate to creationDate
                 ));
                 resolve(foodItems);
             }
