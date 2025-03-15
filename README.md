@@ -85,6 +85,12 @@ src/                         # Main source code directory
 ├── db/
 │   ├── surplusfoodDb.sql
 │   ├── database.db
+│   └── dbConnection.mjs     # Open, close and retrieve db operation
+│
+├── queries/
+│   ├── foodItemQueries.mjs
+│   ├── TODO: 
+│   └── TODO: 
 │
 ├── models/                  # Domain models
 │   ├── Bag.mjs              # Bag model
