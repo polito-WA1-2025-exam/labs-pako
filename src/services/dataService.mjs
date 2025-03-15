@@ -9,7 +9,7 @@ import Reservation from '../models/Reservation.mjs';
 import ReservationCollection from '../models/ReservationCollection.mjs';
 import User from '../models/User.mjs';
 import UserCollection from '../models/UserCollection.mjs';
-
+import getAllFoodItems from '../queries/foodItemQueries.mjs';
 export function createObjects() {
     // Create global collections
     const foodItems = new FoodItemCollection();
@@ -113,6 +113,12 @@ export function displayAllData(users, establishments, foodItems, bags, reservati
     users.getAll().forEach(user => user.shoppingCart.display());
     
     console.log("\n===== END OF DATA =====");
+}
+
+export async function retrieveAllData(){
+    const foodItems = await getAllFoodItems();
+    console.log("\n----- FOOD ITEMS -----");
+    foodItems.forEach(item => item.display());
 }
 
 // TODO: how to manage close connetion for db in efficiently way?

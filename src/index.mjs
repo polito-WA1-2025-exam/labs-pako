@@ -1,4 +1,5 @@
 import {createObjects} from './services/dataService.mjs';
+import {retrieveAllData} from './services/dataService.mjs';
 function runExample() {
     // Call createObjects to generate the collections
     const { foodItems, bags, establishments, users, reservations } = createObjects();   
@@ -44,7 +45,8 @@ function runExample() {
 }
 
 function main(){
-    runExample();
+    //runExample();
+    retrieveAllData();
 }
 
 main()
