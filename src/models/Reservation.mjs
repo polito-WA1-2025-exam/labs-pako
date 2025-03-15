@@ -2,12 +2,13 @@ import dayjs from 'dayjs';
 /*
  Constructor function to create on object Reservation
  */
-function Reservation(id, userId=null, bags=[], timestamp, status="active"){
+function Reservation(id, timestamp, status="active", bags=[], userId=null, creationDate = null ){
     this.id = id;
     this.userId = userId;
     this.bags = bags;
     this.timestamp = timestamp;
     this.status = status;
+    this.creationDate = creationDate;
 
     // Adds a bag to the reservation if it meets all constraints
     this.addBag = (bag) => {
@@ -54,8 +55,10 @@ function Reservation(id, userId=null, bags=[], timestamp, status="active"){
         console.log(`User ID: ${this.userId}`);
         console.log(`Timestamp: ${this.timestamp}`);
         console.log(`Status: ${this.status}`);
+        console.log(`Creation Date: ${this.creationDate}`);
         console.log(`Bags:`);
         this.bags.forEach(bag => bag.display());
+        console.log('--------------------------');
     }
 }
 

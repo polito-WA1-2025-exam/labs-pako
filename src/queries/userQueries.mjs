@@ -12,9 +12,10 @@ export async function getAllUsers() {
                 // Map fields of result from database to fields of Users constructor
                 const users = rows.map(row => new User(
                     row.UserID,          // Map UserID to id
-                    row.Name,            // Map Name to name
+                    row.Username,        // Map Name to name
                     row.Email,           // Map Email to email
-                    row.CreationDate     // Map CreationDate to creationDate
+                    row.CreationDate,    // Map CreationDate to creationDate
+                    row.Password         // Map Password to password
                 ));
                 resolve(users);
             }
