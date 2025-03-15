@@ -1,6 +1,5 @@
 import {createObjects} from './services/dataService.mjs';
-
-function main(){
+function runExample() {
     // Call createObjects to generate the collections
     const { foodItems, bags, establishments, users, reservations } = createObjects();   
     
@@ -42,6 +41,10 @@ function main(){
     // View the updated bag
     console.log("\n----- UPDATED BAG AFTER REMOVING ITEM -----");
     user.shoppingCart.viewDetailsOfRegularBag(reservation.id, regularBag.id);
+}
+
+function main(){
+    runExample();
 }
 
 main()
