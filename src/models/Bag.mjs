@@ -4,23 +4,35 @@ import dayjs from 'dayjs';
  Constructor function to create on object Bag
  */
 function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp, state = "available", userId = null, removedItems = [], creationDate = null) {
+    
     this.id = id;
     this.type = type; // "surprise" or "regular"
     this.size = size;
-    this.content = content;
     this.price = price;
     this.establishmentId = establishmentId;
-    // If daysToPickUp is a date string, we need to parse it with dayjs
-    this.timeToPickUp = dayjs(daysToPickUp, 'YYYY-MM-DD HH:mm:ss').isValid() 
-    ? dayjs(daysToPickUp, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
-    : dayjs().add(daysToPickUp, 'day').format('YYYY-MM-DD HH:mm'); // if invalid, calculate based on daysToPickUp
     this.state = state;
     this.userId = userId;
     this.removedItems = removedItems;
-    // If creationDate is a date string, we need to parse it with dayjs
+
+    // Convert content array to a standardized format
+    this.content = Array.isArray(content) 
+        ? content.map(item => ({
+            id: item.FoodItemID, 
+            quantity: item.Quantity
+        })) 
+        : [];
+
+    // Parse timeToPickUp using dayjs
+    this.timeToPickUp = dayjs(daysToPickUp, 'YYYY-MM-DD HH:mm:ss').isValid() 
+        ? dayjs(daysToPickUp, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
+        : dayjs().add(daysToPickUp, 'day').format('YYYY-MM-DD HH:mm'); 
+
+    // Parse creationDate using dayjs
     this.creationDate = dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').isValid() 
-    ? dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
-    : dayjs().add(creationDate, 'day').format('YYYY-MM-DD HH:mm'); // if invalid, calculate based on daysToPickUp
+        ? dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
+        : dayjs().add(creationDate, 'day').format('YYYY-MM-DD HH:mm'); 
+
+    // Method to add a food item to the bag
     this.addFoodItem = function (foodItem) {
         if (this.type.toLowerCase() === "regular") {
             this.content.push(foodItem);
@@ -29,19 +41,24 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         }
         console.log("Cannot add specific food items to surprise bags");
         return false;
-    }
+    };
 
+    // Method to remove a food item from the bag
     this.removeFoodItem = function (foodItemId) {
+
+        // Check if the bag is a regular bag
         if (this.type.toLowerCase() !== "regular") {
             console.log("Cannot remove food items from surprise bags");
             return false;
         }
 
+        // Check if the bag already has 2 removed items
         if (this.removedItems.length >= 2) {
             console.log("Cannot remove more than 2 items from a regular bag");
             return false;
         }
 
+        // Check if the food item exists in the bag
         const index = this.content.findIndex(item => item.id === foodItemId);
         if (index !== -1) {
             const removedItem = this.content.splice(index, 1)[0];
@@ -54,7 +71,9 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         return false;
     }
 
+    // Method to reserve a bag
     this.reserve = function (userId) {
+        // Check if the bag is available
         if (this.state === "available") {
             this.state = "reserved";
             this.userId = userId;
@@ -65,7 +84,9 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         return false;
     }
 
+    // Method to release a bag
     this.release = function () {
+        // Check if the bag is reserved
         if (this.state === "reserved") {
             this.state = "available";
             this.userId = null;
@@ -76,6 +97,7 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         return false;
     }
 
+    // Method to display bag information
     this.display = () => {
         console.log(`Type: ${this.type}`);
         console.log(`Size: ${this.size}`);
@@ -92,11 +114,7 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         if (this.type.toLowerCase() === "regular") {
             console.log(`Contents:`);
             // Ensure that content is an array before calling forEach
-            if (Array.isArray(this.content)) {
-                this.content.forEach(item => console.log(`  - ${item.quantity}x ${item.name}`));
-            } else {
-                console.log(this.content);
-            }
+            this.content.forEach(item => console.log(` Id: ${item.id}, quantity: ${item.quantity}`));
         }
         console.log('--------------------------');
     }    

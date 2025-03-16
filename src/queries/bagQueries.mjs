@@ -16,6 +16,20 @@ async function getAllRemovedItems(BagID) {
         });
     });
 }
+// Function to get all removed items for a specific BagID
+async function gettAllBagFoodItems(BagID) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM BagFoodItem WHERE BagID = ?', [BagID], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {        
+                //const foodItems = rows.map(row => new FoodItem(row.FoodItemID, row.Name, row.Quantity, row.CreationDate));
+                resolve(rows);
+            }
+        });
+    });
+}
 
 // Function to get all bags from the database and associate user and establishment
 export async function getAllBags() {
@@ -27,7 +41,6 @@ export async function getAllBags() {
                 b.BagID, 
                 b.Type,
                 b.Size,
-                b.Content,
                 b.Price, 
                 b.EstablishmentID, 
                 b.TimeToPickUp, 
@@ -51,12 +64,19 @@ export async function getAllBags() {
                             console.error("Error fetching RemovedItems: ", e);
                         }
 
+                        let content = [];
+                        try {
+                            content = await gettAllBagFoodItems(row.BagID); // Now using await properly
+                        } catch (e) {
+                            console.error("Error fetching BagFoodItems: ", e);
+                        }
+
                         // Create a Bag object
                         const bag = new Bag(
                             row.BagID,
                             row.Type,        
                             row.Size, 
-                            row.Content, // TODO: add array of fooditems
+                            content, // TODO: add array of fooditems
                             row.Price,
                             row.EstablishmentID,
                             row.TimeToPickUp,
@@ -67,21 +87,21 @@ export async function getAllBags() {
                         );
 
                         // Create a User object
-                        const user = new User(row.UserID, row.UserName, row.UserEmail);
+                        // const user = new User(row.UserID, row.UserName, row.UserEmail);
                         
                         // Create an Establishment object
-                        const establishment = new Establishment(
-                            row.EstablishmentID,
-                            row.EstablishmentName,
-                            row.EstablishmentAddress,
-                            row.EstablishmentPhoneNumber,
-                            row.EstablishmentCategory,
-                            row.EstablishmentType
-                        );
+                        // const establishment = new Establishment(
+                        //    row.EstablishmentID,
+                        //    row.EstablishmentName,
+                        //    row.EstablishmentAddress,
+                        //    row.EstablishmentPhoneNumber,
+                        //    row.EstablishmentCategory,
+                        //    row.EstablishmentType
+                        // );
 
                         // Add the user and establishment to the bag
-                        bag.user = user;
-                        bag.establishment = establishment;
+                        // bag.userId = user;
+                        // bag.establishmentId = establishment;
 
                         return bag; // Return the bag with the user and establishment associated
                     }));

@@ -17,14 +17,10 @@ CREATE TABLE BagFoodItem (
     FOREIGN KEY (FoodItemID) REFERENCES FoodItem(FoodItemID)
 );
 -- TODO: Remember food item FK in RemovedItems (bagFoodItem)
--- TODO: add type of bag -> OK
--- TODO: add size of bag -> OK
--- TODO: add content -> OK
 CREATE TABLE Bag (
     BagID INTEGER PRIMARY KEY,
-    Type TEXT NOT NULL,
+    Type TEXT NOT NULL CHECK (Type IN ('regular', 'surprise')),
     Size INTEGER,
-    Content TEXT,
     RemovedItems TEXT,
     Price REAL,
     State TEXT DEFAULT 'available',
@@ -108,20 +104,18 @@ INSERT INTO FoodItem (Name, Quantity) VALUES
 ('Milk', 20),
 ('Eggs', 60);
 
--- Insert into Bag Table
--- TODO: Contents are food item, why here we don t have FoodItem ID?
-INSERT INTO Bag (BagID, Type, Size, Content, RemovedItems, Price, State, UserID, EstablishmentID, TimeToPickUp) VALUES 
-(1, 'regular', 1, 'Book and coffee', 'None', 10.99, 'available', 1, 1, '2023-10-15 12:00:00'),
-(2, 'surprise', 2, 'Toys and gadgets', 'None', 15.99, 'reserved', 2, 2, '2023-10-16 14:00:00'),
-(3, 'regular', 3, 'Clothing items', 'None', 5.99, 'available', 3, 3, '2023-10-17 10:00:00');
+-- Insert bags without the "Content" field
+INSERT INTO Bag (BagID, Type, Size, RemovedItems, Price, State, UserID, EstablishmentID, TimeToPickUp) VALUES 
+(1, 'regular', 1, 'None', 10.99, 'available', 1, 1, '2023-10-15 12:00:00'),
+(2, 'surprise', 2, 'None', 15.99, 'reserved', 2, 2, '2023-10-16 14:00:00'),
+(3, 'regular', 3, 'None', 5.99, 'available', 3, 3, '2023-10-17 10:00:00');
 
--- Insert into BagFoodItem Table
+-- Insert food items into bags
 INSERT INTO BagFoodItem (BagID, FoodItemID, Quantity) VALUES 
-(1, 1, 5),  -- 5 Apples in Bag 1
-(1, 2, 10), -- 10 Bananas in Bag 1
-(2, 3, 2),  -- 2 Breads in Bag 2
-(2, 4, 1),  -- 1 Milk in Bag 2
-(3, 5, 12); -- 12 Eggs in Bag 3
+(1, 1, 2),  -- Bag 1 contains 2 units of food item 1
+(1, 2, 1),  -- Bag 1 contains 1 unit of food item 2
+(2, 3, 3),  -- Bag 2 contains 3 units of food item 3
+(3, 4, 5);  -- Bag 3 contains 5 units of food item 4
 
 -- Insert into RemovedItems Table
 INSERT INTO RemovedItems (RemovedItemID, Quantity, BagID) VALUES 
