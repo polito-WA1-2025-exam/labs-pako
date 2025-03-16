@@ -45,12 +45,10 @@ export async function getAllBags() {
                 b.EstablishmentID, 
                 b.TimeToPickUp, 
                 b.State, 
-                b.RemovedItems, 
-                u.UserID as UserID, 
-                u.Username as UserName,  
-                u.Email as UserEmail
-            FROM Bag b
-            LEFT JOIN User u ON b.UserID = u.UserID`, 
+                b.RemovedItems,  
+                b.UserID, 
+                b.CreationDate
+            FROM Bag b`, 
             [], 
             async (err, rows) => { // Use async here as well
                 if (err) {
@@ -85,23 +83,6 @@ export async function getAllBags() {
                             removedItems,  // Pass removedItems to the bag object
                             row.CreationDate
                         );
-
-                        // Create a User object
-                        // const user = new User(row.UserID, row.UserName, row.UserEmail);
-                        
-                        // Create an Establishment object
-                        // const establishment = new Establishment(
-                        //    row.EstablishmentID,
-                        //    row.EstablishmentName,
-                        //    row.EstablishmentAddress,
-                        //    row.EstablishmentPhoneNumber,
-                        //    row.EstablishmentCategory,
-                        //    row.EstablishmentType
-                        // );
-
-                        // Add the user and establishment to the bag
-                        // bag.userId = user;
-                        // bag.establishmentId = establishment;
 
                         return bag; // Return the bag with the user and establishment associated
                     }));
