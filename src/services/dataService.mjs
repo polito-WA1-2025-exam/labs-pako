@@ -7,6 +7,8 @@ import Establishment from '../models/Establishment.mjs';
 import EstablishmentCollection from '../models/EstablishmentCollection.mjs';
 import Reservation from '../models/Reservation.mjs';
 import ReservationCollection from '../models/ReservationCollection.mjs';
+import ShoppingCart from '../models/ShoppingCart.mjs';
+import ShoppingCartCollection from '../models/ShoppingCartCollection.mjs';
 import User from '../models/User.mjs';
 import UserCollection from '../models/UserCollection.mjs';
 import getAllFoodItems from '../queries/foodItemQueries.mjs';
@@ -14,6 +16,7 @@ import getAllEstablishments from '../queries/establishmentQueries.mjs';
 import getAllUsers from '../queries/userQueries.mjs';
 import getAllBags from '../queries/bagQueries.mjs';
 import getAllReservations from '../queries/reservationQueries.mjs';
+import getAllShoppingCarts from '../queries/shoppingCartQueries.mjs';
 import dbConnection from '../db/dbConnection.mjs';
 export function createObjects() {
     // Create global collections
@@ -120,27 +123,99 @@ export function displayAllData(users, establishments, foodItems, bags, reservati
     console.log("\n===== END OF DATA =====");
 }
 
-export async function retrieveAllData(){
-    const foodItems = await getAllFoodItems();
-    console.log("\n----- FOOD ITEMS -----");
-    foodItems.forEach(item => item.display());
+// Function to run the example in Lab1
+export function runExample() {
+    // Call createObjects to generate the collections
+    const { foodItems, bags, establishments, users, reservations } = createObjects();   
+    
+    // Example of using the collections
+    console.log("\n===== EXAMPLES OF USING COLLECTIONS =====\n");
+    
+    // Get all restaurants
+    console.log("----- ALL RESTAURANTS -----");
+    const allRestaurants = establishments.getByType("restaurant");
+    allRestaurants.forEach(rest => console.log(rest.name));
 
-    const establishments = await getAllEstablishments();
-    console.log("\n----- ESTABLISHMENTS-----");
-    establishments.forEach(est => est.display());
-
-    const users = await getAllUsers();
-    console.log("\n----- USERS-----");
-    users.forEach(user => user.display());
-
-    const bags = await getAllBags();
-    console.log("\n----- BAGS-----");
-    bags.forEach(bag => bag.display());
-
-    const reservations = await getAllReservations();
-    console.log("\n----- RESERVATIONS-----");
-    reservations.forEach(res => res.display());
-
-    await dbConnection.closeConnection(); // TODO: how to manage close connetion for db in efficiently way?, it is corret ?
+    // Get all surprise bags
+    console.log("\n----- ALL SURPRISE BAGS -----");
+    const surpriseBags = bags.getByType("surprise");
+    console.log(`Total surprise bags: ${surpriseBags.length}`);
+    
+    // Get all medium-sized bags
+    console.log("\n----- ALL MEDIUM BAGS -----");
+    const mediumBags = bags.getBySize("medium");
+    console.log(`Total medium bags: ${mediumBags.length}`);
+    
+    // Get all bags from a specific establishment
+    console.log("\n----- BAGS FROM ESTABLISHMENT 1 -----");
+    const bagsFromEst1 = bags.getByEstablishment(1);
+    console.log(`Total bags from Establishment 1: ${bagsFromEst1.length}`);
+    
+    // Example of removing a food item from a regular bag
+    console.log("\n----- REMOVING FOOD ITEM FROM BAG -----");
+    const user = users.getById("user123");
+    const reservation = reservations.getByUserId("user123")[0];
+    
+    // Add a regular bag to the reservation for testing
+    const regularBag = bags.getById(102);
+    reservation.addBag(regularBag);
+    
+    // Remove a food item
+    user.shoppingCart.removeFoodItemFromRegularBag(reservation.id, regularBag.id, 1);
+    
+    // View the updated bag
+    console.log("\n----- UPDATED BAG AFTER REMOVING ITEM -----");
+    user.shoppingCart.viewDetailsOfRegularBag(reservation.id, regularBag.id);
 }
+
+// Function to retrieve all data for Lab2
+export async function retrieveAllData() {
+    // Create global collections
+    const foodItems = new FoodItemCollection();
+    const bags = new BagCollection();
+    const establishments = new EstablishmentCollection();
+    const users = new UserCollection();
+    const reservations = new ReservationCollection();
+    const shoppingCarts = new ShoppingCartCollection();
+
+    // Fetch data from the database
+    const fetchedFoodItems = await getAllFoodItems();
+    const fetchedEstablishments = await getAllEstablishments();
+    const fetchedUsers = await getAllUsers();
+    const fetchedBags = await getAllBags();
+    const fetchedReservations = await getAllReservations();
+    const fetchedShoppingCarts = await getAllShoppingCarts();
+
+    console.log(fetchedEstablishments);
+
+    // Populate collections with fetched data
+    fetchedFoodItems.forEach(item => foodItems.add(new FoodItem(item.id, item.name, item.quantity, item.creationDate)));
+    fetchedEstablishments.forEach(est => establishments.add(new Establishment(est.id, est.name, est.address, est.phoneNumber, est.category, est.type, est.bags, est.content, est.creationDate)));
+    fetchedUsers.forEach(user => users.add(new User(user.id, user.name, user.email, user.creationDate, user.password)));
+    fetchedBags.forEach(bag => bags.add(new Bag(bag.id, bag.type, bag.size, bag.content, bag.price, bag.establishmentId, bag.daysToPickUp, bag.state, bag.userId, bag.removedItems, bag.creationDate)));
+    fetchedReservations.forEach(res => reservations.add(new Reservation(res.id, res.timestamp, res.status, res.bags, res.userId, res.creationDate)));
+    fetchedShoppingCarts.forEach(cart => shoppingCarts.add(new ShoppingCart(cart.id, cart.userId, cart.reservations, cart.allergies, cart.requests)));
+
+    // Display the data
+    console.log("\n----- FOOD ITEMS -----");
+    foodItems.getAll().forEach(item => item.display());
+    
+    console.log("\n----- ESTABLISHMENTS -----");
+    establishments.getSortedByName().forEach(est => est.display())
+    
+    console.log("\n----- USERS -----");
+    users.getAll().forEach(user => user.display());
+
+    console.log("\n----- BAGS -----");
+    bags.getAll().forEach(bag => bag.display());
+
+    console.log("\n----- RESERVATIONS -----");
+    reservations.getAll().forEach(res => res.display());
+
+    console.log("\n----- SHOPPING CARTS -----");
+    shoppingCarts.getAll().forEach(cart => cart.display());
+
+    await dbConnection.closeConnection();  // Close the DB connection efficiently
+}
+
 

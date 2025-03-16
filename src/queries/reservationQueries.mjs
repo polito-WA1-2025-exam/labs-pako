@@ -8,7 +8,6 @@ export async function getAllReservations() {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
         // Query to join Reservation with User and Bag
-        // TODO: add size and type
         db.all(`
             SELECT 
                 r.ReservationID, 
@@ -42,7 +41,7 @@ export async function getAllReservations() {
                             row.ReservationID,
                             row.TimeStamp,
                             row.Status,
-                            [],
+                            [], // Initialize bags as an empty array
                             row.UserID,
                             row.CreationDate
                         );
@@ -61,7 +60,12 @@ export async function getAllReservations() {
                             row.TimeToPickUp,
                             row.State
                         );
-                        reservation.addBag(bag);
+
+                        console.log(`Adding Bag: ${bag.id} to Reservation: ${reservation.id}`);
+                        reservation.addBag(bag); // Add the bag to the reservation
+
+                    } else {
+                        console.log(`No Bag found for ReservationID: ${row.ReservationID}`);
                     }
 
                     // Associate user with the reservation, if not already done
@@ -69,6 +73,9 @@ export async function getAllReservations() {
                         reservation.user = new User(row.UserID, row.UserName, row.UserEmail);
                     }
                 });
+
+                // Log the reservations to verify the bags are added
+                // console.log("All Reservations:", Array.from(reservationsMap.values()));
 
                 // Resolve with an array of reservations
                 resolve(Array.from(reservationsMap.values()));

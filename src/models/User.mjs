@@ -1,4 +1,5 @@
 import ShoppingCart from './ShoppingCart.mjs';
+import dayjs from 'dayjs';
 /*
  Constructor function to create on object User
  */
@@ -9,8 +10,9 @@ function User(id, name, email, creationDate = null, password = null){
     this.password = password;
     this.shoppingCart = new ShoppingCart(id, id);
     this.reservations = [];
-    this.creationDate = creationDate;
-
+    this.creationDate = dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').isValid() 
+        ? dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
+        : dayjs().add(creationDate, 'day').format('YYYY-MM-DD HH:mm');  
     this.addReservation = function(reservation) {
         this.reservations.push(reservation);
         console.log(`Reservation ${reservation.id} added to user ${this.name}`);

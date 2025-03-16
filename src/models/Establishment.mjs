@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 /**
  * Constructor function for creating a Establishment object.
  */
@@ -10,7 +11,10 @@ function Establishment(id, name, address, phoneNumber, category, type, content=n
     this.type = type; // restaurant or store
     this.bags = [];
     this.content = content;
-    this.creationDate = creationDate;
+    // Parse creationDate using dayjs
+    this.creationDate = dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').isValid() 
+        ? dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
+        : dayjs().add(creationDate, 'day').format('YYYY-MM-DD HH:mm'); 
 
     this.addBag = function(bag) {
         this.bags.push(bag);

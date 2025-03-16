@@ -6,9 +6,12 @@ function Reservation(id, timestamp, status="active", bags=[], userId=null, creat
     this.id = id;
     this.userId = userId;
     this.bags = bags;
-    this.timestamp = timestamp;
+    this.timestamp = dayjs(timestamp);
     this.status = status;
-    this.creationDate = creationDate;
+    // Parse creationDate using dayjs
+    this.creationDate = dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').isValid() 
+        ? dayjs(creationDate, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm') 
+        : dayjs().add(creationDate, 'day').format('YYYY-MM-DD HH:mm');  
 
     // Adds a bag to the reservation if it meets all constraints
     this.addBag = (bag) => {
@@ -57,7 +60,12 @@ function Reservation(id, timestamp, status="active", bags=[], userId=null, creat
         console.log(`Status: ${this.status}`);
         console.log(`Creation Date: ${this.creationDate}`);
         console.log(`Bags:`);
-        this.bags.forEach(bag => bag.display());
+        console.log(bags);
+        if (Array.isArray(this.bags) && this.bags.length > 0) {
+            this.bags.forEach(bag => bag.display());
+        } else {
+            console.log("No bags to display.");
+        }        
         console.log('--------------------------');
     }
 }

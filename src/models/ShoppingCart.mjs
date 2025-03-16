@@ -53,11 +53,14 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
     };
 
     // Calculates the total price of all reservations in the cart
-    this.totalPrice = () => 
-        this.reservations.reduce((total, reservation) => 
-            total + reservation.bags.reduce((sum, bag) => sum + bag.price, 0), 0
-        );
-
+    this.totalPrice = () =>
+        this.reservations.reduce((total, reservation) => {
+            if (reservation.bags && reservation.bags.length > 0) {
+                return total + reservation.bags.reduce((sum, bag) => sum + bag.price, 0);
+            }
+            return total; // Se non ci sono borse, ritorna il totale senza aggiungere nulla
+        }, 0);
+        
     // Confirms the order by updating the state of all reservations to "reserved"
     this.confirmOrder = function () {
         if (this.reservations.some(reservation => reservation.bags.some(bag => bag.state !== "available"))) {
@@ -114,7 +117,14 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
         console.log(`Special Requests: ${this.requests.join(', ') || 'None'}`);
         console.log(`Total Price: $${this.totalPrice().toFixed(2)}`);
         console.log(`Reservations:`);
-        this.reservations.forEach(reservation => reservation.display());
+        this.reservations.forEach(reservation => {
+            console.log(`Reservation ID: ${reservation.ReservationID}`);
+            console.log(`Timestamp: ${reservation.TimeStamp}`);
+            console.log(`BagId: ${reservation.BagID}`);
+            console.log(`Status: ${reservation.Status}`);
+            console.log("UserID: ", reservation.UserID);    
+        });
+        console.log('--------------------------');
     };
 }
 
