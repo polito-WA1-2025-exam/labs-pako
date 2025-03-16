@@ -111,7 +111,7 @@ src
 │
 ├── services
 │   ├── dataService.mjs
-│   └── bagService.mjs  # Aggiungi qui eventuali altri servizi come bagService.mjs
+│   └── Others...
 │
 ├── index.mjs
 .gitignore
