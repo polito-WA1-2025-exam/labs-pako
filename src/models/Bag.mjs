@@ -14,13 +14,7 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
     this.userId = userId;
     this.removedItems = removedItems;
 
-    // Convert content array to a standardized format
-    this.content = Array.isArray(content) 
-        ? content.map(item => ({
-            id: item.FoodItemID, 
-            quantity: item.Quantity
-        })) 
-        : [];
+    this.content = content; 
 
     // Parse timeToPickUp using dayjs
     this.timeToPickUp = dayjs(daysToPickUp, 'YYYY-MM-DD HH:mm:ss').isValid() 
@@ -99,6 +93,7 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
 
     // Method to display bag information
     this.display = () => {
+        console.log(`Bag ID: ${this.id}`);
         console.log(`Type: ${this.type}`);
         console.log(`Size: ${this.size}`);
         console.log(`User ID: ${this.userId}`);
@@ -112,9 +107,10 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         });
         console.log(`State: ${this.state}`);
         if (this.type.toLowerCase() === "regular") {
-            console.log(`Contents:`);
-            // Ensure that content is an array before calling forEach
-            this.content.forEach(item => console.log(` Id: ${item.id}, quantity: ${item.quantity}`));
+            console.log("Contents Item For Regular Bag:");
+            this.content.forEach(item => {
+                console.log(`Food Item ID: ${item.FoodItemID}, Quantity: ${item.Quantity}`);
+            })
         }
         console.log('--------------------------');
     }    

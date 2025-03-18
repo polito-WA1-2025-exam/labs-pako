@@ -1,12 +1,12 @@
-import {retrieveAllData, testDatabaseOperations} from './services/dataService.mjs';
+import {testDatabaseOperations} from './services/dataService.mjs';
 
 function main(){
     // Uncomment the function you want to run
     
-     retrieveAllData();
+    //retrieveAllData(); // rembember to add retrieveAllData in import
     
     // To test recently added functions
-    // testDatabaseOperations();
+    testDatabaseOperations();
 }
 
 main()

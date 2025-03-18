@@ -25,4 +25,8 @@ export async function getAllEstablishments() {
         });
     });
 }
-export default {getAllEstablishments}; //IDK why but it work with the added functions only at this way, otherwise it give error
+export default {getAllEstablishments}; 
+// Previously, we used `export default getAllEstablishments;`, which allowed importing the function directly without `{ }`.
+// Now, we are exporting an object with `export default { getAllEstablishments };`, 
+// so the function must be accessed as a property (e.g., `establishmentService.getAllEstablishments()`).
+// This change ensures scalability if we want to add more functions in the future.

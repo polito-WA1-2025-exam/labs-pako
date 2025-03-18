@@ -186,8 +186,6 @@ export async function retrieveAllData() {
     const fetchedReservations = await reservationQueries.getAllReservations();
     const fetchedShoppingCarts = await shoppingCartQueries.getAllShoppingCarts();
 
-    console.log(fetchedEstablishments);
-
     // Populate collections with fetched data
     fetchedFoodItems.forEach(item => foodItems.add(new FoodItem(item.id, item.name, item.quantity, item.creationDate)));
     fetchedEstablishments.forEach(est => establishments.add(new Establishment(est.id, est.name, est.address, est.phoneNumber, est.category, est.type, est.bags, est.content, est.creationDate)));
@@ -230,28 +228,32 @@ export async function testDatabaseOperations() {
         console.log("----- RETRIEVING ALL FOOD ITEMS -----");
         const allFoodItems = await foodItemQueries.default.getAllFoodItems();
         console.log(`Retrieved ${allFoodItems.length} food items`);
-        allFoodItems.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
-        
+        // allFoodItems.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
+        allFoodItems.forEach(item => item.display());
+
         // 2. Test searching for food items by name
         console.log("\n----- SEARCHING FOR FOOD ITEMS BY NAME -----");
         const searchTerm = "App"; // Search for items containing "App" (like "Apple")
         const searchResults = await foodItemQueries.default.searchFoodItemsByName(searchTerm);
         console.log(`Found ${searchResults.length} food items containing "${searchTerm}"`);
-        searchResults.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
-        
+        //searchResults.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
+        searchResults.forEach(item => item.display());
+
         // 3. Test retrieving bags by date range
         console.log("\n----- RETRIEVING BAGS BY DATE RANGE -----");
         const startDate = "2023-01-01";
         const endDate = "2023-12-31";
         const bagsInRange = await bagQueries.default.getBagsByDateRange(startDate, endDate);
         console.log(`Found ${bagsInRange.length} bags between ${startDate} and ${endDate}`);
-        bagsInRange.forEach(bag => console.log(`- Bag ID: ${bag.id}, Type: ${bag.type}, Price: ${bag.price}`));
-        
+        //bagsInRange.forEach(bag => console.log(`- Bag ID: ${bag.id}, Type: ${bag.type}, Price: ${bag.price}`));
+        bagsInRange.forEach(bag => bag.display());
+
         // 4. Test creating a new food item
         console.log("\n----- CREATING A NEW FOOD ITEM -----");
         const newFoodItem = await foodItemQueries.default.createFoodItem("Pineapple", 10);
-        console.log(`Created new food item: ${newFoodItem.name} (ID: ${newFoodItem.id}, Quantity: ${newFoodItem.quantity})`);
-        
+        //console.log(`Created new food item: ${newFoodItem.name} (ID: ${newFoodItem.id}, Quantity: ${newFoodItem.quantity})`);
+        newFoodItem.display();
+
         // 5. Test updating a food item
         console.log("\n----- UPDATING A FOOD ITEM -----");
         const updateResult = await foodItemQueries.default.updateFoodItem(newFoodItem.id, { quantity: 15 });
@@ -265,13 +267,14 @@ export async function testDatabaseOperations() {
             value: 20 
         });
         console.log(multiUpdateResult.message);
-        
+
         // 7. Test retrieving all food items again to see the changes
         console.log("\n----- RETRIEVING ALL FOOD ITEMS AFTER UPDATES -----");
         const updatedFoodItems = await foodItemQueries.default.getAllFoodItems();
         console.log(`Retrieved ${updatedFoodItems.length} food items`);
-        updatedFoodItems.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
-        
+        //updatedFoodItems.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
+        updatedFoodItems.forEach(item => item.display());
+
         // 8. Test deleting the food item we created
         console.log("\n----- DELETING A FOOD ITEM -----");
         const deleteResult = await foodItemQueries.default.deleteFoodItemById(newFoodItem.id);

@@ -1,5 +1,6 @@
 import dbConnection from "../db/dbConnection.mjs";
 import FoodItem from "../models/FoodItem.mjs";
+import dayjs from 'dayjs';
 
 // Get all food items from the database 
 export async function getAllFoodItems() {
@@ -55,12 +56,15 @@ export async function createFoodItem(name, quantity) {
                     console.error('Error creating food item:', err.message);
                 } else {
                     console.log(`Food item created successfully with ID: ${this.lastID}`);
-                    resolve({
-                        id: this.lastID,
-                        name,
-                        quantity,
-                        creationDate: new Date().toISOString()
-                    });
+                    // Modified to return an instance of FoodItem instead of a plain object.
+                    // This ensures that the returned object has the display() method and other functionalities.
+                    // Previously, the function returned a simple JavaScript object without methods, 
+                    // which caused a "TypeError: newFoodItem.display is not a function" when trying to call display().
+                    const newFoodItem = new FoodItem(this.lastID, name, quantity, dayjs().format('YYYY-MM-DD HH:mm:ss'));
+                    resolve(newFoodItem);
+                    // Replaced new Date().toISOString() with dayjs for date formatting. 
+                    // Since we are consistently using dayjs throughout the project, 
+                    // this ensures uniform date handling and formatting.
                 }
             }
         );
@@ -80,7 +84,10 @@ export async function deleteFoodItemById(foodItemId) {
                     console.error('Error deleting food item:', err.message);
                 } else {
                     if (this.changes > 0) { //this.changes is the number of rows affected by the operation
-                        console.log(`Food item with ID ${foodItemId} deleted successfully`);
+                        // Commented out the console.log to avoid duplicate printing of the success message. 
+                        // The success message is already included in the resolve() response, 
+                        // so logging it again would be redundant and could clutter the logs.
+                        //console.log(`Food item with ID ${foodItemId} deleted successfully`);
                         resolve({ success: true, message: `Food item with ID ${foodItemId} deleted successfully` });
                     } else {
                         console.log(`No food item found with ID ${foodItemId}`);
@@ -130,7 +137,10 @@ export async function updateFoodItem(foodItemId, updates) {
                 console.error('Error updating food item:', err.message);
             } else {
                 if (this.changes > 0) {
-                    console.log(`Food item with ID ${foodItemId} updated successfully`);
+                    // Commented out the console.log to avoid duplicate printing of the success message. 
+                    // The success message is already included in the resolve() response, 
+                    // so logging it again would be redundant and could clutter the logs.
+                    //console.log(`Food item with ID ${foodItemId} updated successfully`);
                     resolve({ 
                         success: true, 
                         message: `Food item with ID ${foodItemId} updated successfully`,

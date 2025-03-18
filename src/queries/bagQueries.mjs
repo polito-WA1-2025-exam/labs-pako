@@ -1,6 +1,4 @@
 import dbConnection from "../db/dbConnection.mjs";
-import User from "../models/User.mjs";
-import Establishment from "../models/Establishment.mjs";
 import Bag from "../models/Bag.mjs";
 
 // Function to get all removed items for a specific BagID
