@@ -11,7 +11,7 @@ yarn-error.log
 *.sublime-project
 
 # Database
-*.db
+*.db 
 
 # Operative System
 .DS_Store

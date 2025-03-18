@@ -22,4 +22,4 @@ export async function getAllUsers() {
         });
     });
 }
-export default getAllUsers
+export default {getAllUsers};

@@ -60,4 +60,4 @@ async function getReservationById(reservationId) {
 
 // You can add additional query functions here, for example, for adding, updating or deleting shopping carts
 
-export default getAllShoppingCarts;
+export default {getAllShoppingCarts};

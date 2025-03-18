@@ -11,12 +11,12 @@ import ShoppingCart from '../models/ShoppingCart.mjs';
 import ShoppingCartCollection from '../models/ShoppingCartCollection.mjs';
 import User from '../models/User.mjs';
 import UserCollection from '../models/UserCollection.mjs';
-import getAllFoodItems from '../queries/foodItemQueries.mjs';
-import getAllEstablishments from '../queries/establishmentQueries.mjs';
-import getAllUsers from '../queries/userQueries.mjs';
-import getAllBags from '../queries/bagQueries.mjs';
-import getAllReservations from '../queries/reservationQueries.mjs';
-import getAllShoppingCarts from '../queries/shoppingCartQueries.mjs';
+import foodItemQueries from '../queries/foodItemQueries.mjs'; //Getting the functions all-in-one from each file 
+import establishmentQueries from '../queries/establishmentQueries.mjs';
+import userQueries from '../queries/userQueries.mjs';
+import bagQueries from '../queries/bagQueries.mjs';
+import reservationQueries from '../queries/reservationQueries.mjs';
+import shoppingCartQueries from '../queries/shoppingCartQueries.mjs';
 import dbConnection from '../db/dbConnection.mjs';
 export function createObjects() {
     // Create global collections
@@ -179,12 +179,12 @@ export async function retrieveAllData() {
     const shoppingCarts = new ShoppingCartCollection();
 
     // Fetch data from the database
-    const fetchedFoodItems = await getAllFoodItems();
-    const fetchedEstablishments = await getAllEstablishments();
-    const fetchedUsers = await getAllUsers();
-    const fetchedBags = await getAllBags();
-    const fetchedReservations = await getAllReservations();
-    const fetchedShoppingCarts = await getAllShoppingCarts();
+    const fetchedFoodItems = await foodItemQueries.getAllFoodItems();
+    const fetchedEstablishments = await establishmentQueries.getAllEstablishments();
+    const fetchedUsers = await userQueries.getAllUsers();
+    const fetchedBags = await bagQueries.getAllBags();
+    const fetchedReservations = await reservationQueries.getAllReservations();
+    const fetchedShoppingCarts = await shoppingCartQueries.getAllShoppingCarts();
 
     console.log(fetchedEstablishments);
 
@@ -218,4 +218,68 @@ export async function retrieveAllData() {
     await dbConnection.closeConnection();  // Close the DB connection efficiently
 }
 
+// Now its time for testing each newly added function
+export async function testDatabaseOperations() {
+    console.log("\n===== TESTING DATABASE OPERATIONS FOR LAB 2 =====\n");
+    
+    const foodItemQueries = await import('../queries/foodItemQueries.mjs');
+    const bagQueries = await import('../queries/bagQueries.mjs');
+    
+    try {
+        // 1. Test retrieving all food items
+        console.log("----- RETRIEVING ALL FOOD ITEMS -----");
+        const allFoodItems = await foodItemQueries.default.getAllFoodItems();
+        console.log(`Retrieved ${allFoodItems.length} food items`);
+        allFoodItems.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
+        
+        // 2. Test searching for food items by name
+        console.log("\n----- SEARCHING FOR FOOD ITEMS BY NAME -----");
+        const searchTerm = "App"; // Search for items containing "App" (like "Apple")
+        const searchResults = await foodItemQueries.default.searchFoodItemsByName(searchTerm);
+        console.log(`Found ${searchResults.length} food items containing "${searchTerm}"`);
+        searchResults.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
+        
+        // 3. Test retrieving bags by date range
+        console.log("\n----- RETRIEVING BAGS BY DATE RANGE -----");
+        const startDate = "2023-01-01";
+        const endDate = "2023-12-31";
+        const bagsInRange = await bagQueries.default.getBagsByDateRange(startDate, endDate);
+        console.log(`Found ${bagsInRange.length} bags between ${startDate} and ${endDate}`);
+        bagsInRange.forEach(bag => console.log(`- Bag ID: ${bag.id}, Type: ${bag.type}, Price: ${bag.price}`));
+        
+        // 4. Test creating a new food item
+        console.log("\n----- CREATING A NEW FOOD ITEM -----");
+        const newFoodItem = await foodItemQueries.default.createFoodItem("Pineapple", 10);
+        console.log(`Created new food item: ${newFoodItem.name} (ID: ${newFoodItem.id}, Quantity: ${newFoodItem.quantity})`);
+        
+        // 5. Test updating a food item
+        console.log("\n----- UPDATING A FOOD ITEM -----");
+        const updateResult = await foodItemQueries.default.updateFoodItem(newFoodItem.id, { quantity: 15 });
+        console.log(updateResult.message);
+        
+        // 6. Test updating multiple food items
+        console.log("\n----- UPDATING MULTIPLE FOOD ITEMS -----");
+        const multiUpdateResult = await foodItemQueries.default.updateMultipleFoodItemsQuantity(5, { 
+            field: 'Quantity', 
+            operator: '<', 
+            value: 20 
+        });
+        console.log(multiUpdateResult.message);
+        
+        // 7. Test retrieving all food items again to see the changes
+        console.log("\n----- RETRIEVING ALL FOOD ITEMS AFTER UPDATES -----");
+        const updatedFoodItems = await foodItemQueries.default.getAllFoodItems();
+        console.log(`Retrieved ${updatedFoodItems.length} food items`);
+        updatedFoodItems.forEach(item => console.log(`- ${item.name} (ID: ${item.id}, Quantity: ${item.quantity})`));
+        
+        // 8. Test deleting the food item we created
+        console.log("\n----- DELETING A FOOD ITEM -----");
+        const deleteResult = await foodItemQueries.default.deleteFoodItemById(newFoodItem.id);
+        console.log(deleteResult.message);
+        
+    } catch (error) {
+        console.error("Error during database operations test:", error);
+    }
+    await dbConnection.closeConnection();
+}
 

@@ -1,9 +1,12 @@
-import {retrieveAllData} from './services/dataService.mjs';
-// import {runExample} from './services/dataService.mjs';
+import {retrieveAllData, testDatabaseOperations} from './services/dataService.mjs';
 
 function main(){
-    //runExample();
-    retrieveAllData();
+    // Uncomment the function you want to run
+    
+     retrieveAllData();
+    
+    // To test recently added functions
+    // testDatabaseOperations();
 }
 
 main()

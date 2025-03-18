@@ -94,4 +94,67 @@ export async function getAllBags() {
     });
 }
 
-export default getAllBags;
+// For 2.b, function to get bags by condition of date range
+export async function getBagsByDateRange(startDate, endDate) {
+    const db = await dbConnection.openConnection();
+    return new Promise(async (resolve, reject) => {
+        db.all(
+            `SELECT 
+                b.BagID, 
+                b.Type,
+                b.Size,
+                b.Price, 
+                b.EstablishmentID, 
+                b.TimeToPickUp, 
+                b.State, 
+                b.RemovedItems,  
+                b.UserID, 
+                b.CreationDate
+            FROM Bag b
+            WHERE b.TimeToPickUp BETWEEN ? AND ?`, //
+            [startDate, endDate], 
+            async (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const bags = await Promise.all(rows.map(async (row) => {
+                        let removedItems = [];
+                        try {
+                            removedItems = await getAllRemovedItems(row.BagID);
+                        } catch (e) {
+                            console.error("Error fetching RemovedItems: ", e);
+                        }
+
+                        let content = [];
+                        try {
+                            content = await gettAllBagFoodItems(row.BagID);
+                        } catch (e) {
+                            console.error("Error fetching BagFoodItems: ", e);
+                        }
+
+                        // Create a Bag object
+                        const bag = new Bag(
+                            row.BagID,
+                            row.Type,        
+                            row.Size, 
+                            content,
+                            row.Price,
+                            row.EstablishmentID,
+                            row.TimeToPickUp,
+                            row.State,
+                            row.UserID,
+                            removedItems,
+                            row.CreationDate
+                        );
+
+                        return bag;
+                    }));
+
+                    resolve(bags);
+                }
+            }
+        );
+    });
+}
+
+export default { getAllBags, getBagsByDateRange };

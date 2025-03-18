@@ -25,4 +25,4 @@ export async function getAllEstablishments() {
         });
     });
 }
-export default getAllEstablishments
+export default {getAllEstablishments}; //IDK why but it work with the added functions only at this way, otherwise it give error

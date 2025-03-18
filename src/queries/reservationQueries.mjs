@@ -84,4 +84,4 @@ export async function getAllReservations() {
     });
 }
 
-export default getAllReservations;
+export default {getAllReservations};
