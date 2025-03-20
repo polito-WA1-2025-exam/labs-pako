@@ -9,7 +9,8 @@
 - [Style approach](#style-approach)
 - [Prerequisites](#prerequisites)
     - [Dependencies](#dependencies)
-    - [Database Management](#Database-Management)
+        - [Development Dependencies](#development-dependencies)
+    - [Database Management](#database-management)
 - [Project Structure](#project-structure)
     - [Folder and File Descriptions](#folder-and-file-descriptions)
 - [Lab Journal](#lab-journal)
@@ -25,15 +26,16 @@
     - [Lab 2](#lab-2)
         - [Database Schema Documentation](#database-schema-documentation)
             - [Tables and Attributes](#tables-and-attributes)
-                - [FoodItem](#fooditem)
-                - [Bag](#bag)
-                - [BagFoodItem](#bagfooditem)
-                - [RemovedItems](#removeditems)
-                - [User](#user)
-                - [Establishment](#establishment)
-                - [Reservation](#reservation)
-                - [ShoppingCart](#shoppingcart)
+            - [FoodItem](#fooditem)
+            - [Bag](#bag)
+            - [BagFoodItem](#bagfooditem)
+            - [RemovedItems](#removeditems)
+            - [User](#user)
+            - [Establishment](#establishment)
+            - [Reservation](#reservation)
+            - [ShoppingCart](#shoppingcart)
             - [Relationships Overview](#relationships-overview)
+    - [Lab 3](#lab-3)
 
 <!-- /TOC -->
 
@@ -55,17 +57,22 @@ We will loosely follow the [Google JavaScript Style Guide](https://google.github
 # Prerequisites
 
 Before starting, ensure that Node.js is installed on your computer.  
-If not, you can download version 22.x (LTS) from [Node.js official website](https://nodejs.org/en/).
+If not, you can download version 22.x (LTS) from the [Node.js official website](https://nodejs.org/en/).
 
 ## Dependencies
 The project uses the following dependencies:
-- [day.js](https://day.js.org/) - Used for date handling and formatting.
+- [express](https://expressjs.com/) - A fast and minimalist web framework for Node.js.
+- [day.js](https://day.js.org/) - A lightweight library for date handling and formatting.
 - [sqlite3](https://www.npmjs.com/package/sqlite3) - SQLite database driver for Node.js.
+
+### Development Dependencies
+- [nodemon](https://www.npmjs.com/package/nodemon) - Automatically restarts the server when file changes are detected (useful during development).
 
 To install dependencies, run:
 ```sh
 npm init # if not already done
-npm install dayjs sqlite3
+npm install express dayjs sqlite3
+npm install --save-dev nodemon
 ```
 
 ## Database Management
@@ -307,3 +314,5 @@ Manages user-specific shopping preferences and reservations.
 - `RemovedItems` tracks items removed from `Bag`.  
 - `Reservation` links `User` and `Bag`, tracking reservations.  
 - `ShoppingCart` connects `User` to a `Reservation`, storing additional user preferences.  
+
+## [Lab 3](https://polito-webapp1.github.io/lab-2025/Lab03/Lab03.pdf)
