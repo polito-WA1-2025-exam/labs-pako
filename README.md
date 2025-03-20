@@ -8,6 +8,7 @@
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
 - [Style approach](#style-approach)
 - [Prerequisites](#prerequisites)
+- [Prerequisites](#prerequisites)
     - [Dependencies](#dependencies)
         - [Development Dependencies](#development-dependencies)
     - [Database Management](#database-management)
@@ -56,6 +57,8 @@ We will loosely follow the [Google JavaScript Style Guide](https://google.github
 
 # Prerequisites
 
+# Prerequisites
+
 Before starting, ensure that Node.js is installed on your computer.  
 If not, you can download version 22.x (LTS) from the [Node.js official website](https://nodejs.org/en/).
 
@@ -64,6 +67,7 @@ The project uses the following dependencies:
 - [express](https://expressjs.com/) - A fast and minimalist web framework for Node.js.
 - [day.js](https://day.js.org/) - A lightweight library for date handling and formatting.
 - [sqlite3](https://www.npmjs.com/package/sqlite3) - SQLite database driver for Node.js.
+- [morgan](https://www.npmjs.com/package/morgan) - HTTP request logger middleware for Node.js.
 
 ### Development Dependencies
 - [nodemon](https://www.npmjs.com/package/nodemon) - Automatically restarts the server when file changes are detected (useful during development).
@@ -71,7 +75,7 @@ The project uses the following dependencies:
 To install dependencies, run:
 ```sh
 npm init # if not already done
-npm install express dayjs sqlite3
+npm install express dayjs sqlite3 morgan
 npm install --save-dev nodemon
 ```
 
