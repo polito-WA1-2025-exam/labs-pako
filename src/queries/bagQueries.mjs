@@ -1,6 +1,7 @@
 import dbConnection from "../db/dbConnection.mjs";
 import Bag from "../models/Bag.mjs";
 
+// TODO: implemented api call for all removed items ?
 // Function to get all removed items for a specific BagID
 async function getAllRemovedItems(BagID) {
     const db = await dbConnection.openConnection();
@@ -14,6 +15,7 @@ async function getAllRemovedItems(BagID) {
         });
     });
 }
+// TODO: implemented api call for all bag food items ?
 // Function to get all removed items for a specific BagID
 async function gettAllBagFoodItems(BagID) {
     const db = await dbConnection.openConnection();

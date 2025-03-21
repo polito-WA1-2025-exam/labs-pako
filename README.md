@@ -38,12 +38,18 @@
             - [Relationships Overview](#relationships-overview)
     - [Lab 3](#lab-3)
         - [Es1](#es1)
+        - [Food Item](#food-item)
             - [[GET] /food-items](#get-food-items)
             - [[GET] /food-items/search](#get-food-itemssearch)
             - [[GET] /food-items/{id}](#get-food-itemsid)
             - [[POST] /food-items](#post-food-items)
             - [[PUT] /food-items/{id}](#put-food-itemsid)
             - [[DELETE] /food-items/{id}](#delete-food-itemsid)
+        - [Establishment](#establishment)
+            - [[GET] /establishments](#get-establishments)
+        - [Bag APIs](#bag-apis)
+            - [[GET] /api/bags](#get-apibags)
+            - [[GET] /api/bags/by-date-range](#get-apibagsby-date-range)
 
 <!-- /TOC -->
 
@@ -101,7 +107,8 @@ docs
 node_modules
 src
 ├── controllers
-│   ├── establishmentRoute.mjs
+│   ├── establishmentController.mjs
+│   ├── bagController.mjs
 │   └── foodItemController.mjs
 ├── db
 │   ├── database.db
@@ -129,6 +136,7 @@ src
 │   └── userQueries.mjs
 ├── routes
 │   ├── establishmentRoute.mjs
+│   ├── bagRoute.mjs
 │   └── foodItemRoute.mjs
 ├── services
 │   ├── dataService.mjs
@@ -523,6 +531,8 @@ Manages user-specific shopping preferences and reservations.
   - `500 Internal Server Error` if there is a database error.
   - `404 Not Found` if the food item with the specified ID does not exist.
 
+---
+
 ### Establishment
 #### 1. [GET] `/establishments`
 **Description:** Fetch all establishments.
@@ -561,3 +571,162 @@ Manages user-specific shopping preferences and reservations.
   ```
 - **Error Response(s):**
   - `500 Internal Server Error` if there is an error retrieving the establishments.
+
+---
+
+### Bag APIs
+
+#### 1. [GET] `/api/bags`
+**Description:** Fetch all bags from the database.
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/api/bags`
+- **Sample Request:**  
+  ```http
+  GET /api/bags HTTP/1.1
+  Host: example.com
+  ```
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "id": 1,
+      "type": "regular",
+      "size": 1,
+      "price": 10.99,
+      "establishmentId": 1,
+      "state": "available",
+      "userId": 1,
+      "removedItems": [
+        {
+          "RemovedItemID": 1,
+          "CreationDate": "2025-03-16 09:01:43",
+          "Quantity": 2,
+          "BagID": 1
+        }
+      ],
+      "content": [
+        {
+          "BagID": 1,
+          "FoodItemID": 1,
+          "Quantity": 2
+        },
+        {
+          "BagID": 1,
+          "FoodItemID": 2,
+          "Quantity": 1
+        }
+      ],
+      "timeToPickUp": "2023-10-15 12:00",
+      "creationDate": "2025-03-16 09:01"
+    },
+    {
+      "id": 2,
+      "type": "surprise",
+      "size": 2,
+      "price": 15.99,
+      "establishmentId": 2,
+      "state": "reserved",
+      "userId": 2,
+      "removedItems": [
+        {
+          "RemovedItemID": 2,
+          "CreationDate": "2025-03-16 09:01:43",
+          "Quantity": 1,
+          "BagID": 2
+        }
+      ],
+      "content": [
+        {
+          "BagID": 2,
+          "FoodItemID": 3,
+          "Quantity": 3
+        }
+      ],
+      "timeToPickUp": "2023-10-16 14:00",
+      "creationDate": "2025-03-16 09:01"
+    }
+  ]
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+
+#### 2. [GET] `/api/bags/by-date-range`
+**Description:** Fetch bags from the database based on the specified date range.
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/api/bags/by-date-range`
+  - **Query Parameters:**
+    - `startDate` (string, required): The start date for the range (e.g., `2023-01-01`).
+    - `endDate` (string, required): The end date for the range (e.g., `2023-12-31`).
+- **Sample Request:**  
+  ```http
+  GET /api/bags/by-date-range?startDate=2023-01-01&endDate=2023-12-31 HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  ```
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "id": 1,
+      "type": "regular",
+      "size": 1,
+      "price": 10.99,
+      "establishmentId": 1,
+      "state": "available",
+      "userId": 1,
+      "removedItems": [
+        {
+          "RemovedItemID": 1,
+          "CreationDate": "2025-03-16 09:01:43",
+          "Quantity": 2,
+          "BagID": 1
+        }
+      ],
+      "content": [
+        {
+          "BagID": 1,
+          "FoodItemID": 1,
+          "Quantity": 2
+        },
+        {
+          "BagID": 1,
+          "FoodItemID": 2,
+          "Quantity": 1
+        }
+      ],
+      "timeToPickUp": "2023-10-15 12:00",
+      "creationDate": "2025-03-16 09:01"
+    },
+    {
+      "id": 2,
+      "type": "surprise",
+      "size": 2,
+      "price": 15.99,
+      "establishmentId": 2,
+      "state": "reserved",
+      "userId": 2,
+      "removedItems": [
+        {
+          "RemovedItemID": 2,
+          "CreationDate": "2025-03-16 09:01:43",
+          "Quantity": 1,
+          "BagID": 2
+        }
+      ],
+      "content": [
+        {
+          "BagID": 2,
+          "FoodItemID": 3,
+          "Quantity": 3
+        }
+      ],
+      "timeToPickUp": "2023-10-16 14:00",
+      "creationDate": "2025-03-16 09:01"
+    }
+  ]
+  ```
+- **Error Response(s):**
+  - `400 Bad Request` if `startDate` or `endDate` is missing.
+  - `500 Internal Server Error` if there is a database error.
