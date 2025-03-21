@@ -155,4 +155,126 @@ export async function getBagsByDateRange(startDate, endDate) {
     });
 }
 
-export default { getAllBags, getBagsByDateRange };
+
+// 3.a, function to create and store a new bag
+//TODO: remeber to put/check UserID null on creation
+export async function createBag(type,size,price,establishmentID,state) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.run(
+            'INSERT INTO Bag (Type,Size,Price,EstablishmentID,State) VALUES (?, ?, ?, ?, ?)',
+            [type,size,price,establishmentID,state],
+            function(err) {
+                if (err) {
+                    reject(err);
+                    console.error('Error creating food item:', err.message);
+                } else {
+                    console.log(`Food item created successfully with ID: ${this.lastID}`);
+                    const newBag = new Bag(this.lastID,type,size,price,establishmentID,state,null,dayjs().format('YYYY-MM-DD HH:mm:ss'));
+                    resolve(newBag);
+                }
+            }
+        );
+    });
+}
+
+
+// 3.a, function to delete a Bag by ID
+export async function deleteBagById(bagID) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.run(
+            'DELETE FROM Bag WHERE BagID = ?',
+            [bagID],
+            function(err) {
+                if (err) {
+                    reject(err);
+                    console.error('Error deleting food item:', err.message);
+                } else {
+                    if (this.changes > 0) { 
+                        resolve({ success: true, message: `Bag with ID ${bagID} deleted successfully` });
+                    } else {
+                        console.log(`No food item found with ID ${foodItemId}`);
+                        resolve({ success: false, message: `No food item found with ID ${bagID}` });
+                    }
+                }
+            }
+        );
+    });
+}
+
+
+// 3.c, function to update a specific item
+export async function updateBag(bagID, updates) {
+    const db = await dbConnection.openConnection();
+    
+    const updateFields = [];
+    const values = [];
+    
+    if (updates.type !== undefined) {
+        updateFields.push('Type = ?');
+        values.push(updates.type);
+    }
+    
+    if (updates.size !== undefined) {
+        updateFields.push('Size = ?');
+        values.push(updates.size);
+    }
+
+    if (updates.price !== undefined) {
+        updateFields.push('Price = ?');
+        values.push(updates.price);
+    }
+
+    if (updates.establishmentID !== undefined) {
+        updateFields.push('EstablishmentID = ?');
+        values.push(updates.establishmentID);
+    }
+
+    if (updates.state !== undefined) {
+        updateFields.push('State = ?');
+        values.push(updates.state);
+    }
+    
+    if (updateFields.length === 0) {
+        return Promise.resolve({ 
+            success: false, 
+            message: 'No updates provided' 
+        });
+    }
+    
+    values.push(foodItemId);
+    
+    const sql = `UPDATE bag SET ${updateFields.join(', ')} WHERE BagID = ?`;
+    
+    return new Promise((resolve, reject) => {
+        db.run(sql, values, function(err) {
+            if (err) {
+                reject(err);
+                console.error('Error updating food item:', err.message);
+            } else {
+                if (this.changes > 0) {
+                    resolve({ 
+                        success: true, 
+                        message: `Bag with ID ${bagID} updated successfully`,
+                        changes: this.changes
+                    });
+                } else {
+                    console.log(`No food item found with ID ${bagID} or no changes made`);
+                    resolve({ 
+                        success: false, 
+                        message: `No food item found with ID ${bagID} or no changes made` 
+                    });
+                }
+            }
+        });
+    });
+}
+
+
+export default { getAllBags,
+                 getBagsByDateRange,
+                 createBag,
+                 updateBag,
+                 deleteBagById
+                };

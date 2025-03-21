@@ -41,14 +41,13 @@ export async function getAllReservations() {
                             row.ReservationID,
                             row.TimeStamp,
                             row.Status,
-                            [], // Initialize bags as an empty array
+                            [], 
                             row.UserID,
                             row.CreationDate
                         );
                         reservationsMap.set(row.ReservationID, reservation);
                     }
 
-                    // Create a Bag object and add it to the reservation if it exists
                     if (row.BagID) {
                         const bag = new Bag(
                             row.BagID,
@@ -73,15 +72,150 @@ export async function getAllReservations() {
                         reservation.user = new User(row.UserID, row.UserName, row.UserEmail);
                     }
                 });
-
-                // Log the reservations to verify the bags are added
-                // console.log("All Reservations:", Array.from(reservationsMap.values()));
-
-                // Resolve with an array of reservations
                 resolve(Array.from(reservationsMap.values()));
             }
         });
     });
 }
 
-export default {getAllReservations};
+
+ 
+// 2.b, function for searching for Establishments matching with name substring
+export async function searchReservationByTimestamp(nameSubstring) {
+    const db = await dbConnection.openConnection();
+    //TODO: check how to get Bags
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM Reservation WHERE Timestamp LIKE ?', [`%${nameSubstring}%`], (err, rows) => { 
+            if (err) {
+                reject(err);
+            } else {
+                const Reservation = rows.map(row => new Reservation(
+                    row.ReservationID,
+                    row.TimeStamp,
+                    row.Status,
+                    row.Bags, 
+                    row.UserID,
+                    row.CreationDate   
+                ))
+                resolve(establishments);
+            }
+        });
+    });
+}
+
+
+
+// 3.a, function to create and store a new food item
+export async function createReservation(timestamp,status,userID) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.run(
+            'INSERT INTO Reservation (Timestamp,Status,UserID) VALUES (?, ?, ?, ?, ?, ?)',
+            [timestamp,status,userID],
+            function(err) {
+                if (err) {
+                    reject(err);
+                    console.error('Error creating food item:', err.message);
+                } else {
+                    console.log(`Reservation created successfully with ID: ${this.lastID}`);
+                    const newReservation = new FoodItem(this.lastID,timestamp,status,userID,dayjs().format('YYYY-MM-DD HH:mm:ss'));
+                    resolve(newReservation);
+                }
+            }
+        );
+    });
+}
+
+
+
+// 3.a, function to delete a food item by ID
+export async function deleteReservationById(reservationID) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.run(
+            'DELETE FROM Reservation WHERE ReservationID = ?',
+            [reservationID],
+            function(err) {
+                if (err) {
+                    reject(err);
+                    console.error('Error deleting Reservation:', err.message);
+                } else {
+                    if (this.changes > 0) { 
+                        resolve({ success: true, message: `Reservation with ID ${reservationID} deleted successfully` });
+                    } else {
+                        console.log(`No Reservations found with ID ${reservationID}`);
+                        resolve({ success: false, message: `No Reservations found with ID ${reservationID}` });
+                    }
+                }
+            }
+        );
+    });
+}
+
+// 3.c, function to update a specific item
+export async function updateReservation(reservationID, updates) {
+    const db = await dbConnection.openConnection();
+    
+    // Build the SET part of the SQL query dynamically based on provided updates
+    const updateFields = [];
+    const values = [];
+    
+    if (updates.timestamp !== undefined) {
+        updateFields.push('Timestamp = ?');
+        values.push(updates.timestamp);
+    }
+    
+    if (updates.status !== undefined) {
+        updateFields.push('Status = ?');
+        values.push(updates.status);
+    }
+
+    if (updates.userID !== undefined) {
+        updateFields.push('UserID = ?');
+        values.push(updates.userID);
+    }
+
+    // If no updates provided, return early for efficiency
+    if (updateFields.length === 0) {
+        return Promise.resolve({ 
+            success: false, 
+            message: 'No updates provided' 
+        });
+    }
+    
+    // Add the ID to the values array
+    values.push(establishmentID);
+    
+    const sql = `UPDATE Reservation SET ${updateFields.join(', ')} WHERE ReservationID = ?`;
+    
+    return new Promise((resolve, reject) => {
+        db.run(sql, values, function(err) {
+            if (err) {
+                reject(err);
+                console.error('Error updating Reservation:', err.message);
+            } else {
+                if (this.changes > 0) {
+                    resolve({ 
+                        success: true, 
+                        message: `Reservation with ID ${reservationID} updated successfully`,
+                        changes: this.changes
+                    });
+                } else {
+                    console.log(`No Establishment found with ID ${reservationID} or no changes made`);
+                    resolve({ 
+                        success: false, 
+                        message: `No Establishments found with ID ${reservationID} or no changes made` 
+                    });
+                }
+            }
+        });
+    });
+}
+
+export default {getAllReservations,
+                updateReservation,
+                deleteReservationById,
+                createReservation,
+                searchReservationByTimestamp 
+};
+ 
