@@ -1,9 +1,7 @@
-import express from 'express'
-import morgan from 'morgan'
+import app from './src/app.mjs';
 
-const app = express()
-app.use(morgan('dev'))
-app.use(express.static('public'))
-app.use(express.json())
+const port = process.env.PORT || 3001;
 
-app.listen(3000, [morgan('tiny')], ()=>{console.log('Application started')})
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
