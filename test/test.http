@@ -1,3 +1,4 @@
+--- Food Item Test
 # Test: Get all food items
 GET http://localhost:3002/api/food-items HTTP/1.1
 Content-Type: application/json
@@ -42,4 +43,7 @@ Content-Type: application/json
 DELETE http://localhost:3002/api/food-items/1 HTTP/1.1
 Content-Type: application/json
 
+--- Establishment Test
 ###
+GET http://localhost:3002/api/establishments HTTP/1.1
+Content-Type: application/json

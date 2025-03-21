@@ -101,6 +101,7 @@ docs
 node_modules
 src
 ├── controllers
+│   ├── establishmentRoute.mjs
 │   └── foodItemController.mjs
 ├── db
 │   ├── database.db
@@ -127,6 +128,7 @@ src
 │   ├── shoppingCartQueries.mjs
 │   └── userQueries.mjs
 ├── routes
+│   ├── establishmentRoute.mjs
 │   └── foodItemRoute.mjs
 ├── services
 │   ├── dataService.mjs
@@ -333,6 +335,8 @@ Manages user-specific shopping preferences and reservations.
 
 ### Es1
 
+### Food Item
+
 #### 1. [GET] `/food-items`
 **Description:** Fetch all food items from the database.
 - **Request:**
@@ -518,3 +522,42 @@ Manages user-specific shopping preferences and reservations.
 - **Error Response(s):**
   - `500 Internal Server Error` if there is a database error.
   - `404 Not Found` if the food item with the specified ID does not exist.
+
+### Establishment
+#### 1. [GET] `/establishments`
+**Description:** Fetch all establishments.
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/establishments`
+- **Sample Request:**  
+  ```http
+  GET /establishments HTTP/1.1
+  Host: example.com
+  ```
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "id": 1,
+      "name": "The Green Café",
+      "address": "123 Green St.",
+      "phoneNumber": "123-456-7890",
+      "category": "Restaurant",
+      "type": "restaurant",
+      "creationDate": "2023-03-01 14:30",
+      "content": null
+    },
+    {
+      "id": 2,
+      "name": "Tech Store",
+      "address": "456 Tech Rd.",
+      "phoneNumber": "987-654-3210",
+      "category": "Electronics",
+      "type": "store",
+      "creationDate": "2023-01-15 10:00",
+      "content": null
+    }
+  ]
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is an error retrieving the establishments.
