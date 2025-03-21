@@ -37,6 +37,13 @@
             - [ShoppingCart](#shoppingcart)
             - [Relationships Overview](#relationships-overview)
     - [Lab 3](#lab-3)
+        - [Es1](#es1)
+            - [[GET] /food-items](#get-food-items)
+            - [[GET] /food-items/search](#get-food-itemssearch)
+            - [[GET] /food-items/{id}](#get-food-itemsid)
+            - [[POST] /food-items](#post-food-items)
+            - [[PUT] /food-items/{id}](#put-food-itemsid)
+            - [[DELETE] /food-items/{id}](#delete-food-itemsid)
 
 <!-- /TOC -->
 
@@ -93,12 +100,12 @@ The project structure is organized as follows:
 docs
 node_modules
 src
-│
+├── controllers
+│   └── foodItemController.mjs
 ├── db
-│   ├── surplusfoodDb.sql
 │   ├── database.db
-│   └── dbConnection.mjs
-│
+│   ├── dbConnection.mjs
+│   └── surplusfoodDb.sql
 ├── models
 │   ├── Bag.mjs
 │   ├── BagCollection.mjs
@@ -109,9 +116,9 @@ src
 │   ├── Reservation.mjs
 │   ├── ReservationCollection.mjs
 │   ├── ShoppingCart.mjs
+│   ├── ShoppingCartCollection.mjs
 │   ├── User.mjs
 │   └── UserCollection.mjs
-│
 ├── queries
 │   ├── bagQueries.mjs
 │   ├── establishmentQueries.mjs
@@ -119,17 +126,20 @@ src
 │   ├── reservationQueries.mjs
 │   ├── shoppingCartQueries.mjs
 │   └── userQueries.mjs
-│
+├── routes
+│   └── foodItemRoute.mjs
 ├── services
 │   ├── dataService.mjs
 │   └── Others...
-│
+├── app.mjs
 ├── index.mjs
+test
+├── test.http
 .gitignore
 package-lock.json
 package.json
 README.md
-
+server.mjs
 ```
 
 ## Folder and File Descriptions
@@ -320,3 +330,191 @@ Manages user-specific shopping preferences and reservations.
 - `ShoppingCart` connects `User` to a `Reservation`, storing additional user preferences.  
 
 ## [Lab 3](https://polito-webapp1.github.io/lab-2025/Lab03/Lab03.pdf)
+
+### Es1
+
+#### 1. [GET] `/food-items`
+**Description:** Fetch all food items from the database.
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/food-items`
+  - **Body:** None
+- **Sample Request:**  
+  ```http
+  GET /food-items HTTP/1.1
+  Host: example.com
+  ```
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "FoodItemID": 1,
+      "Name": "Apple",
+      "Quantity": 10,
+      "CreationDate": "2023-03-21 14:30:00"
+    },
+    {
+      "FoodItemID": 2,
+      "Name": "Banana",
+      "Quantity": 20,
+      "CreationDate": "2023-03-22 10:00:00"
+    }
+  ]
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+
+---
+
+#### 2. [GET] `/food-items/search`
+**Description:** Search for food items by name.
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/food-items/search?name={name}`
+  - **Query Parameter:**
+    - `name` (string): Substring of the food item's name.
+- **Sample Request:**  
+  ```http
+  GET /food-items/search?name=apple HTTP/1.1
+  Host: example.com
+  ```
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "FoodItemID": 1,
+      "Name": "Apple",
+      "Quantity": 10,
+      "CreationDate": "2023-03-21 14:30:00"
+    }
+  ]
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+  - `400 Bad Request` if the `name` query parameter is missing.
+
+---
+
+#### 3. [GET] `/food-items/{id}`
+**Description:** Fetch a food item by its ID.
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/food-items/{id}`
+  - **URL Parameter:**
+    - `id` (integer): ID of the food item.
+- **Sample Request:**  
+  ```http
+  GET /food-items/1 HTTP/1.1
+  Host: example.com
+  ```
+- **Sample Response:**  
+  ```json
+  {
+    "FoodItemID": 1,
+    "Name": "Apple",
+    "Quantity": 10,
+    "CreationDate": "2023-03-21 14:30:00"
+  }
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+  - `404 Not Found` if the food item with the specified ID does not exist.
+
+---
+
+#### 4. [POST] `/food-items`
+**Description:** Create a new food item in the database.
+- **Request:**
+  - **Method:** POST
+  - **URL:** `/food-items`
+  - **Body:** 
+    ```json
+    {
+      "name": "Apple",
+      "quantity": 10
+    }
+    ```
+- **Sample Request:**  
+  ```http
+  POST /food-items HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  {
+    "name": "Apple",
+    "quantity": 10
+  }
+  ```
+- **Sample Response:**  
+  ```json
+  {
+    "FoodItemID": 3,
+    "Name": "Apple",
+    "Quantity": 10,
+    "CreationDate": "2023-03-21 14:30:00"
+  }
+  ```
+- **Error Response(s):**
+  - `400 Bad Request` if the `name` or `quantity` is missing.
+  - `500 Internal Server Error` if there is a database error.
+
+---
+
+#### 5. [PUT] `/food-items/{id}`
+**Description:** Update an existing food item by its ID.
+- **Request:**
+  - **Method:** PUT
+  - **URL:** `/food-items/{id}`
+  - **URL Parameter:**
+    - `id` (integer): ID of the food item to update.
+  - **Body:**
+    ```json
+    {
+      "name": "Green Apple",
+      "quantity": 15
+    }
+    ```
+- **Sample Request:**  
+  ```http
+  PUT /food-items/1 HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  {
+    "name": "Green Apple",
+    "quantity": 15
+  }
+  ```
+- **Sample Response:**  
+  ```json
+  {
+    "success": true,
+    "message": "Food item with ID 1 updated successfully"
+  }
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+  - `404 Not Found` if the food item with the specified ID does not exist.
+
+---
+
+#### 6. [DELETE] `/food-items/{id}`
+**Description:** Delete a food item by its ID.
+- **Request:**
+  - **Method:** DELETE
+  - **URL:** `/food-items/{id}`
+  - **URL Parameter:**
+    - `id` (integer): ID of the food item to delete.
+- **Sample Request:**  
+  ```http
+  DELETE /food-items/1 HTTP/1.1
+  Host: example.com
+  ```
+- **Sample Response:**  
+  ```json
+  {
+    "success": true,
+    "message": "Food item with ID 1 deleted successfully"
+  }
+  ```
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+  - `404 Not Found` if the food item with the specified ID does not exist.

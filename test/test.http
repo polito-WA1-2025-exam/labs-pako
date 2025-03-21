@@ -1,0 +1,45 @@
+# Test: Get all food items
+GET http://localhost:3002/api/food-items HTTP/1.1
+Content-Type: application/json
+
+###
+
+# Test: Search food items by name
+GET http://localhost:3002/api/food-items/search?name=Banana HTTP/1.1
+Content-Type: application/json
+
+###
+
+# Test: Get food item by ID
+GET http://localhost:3002/api/food-items/1 HTTP/1.1
+Content-Type: application/json
+
+###
+
+# Test: Create a new food item
+POST http://localhost:3002/api/food-items HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Burger",
+  "quantity": 5
+}
+
+###
+
+# Test: Update food item
+PUT http://localhost:3002/api/food-items/1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Updated Burger",
+  "quantity": 10
+}
+
+###
+
+# Test: Delete food item
+DELETE http://localhost:3002/api/food-items/1 HTTP/1.1
+Content-Type: application/json
+
+###

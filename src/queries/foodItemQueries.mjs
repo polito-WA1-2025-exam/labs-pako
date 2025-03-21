@@ -195,3 +195,27 @@ export default {
     updateFoodItem,
     updateMultipleFoodItemsQuantity
 };
+
+// 3.b, function to get a food item by its ID
+export async function getFoodItemById(foodItemId) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.get('SELECT * FROM FoodItem WHERE FoodItemID = ?', [foodItemId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (row) {
+                    const foodItem = new FoodItem(
+                        row.FoodItemID,
+                        row.Name,
+                        row.Quantity,
+                        row.CreationDate
+                    );
+                    resolve(foodItem);
+                } else {
+                    resolve(null); // Return null if no food item is found
+                }
+            }
+        });
+    });
+}
