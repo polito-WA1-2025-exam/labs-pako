@@ -794,4 +794,36 @@ Manages user-specific shopping preferences and reservations.
 - **Error Response(s):**
   - `500 Internal Server Error` if there is a database error.
 
+#### [GET] `/api/reservations/{id}`
+**Description:** Fetch a reservation from the database by its ID, including the associated User and Bag details.
+
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/api/reservations/{id}`
+  - **Path Parameters:**
+    - `id` (integer, required): The unique ID of the reservation (e.g., `1`).
+- **Sample Request:**  
+  ```http
+  GET /api/reservations/1 HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  ```
+
+- **Sample Response:**  
+  ```json
+  {
+    "ReservationID": 1,
+    "TimeStamp": "2025-03-16 09:01:43",
+    "Status": "reserved",
+    "BagID": 1,
+    "UserID": 1,
+    "CreationDate": "2025-03-16 09:01:43"
+  }
+  ```
+
+- **Error Response(s):**
+  - `400 Bad Request` if the `id` is invalid.
+  - `404 Not Found` if the reservation with the given `id` does not exist.
+  - `500 Internal Server Error` if there is a database error.
+
 ---

@@ -50,5 +50,8 @@ GET http://localhost:3002/api/bags HTTP/1.1
 #Test: Get bags by date range
 GET http://localhost:3002/api/bags/by-date-range?startDate=2023-01-01&endDate=2023-12-31 HTTP/1.1
 
+### 
 #Test: gett All Reservations
 GET http://localhost:3002/api/reservations HTTP/1.1
+
+GET http://localhost:3002/api/reservations/1 HTTP/1.1

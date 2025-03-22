@@ -84,4 +84,18 @@ export async function getAllReservations() {
     });
 }
 
-export default {getAllReservations};
+// Function to get a reservation by its ID
+export async function getReservationById(reservationId) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.get('SELECT * FROM Reservation WHERE ReservationID = ?', [reservationId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row); // Returning the reservation
+            }
+        });
+    });
+}
+
+export default {getAllReservations, getReservationById};

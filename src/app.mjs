@@ -16,5 +16,5 @@ app.use(express.json());
 app.use('/api/food-items', foodItemRouter);
 app.use('/api/establishments', establishmentRoute);
 app.use('/api/bags', bagRoute);
-app.use('api/reservations', reservationRoute);
+app.use('/api/reservations', reservationRoute);
 export default app;

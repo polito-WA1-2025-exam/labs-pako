@@ -1,6 +1,6 @@
 import dbConnection from "../db/dbConnection.mjs";
 import ShoppingCart from "../models/ShoppingCart.mjs";
-
+import { getReservationById } from "./reservationQueries.mjs";
 // Function to get all shopping carts from the database
 export async function getAllShoppingCarts() {
     const db = await dbConnection.openConnection();
@@ -39,20 +39,6 @@ export async function getAllShoppingCarts() {
                 }));
 
                 resolve(shoppingCarts);  // Resolve the promise with all the shopping carts
-            }
-        });
-    });
-}
-
-// Function to get a reservation by its ID
-async function getReservationById(reservationId) {
-    const db = await dbConnection.openConnection();
-    return new Promise((resolve, reject) => {
-        db.get('SELECT * FROM Reservation WHERE ReservationID = ?', [reservationId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row); // Returning the reservation
             }
         });
     });
