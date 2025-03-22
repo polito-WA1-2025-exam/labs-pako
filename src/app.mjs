@@ -5,6 +5,7 @@ import establishmentRoute from './routes/establishmentRoute.mjs';
 import bagRoute from './routes/bagRoute.mjs';
 import reservationRoute from './routes/reservationRoute.mjs';
 import shoppingCartRoute from './routes/shoppingCartRoute.mjs';
+import userRouter from './routes/userRoutes.mjs';
 const app = express();
 
 app.use(morgan('dev'));
@@ -19,4 +20,5 @@ app.use('/api/establishments', establishmentRoute);
 app.use('/api/bags', bagRoute);
 app.use('/api/reservations', reservationRoute);
 app.use('/api/shopping-carts', shoppingCartRoute);
+app.use('/api/users', userRouter);
 export default app;

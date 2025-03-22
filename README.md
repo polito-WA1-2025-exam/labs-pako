@@ -54,8 +54,11 @@
             - [[GET] /api/reservations/{id}](#get-apireservationsid)
         - [Shooping Cart](#shooping-cart)
             - [[GET] /api/shopping-carts](#get-apishopping-carts)
+        - [Users](#users)
+            - [[GET] /api/users](#get-apiusers)
 
 <!-- /TOC -->
+
 
 # Group "PAKO"
 
@@ -115,6 +118,7 @@ src
 │   ├── bagController.mjs
 │   ├── reservationController.mjs
 │   ├── shoopingCartController.mjs
+│   ├── userController.mjs
 │   └── foodItemController.mjs
 ├── db
 │   ├── database.db
@@ -145,6 +149,7 @@ src
 │   ├── bagRoute.mjs
 │   ├── reservationRoute.mjs
 │   ├── shoopingCartRoute.mjs
+│   ├── userRoute.mjs
 │   └── foodItemRoute.mjs
 ├── services
 │   ├── dataService.mjs
@@ -557,23 +562,36 @@ Manages user-specific shopping preferences and reservations.
   [
     {
       "id": 1,
-      "name": "The Green Café",
-      "address": "123 Green St.",
-      "phoneNumber": "123-456-7890",
-      "category": "Restaurant",
-      "type": "restaurant",
-      "creationDate": "2023-03-01 14:30",
-      "content": null
+      "name": "Green Grocers",
+      "address": "123 Main St, Springfield",
+      "phoneNumber": "555-1234",
+      "category": "Grocery",
+      "type": "Supermarket",
+      "bags": [],
+      "content": null,
+      "creationDate": "2025-03-16 09:01"
     },
     {
       "id": 2,
-      "name": "Tech Store",
-      "address": "456 Tech Rd.",
-      "phoneNumber": "987-654-3210",
-      "category": "Electronics",
-      "type": "store",
-      "creationDate": "2023-01-15 10:00",
-      "content": null
+      "name": "Fresh Mart",
+      "address": "456 Elm St, Springfield",
+      "phoneNumber": "555-5678",
+      "category": "Grocery",
+      "type": "Convenience Store",
+      "bags": [],
+      "content": null,
+      "creationDate": "2025-03-16 09:01"
+    },
+    {
+      "id": 3,
+      "name": "Organic Heaven",
+      "address": "789 Oak St, Springfield",
+      "phoneNumber": "555-9101",
+      "category": "Grocery",
+      "type": "Organic Store",
+      "bags": [],
+      "content": null,
+      "creationDate": "2025-03-16 09:01"
     }
   ]
   ```
@@ -758,40 +776,75 @@ Manages user-specific shopping preferences and reservations.
 
 - **Sample Response:**  
   ```json
-  [
+    [
     {
       "id": 1,
-      "timestamp": "2025-03-20T12:30:00",
-      "status": "active",
-      "userId": 101,
-      "creationDate": "2025-03-15 10:00",
+      "userId": 1,
+      "bags": [],
+      "timestamp": "2025-03-16T08:01:43.000Z",
+      "status": "reserverd",
+      "creationDate": "2025-03-16 09:01",
       "user": {
-        "id": 101,
-        "username": "john_doe",
-        "email": "john.doe@example.com"
-      },
-      "bags": [
-        {
-          "id": 201,
-          "price": 12.50,
-          "establishmentId": 301,
-          "timeToPickUp": "2025-03-21 14:00",
-          "state": "available"
-        }
-      ]
+        "id": 1,
+        "name": "john_doe",
+        "email": "john.doe@example.com",
+        "password": null,
+        "shoppingCart": {
+          "id": 1,
+          "userId": 1,
+          "reservations": [],
+          "allergies": [],
+          "requests": []
+        },
+        "reservations": [],
+        "creationDate": "2025-03-22 13:39"
+      }
     },
     {
       "id": 2,
-      "timestamp": "2025-03-21T15:45:00",
-      "status": "completed",
-      "userId": 102,
-      "creationDate": "2025-03-16 08:30",
+      "userId": 2,
+      "bags": [],
+      "timestamp": "2025-03-16T08:01:43.000Z",
+      "status": "reserverd",
+      "creationDate": "2025-03-16 09:01",
       "user": {
-        "id": 102,
-        "username": "jane_smith",
-        "email": "jane.smith@example.com"
-      },
-      "bags": []
+        "id": 2,
+        "name": "jane_smith",
+        "email": "jane.smith@example.com",
+        "password": null,
+        "shoppingCart": {
+          "id": 2,
+          "userId": 2,
+          "reservations": [],
+          "allergies": [],
+          "requests": []
+        },
+        "reservations": [],
+        "creationDate": "2025-03-22 13:39"
+      }
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "bags": [],
+      "timestamp": "2025-03-16T08:01:43.000Z",
+      "status": "reserverd",
+      "creationDate": "2025-03-16 09:01",
+      "user": {
+        "id": 3,
+        "name": "alice_wong",
+        "email": "alice.wong@example.com",
+        "password": null,
+        "shoppingCart": {
+          "id": 3,
+          "userId": 3,
+          "reservations": [],
+          "allergies": [],
+          "requests": []
+        },
+        "reservations": [],
+        "creationDate": "2025-03-22 13:39"
+      }
     }
   ]
   ```
@@ -816,14 +869,77 @@ Manages user-specific shopping preferences and reservations.
 
 - **Sample Response:**  
   ```json
-  {
-    "ReservationID": 1,
-    "TimeStamp": "2025-03-16 09:01:43",
-    "Status": "reserved",
-    "BagID": 1,
-    "UserID": 1,
-    "CreationDate": "2025-03-16 09:01:43"
-  }
+  [
+    {
+      "id": 1,
+      "userId": 1,
+      "bags": [],
+      "timestamp": "2025-03-16T08:01:43.000Z",
+      "status": "reserverd",
+      "creationDate": "2025-03-16 09:01",
+      "user": {
+        "id": 1,
+        "name": "john_doe",
+        "email": "john.doe@example.com",
+        "password": null,
+        "shoppingCart": {
+          "id": 1,
+          "userId": 1,
+          "reservations": [],
+          "allergies": [],
+          "requests": []
+        },
+        "reservations": [],
+        "creationDate": "2025-03-22 13:39"
+      }
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "bags": [],
+      "timestamp": "2025-03-16T08:01:43.000Z",
+      "status": "reserverd",
+      "creationDate": "2025-03-16 09:01",
+      "user": {
+        "id": 2,
+        "name": "jane_smith",
+        "email": "jane.smith@example.com",
+        "password": null,
+        "shoppingCart": {
+          "id": 2,
+          "userId": 2,
+          "reservations": [],
+          "allergies": [],
+          "requests": []
+        },
+        "reservations": [],
+        "creationDate": "2025-03-22 13:39"
+      }
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "bags": [],
+      "timestamp": "2025-03-16T08:01:43.000Z",
+      "status": "reserverd",
+      "creationDate": "2025-03-16 09:01",
+      "user": {
+        "id": 3,
+        "name": "alice_wong",
+        "email": "alice.wong@example.com",
+        "password": null,
+        "shoppingCart": {
+          "id": 3,
+          "userId": 3,
+          "reservations": [],
+          "allergies": [],
+          "requests": []
+        },
+        "reservations": [],
+        "creationDate": "2025-03-22 13:39"
+      }
+    }
+  ]
   ```
 
 - **Error Response(s):**
@@ -911,6 +1027,77 @@ Manages user-specific shopping preferences and reservations.
       "requests": [
         "No nuts in the bag"
       ]
+    }
+  ]
+  ```
+
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a problem with the database.
+
+---
+### Users
+
+#### [GET] `/api/users`
+**Description:** Fetch all users from the database.
+
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/api/users`
+
+- **Sample Request:**  
+  ```http
+  GET /api/users HTTP/1.1
+  Host: localhost:3002
+  Content-Type: application/json
+  ```
+
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "id": 1,
+      "name": "john_doe",
+      "email": "john.doe@example.com",
+      "password": "password123",
+      "shoppingCart": {
+        "id": 1,
+        "userId": 1,
+        "reservations": [],
+        "allergies": [],
+        "requests": []
+      },
+      "reservations": [],
+      "creationDate": "2025-03-16 09:01"
+    },
+    {
+      "id": 2,
+      "name": "jane_smith",
+      "email": "jane.smith@example.com",
+      "password": "securepass456",
+      "shoppingCart": {
+        "id": 2,
+        "userId": 2,
+        "reservations": [],
+        "allergies": [],
+        "requests": []
+      },
+      "reservations": [],
+      "creationDate": "2025-03-16 09:01"
+    },
+    {
+      "id": 3,
+      "name": "alice_wong",
+      "email": "alice.wong@example.com",
+      "password": "mypassword789",
+      "shoppingCart": {
+        "id": 3,
+        "userId": 3,
+        "reservations": [],
+        "allergies": [],
+        "requests": []
+      },
+      "reservations": [],
+      "creationDate": "2025-03-16 09:01"
     }
   ]
   ```

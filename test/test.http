@@ -59,3 +59,7 @@ GET http://localhost:3002/api/reservations/1 HTTP/1.1
 ###
 #Test: Get all shooping cart
 GET http://localhost:3002/api/shopping-carts HTTP/1.1
+
+### 
+#Test: Get all users
+GET http://localhost:3002/api/users HTTP/1.1
