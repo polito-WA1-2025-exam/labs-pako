@@ -1,4 +1,5 @@
 # Table of contents
+
 <!-- TOC -->
 
 - [Table of contents](#table-of-contents)
@@ -6,7 +7,6 @@
     - [Members](#members)
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
 - [Style approach](#style-approach)
-- [Prerequisites](#prerequisites)
 - [Prerequisites](#prerequisites)
     - [Dependencies](#dependencies)
         - [Development Dependencies](#development-dependencies)
@@ -56,9 +56,14 @@
             - [[GET] /api/shopping-carts](#get-apishopping-carts)
         - [Users](#users)
             - [[GET] /api/users](#get-apiusers)
+    - [Lab 4](#lab-4)
+        - [Instructions to View the Project](#instructions-to-view-the-project)
+        - [Screenshot](#screenshot)
+        - [Design](#design)
+        - [Implemented Features](#implemented-features)
+        - [Conclusion](#conclusion)
 
 <!-- /TOC -->
-
 
 # Group "PAKO"
 
@@ -75,7 +80,7 @@
 
 We will loosely follow the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html). This means we’ll always insert semicolons after each statement (as mentioned by our professor in the first lesson).
 
-# Prerequisites
+Here's the updated version of the README section with Bootstrap added to the dependencies:
 
 # Prerequisites
 
@@ -88,6 +93,7 @@ The project uses the following dependencies:
 - [day.js](https://day.js.org/) - A lightweight library for date handling and formatting.
 - [sqlite3](https://www.npmjs.com/package/sqlite3) - SQLite database driver for Node.js.
 - [morgan](https://www.npmjs.com/package/morgan) - HTTP request logger middleware for Node.js.
+- [bootstrap](https://getbootstrap.com/) - A popular front-end framework for building responsive, mobile-first websites.
 
 ### Development Dependencies
 - [nodemon](https://www.npmjs.com/package/nodemon) - Automatically restarts the server when file changes are detected (useful during development).
@@ -95,7 +101,7 @@ The project uses the following dependencies:
 To install dependencies, run:
 ```sh
 npm init # if not already done
-npm install express dayjs sqlite3 morgan
+npm install express dayjs sqlite3 morgan bootstrap
 npm install --save-dev nodemon
 ```
 
@@ -158,6 +164,10 @@ src
 ├── index.mjs
 test
 ├── test.http
+public
+├── css
+│   ├── style.css
+├── index.html 
 .gitignore
 package-lock.json
 package.json
@@ -181,7 +191,6 @@ server.mjs
 
 ## [Lab 1](https://polito-webapp1.github.io/lab-2025/Lab01/Lab01.pdf)
 
-The application is structured around the following main objects and their relationships:
 
 ### Objects and Properties
 
@@ -1104,3 +1113,23 @@ Manages user-specific shopping preferences and reservations.
 
 - **Error Response(s):**
   - `500 Internal Server Error` if there is a problem with the database.
+
+## [Lab 4](https://polito-webapp1.github.io/lab-2025/Lab04/Lab04.pdf)
+
+In this lab, a static graphical user interface (GUI) for a web application was created using HTML, CSS, and Bootstrap. The goal was to design the visual appearance of the application without implementing any dynamic functionality. Bootstrap was used to structure and format the page layout, while a separate CSS file was added to customize the visual style.
+
+### Instructions to View the Project
+To view the page, simply open the `index.html` file in a web browser. No server is required, as the project is static.
+
+### Screenshot
+
+![Screenshot](./docs/images/webpage.png)
+
+### Design
+Bootstrap was used to structure the page, including grid layouts and cards to display items. A separate CSS file was created to define color variables and further customize the appearance of the page. Key components such as the navigation bar, product cards, and footer were modified to reflect a chosen color palette of green, yellow, and gray.
+
+### Implemented Features
+At this stage of the project, no dynamic functionality or user interactions were implemented. The page is a static version that showcases the layout and design of the web application. Future work may include adding functionalities such as data management or database integration.
+
+### Conclusion
+This lab provided an opportunity to gain hands-on experience in structuring and designing a web application using HTML and Bootstrap. The process involved customizing Bootstrap components with CSS to create a visually appealing webpage. While the challenge of personalizing colors and CSS variables was encountered, it was successfully overcome with the help of available online resources. The foundation for a fully functional web application has been laid, with further enhancements planned for future stages.

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodSaver - Rescue Surplus Food</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-basket2-fill me-2"></i>FoodSaver
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About Us</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="#" class="btn btn-outline-light">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <div class="hero-text">
+                <h1 class="display-4 fw-bold mb-4">Save Food, Save Money, Save Planet</h1>
+                <p class="lead mb-4">Join our mission to reduce food waste by rescuing surplus food from local stores and restaurants at discounted prices.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2 class="page-title">Participating Establishments</h2>
+        <p class="mb-4">Browse our partners who are committed to reducing food waste. All establishments are displayed in alphabetical order.</p>
+
+        <!-- Establishments List -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+            <!-- Establishment 1 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Artisan Bakery</span>
+                        <span class="badge cuisine-badge">Bakery</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Artisan Bakery"> -->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>45 Piazza Roma, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 987 6543</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Freshly baked breads, pastries, and desserts made with locally sourced ingredients.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 2 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Asian Fusion</span>
+                        <span class="badge cuisine-badge">Asian</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Asian Fusion">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>54 Via Po, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 678 9012</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Modern restaurant combining flavors from various Asian cuisines with a contemporary twist.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 3 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Bella Pizza</span>
+                        <span class="badge cuisine-badge">Pizzeria</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Bella Pizza">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>78 Via Napoli, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 345 6789</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Traditional Neapolitan pizzas baked in a wood-fired oven with premium toppings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 4 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Café Milano</span>
+                        <span class="badge cuisine-badge">Café</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Café Milano">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>15 Via Milano, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 456 7890</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Cozy café offering specialty coffees, sandwiches, and homemade pastries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 5 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Fresh Market</span>
+                        <span class="badge cuisine-badge">Grocery</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Fresh Market">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>32 Corso Francia, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 567 8901</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Local grocery store with fresh produce, dairy products, and organic food options.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 6 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Pasta Paradise</span>
+                        <span class="badge cuisine-badge">Italian</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Pasta Paradise">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>123 Main Street, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 234 5678</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Authentic Italian restaurant specializing in homemade pasta and regional specialties.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 7 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Vegan Delight</span>
+                        <span class="badge cuisine-badge">Vegan</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Vegan Delight">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>67 Via Verdi, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 890 1234</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Plant-based restaurant with creative dishes made from seasonal, organic ingredients.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishment 8 -->
+            <div class="col">
+                <div class="card store-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Wine & Dine</span>
+                        <span class="badge cuisine-badge">Fine Dining</span>
+                    </div>
+                    <!-- <img src="/api/placeholder/400/200" class="card-img-top" alt="Wine & Dine">-->
+                    <div class="card-body">
+                        <div class="store-info">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>90 Corso Vittorio, Turin</span>
+                        </div>
+                        <div class="store-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>+39 011 901 2345</span>
+                        </div>
+                        <hr>
+                        <p class="card-text">
+                            Elegant restaurant specializing in refined Italian cuisine paired with selected wines.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="row mt-5 mb-5">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4" style="color: var(--accent-color);">How It Works</h3>
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item border-0">Browse participating establishments</li>
+                            <li class="list-group-item border-0">Sign up or log in to see available bags</li>
+                            <li class="list-group-item border-0">Reserve your bags from your favorite places</li>
+                            <li class="list-group-item border-0">Pick up your food at the designated time</li>
+                            <li class="list-group-item border-0">Enjoy delicious food at a discount while reducing waste</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4" style="color: var(--accent-color);">Our Bag Types</h3>
+                        <div class="d-flex mb-3 align-items-start">
+                            <i class="bi bi-gift-fill me-3 fs-3" style="color: var(--primary-color);"></i>
+                            <div>
+                                <h5>Surprise Bags</h5>
+                                <p>A mystery assortment of surplus food items. Perfect for adventurous eaters who enjoy variety.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-basket-fill me-3 fs-3" style="color: var(--primary-color);"></i>
+                            <div>
+                                <h5>Regular Bags</h5>
+                                <p>See exactly what you're getting before you order. Great for those with specific preferences or dietary needs.</p>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small>Available in Small, Medium, and Large sizes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="mb-3">FoodSaver</h5>
+                    <p>Reducing food waste one meal at a time. Join our mission to create a more sustainable future through conscious food consumption.</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 class="mb-3">Contact Us</h5>
+                    <p><i class="bi bi-envelope-fill me-2"></i> info@foodsaver.com</p>
+                    <p><i class="bi bi-telephone-fill me-2"></i> +39 011 123 4567</p>
+                    <p><i class="bi bi-geo-alt-fill me-2"></i> Corso Duca degli Abruzzi, 24, Turin</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="mb-3">Follow Us</h5>
+                    <div class="mb-3">
+                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 FoodSaver. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
