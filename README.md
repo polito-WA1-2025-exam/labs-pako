@@ -1,5 +1,4 @@
 # Table of contents
-
 <!-- TOC -->
 
 - [Table of contents](#table-of-contents)
@@ -52,8 +51,12 @@
             - [[GET] /api/bags/by-date-range](#get-apibagsby-date-range)
         - [Reservation](#reservation)
             - [[GET] /api/reservations](#get-apireservations)
+            - [[GET] /api/reservations/{id}](#get-apireservationsid)
+        - [Shooping Cart](#shooping-cart)
+            - [[GET] /api/shopping-carts](#get-apishopping-carts)
 
 <!-- /TOC -->
+
 # Group "PAKO"
 
 ## Members
@@ -111,6 +114,7 @@ src
 │   ├── establishmentController.mjs
 │   ├── bagController.mjs
 │   ├── reservationController.mjs
+│   ├── shoopingCartController.mjs
 │   └── foodItemController.mjs
 ├── db
 │   ├── database.db
@@ -140,6 +144,7 @@ src
 │   ├── establishmentRoute.mjs
 │   ├── bagRoute.mjs
 │   ├── reservationRoute.mjs
+│   ├── shoopingCartRoute.mjs
 │   └── foodItemRoute.mjs
 ├── services
 │   ├── dataService.mjs
@@ -827,3 +832,88 @@ Manages user-specific shopping preferences and reservations.
   - `500 Internal Server Error` if there is a database error.
 
 ---
+
+### Shooping Cart
+
+#### [GET] `/api/shopping-carts`
+**Description:** Fetch all shopping carts from the database.
+
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/api/shopping-carts`
+
+- **Sample Request:**  
+  ```http
+  GET /api/shopping-carts HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  ```
+
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "id": 1,
+      "userId": 1,
+      "reservations": [
+        {
+          "ReservationID": 1,
+          "TimeStamp": "2025-03-16 09:01:43",
+          "Status": "reserved",
+          "BagID": 1,
+          "UserID": 1,
+          "CreationDate": "2025-03-16 09:01:43"
+        }
+      ],
+      "allergies": [
+        "None"
+      ],
+      "requests": [
+        "Please pack carefully"
+      ]
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "reservations": [
+        {
+          "ReservationID": 2,
+          "TimeStamp": "2025-03-16 09:01:43",
+          "Status": "reserved",
+          "BagID": 2,
+          "UserID": 2,
+          "CreationDate": "2025-03-16 09:01:43"
+        }
+      ],
+      "allergies": [
+        "Lactose Intolerant"
+      ],
+      "requests": [
+        "No dairy products"
+      ]
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "reservations": [
+        {
+          "ReservationID": 3,
+          "TimeStamp": "2025-03-16 09:01:43",
+          "Status": "reserved",
+          "BagID": 3,
+          "UserID": 3,
+          "CreationDate": "2025-03-16 09:01:43"
+        }
+      ],
+      "allergies": [
+        "Nut Allergy"
+      ],
+      "requests": [
+        "No nuts in the bag"
+      ]
+    }
+  ]
+  ```
+
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a problem with the database.

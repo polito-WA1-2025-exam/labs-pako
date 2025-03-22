@@ -55,3 +55,7 @@ GET http://localhost:3002/api/bags/by-date-range?startDate=2023-01-01&endDate=20
 GET http://localhost:3002/api/reservations HTTP/1.1
 
 GET http://localhost:3002/api/reservations/1 HTTP/1.1
+
+###
+#Test: Get all shooping cart
+GET http://localhost:3002/api/shopping-carts HTTP/1.1
