@@ -1,18 +1,15 @@
 # Test: Get all food items
 GET http://localhost:3002/api/food-items HTTP/1.1
-Content-Type: application/json
 
 ###
 
 # Test: Search food items by name
 GET http://localhost:3002/api/food-items/search?name=Banana HTTP/1.1
-Content-Type: application/json
 
 ###
 
 # Test: Get food item by ID
 GET http://localhost:3002/api/food-items/1 HTTP/1.1
-Content-Type: application/json
 
 ###
 
@@ -45,7 +42,6 @@ Content-Type: application/json
 ###
 # Test: Get all establishments
 GET http://localhost:3002/api/establishments HTTP/1.1
-Content-Type: application/json
 
 ###
 # Test: Get all bags
@@ -53,3 +49,6 @@ GET http://localhost:3002/api/bags HTTP/1.1
 
 #Test: Get bags by date range
 GET http://localhost:3002/api/bags/by-date-range?startDate=2023-01-01&endDate=2023-12-31 HTTP/1.1
+
+#Test: gett All Reservations
+GET http://localhost:3002/api/reservations HTTP/1.1

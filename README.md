@@ -50,9 +50,10 @@
         - [Bag APIs](#bag-apis)
             - [[GET] /api/bags](#get-apibags)
             - [[GET] /api/bags/by-date-range](#get-apibagsby-date-range)
+        - [Reservation](#reservation)
+            - [[GET] /api/reservations](#get-apireservations)
 
 <!-- /TOC -->
-
 # Group "PAKO"
 
 ## Members
@@ -109,6 +110,7 @@ src
 ├── controllers
 │   ├── establishmentController.mjs
 │   ├── bagController.mjs
+│   ├── reservationController.mjs
 │   └── foodItemController.mjs
 ├── db
 │   ├── database.db
@@ -137,6 +139,7 @@ src
 ├── routes
 │   ├── establishmentRoute.mjs
 │   ├── bagRoute.mjs
+│   ├── reservationRoute.mjs
 │   └── foodItemRoute.mjs
 ├── services
 │   ├── dataService.mjs
@@ -730,3 +733,65 @@ Manages user-specific shopping preferences and reservations.
 - **Error Response(s):**
   - `400 Bad Request` if `startDate` or `endDate` is missing.
   - `500 Internal Server Error` if there is a database error.
+
+### Reservation
+
+#### [GET] `/api/reservations`
+**Description:** Fetch all reservations from the database, including associated User and Bag details.
+
+- **Request:**
+  - **Method:** GET
+  - **URL:** `/api/reservations`
+  - **Query Parameters:** _None_
+
+- **Sample Request:**  
+  ```http
+  GET /api/reservations HTTP/1.1
+  Host: example.com
+  Content-Type: application/json
+  ```
+
+- **Sample Response:**  
+  ```json
+  [
+    {
+      "id": 1,
+      "timestamp": "2025-03-20T12:30:00",
+      "status": "active",
+      "userId": 101,
+      "creationDate": "2025-03-15 10:00",
+      "user": {
+        "id": 101,
+        "username": "john_doe",
+        "email": "john.doe@example.com"
+      },
+      "bags": [
+        {
+          "id": 201,
+          "price": 12.50,
+          "establishmentId": 301,
+          "timeToPickUp": "2025-03-21 14:00",
+          "state": "available"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-03-21T15:45:00",
+      "status": "completed",
+      "userId": 102,
+      "creationDate": "2025-03-16 08:30",
+      "user": {
+        "id": 102,
+        "username": "jane_smith",
+        "email": "jane.smith@example.com"
+      },
+      "bags": []
+    }
+  ]
+  ```
+
+- **Error Response(s):**
+  - `500 Internal Server Error` if there is a database error.
+
+---
