@@ -5,7 +5,7 @@ import Establishment from "../models/Establishment.mjs";
 export async function getAllEstablishments() {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM Establishment', [], (err, rows) => {
+        db.all('SELECT * FROM Establishment ORDER BY name ASC', [], (err, rows) => {
             if (err) {
                 reject(err);
             } else {        
@@ -20,6 +20,9 @@ export async function getAllEstablishments() {
                     row.Content,         // Map Content to content
                     row.CreationDate     // Map CreationDate to creationDate
                 ))
+                // console.log(establishments.forEach(est => {
+                //     console.log(est.display());
+                // }));
                 resolve(establishments);
             }
         });
@@ -45,6 +48,9 @@ export async function searchEstablishmetByName(nameSubstring) {
                     row.Content,      
                     row.CreationDate    
                 ))
+                console.log(establishments.forEach(est => {
+                    console.log(est.display());
+                }));
                 resolve(establishments);
             }
         });
@@ -54,20 +60,21 @@ export async function searchEstablishmetByName(nameSubstring) {
 
 
 // 3.a, function to create and store a new food item
-export async function createEstablishment(name, quantity) {
+export async function createEstablishment(name, address, phoneNumber, Category, Type) {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
         db.run(
-            'INSERT INTO Establishment (Name, Address,PhoneNumber,Category,Type,BagContentID) VALUES (?, ?, ?, ?, ?, ?)',
-            [name, address, phoneNumber, Category, Type,BagContentID],
+            'INSERT INTO Establishment (Name, Address,PhoneNumber,Category,Type) VALUES (?, ?, ?, ?, ?)',
+            [name, address, phoneNumber, Category, Type],
             function(err) {
                 if (err) {
                     reject(err);
-                    console.error('Error creating food item:', err.message);
+                    console.error('Error creating Establishment.', err.message);
                 } else {
-                    console.log(`Food item created successfully with ID: ${this.lastID}`);
-                    const newFoodItem = new FoodItem(this.lastID, name, quantity, dayjs().format('YYYY-MM-DD HH:mm:ss'));
-                    resolve(newFoodItem);
+                    console.log(`Establishment created successfully with ID: ${this.lastID}`);
+                    const newEst = new Establishment(this.lastID, name, address, phoneNumber, Category, Type);
+                    resolve(newEst);
+                    console.log(newEst.display());
                 }
             }
         );
@@ -94,8 +101,9 @@ export async function deleteEstablishmentById(establishmentID) {
                         // so logging it again would be redundant and could clutter the logs.
                         //console.log(`Food item with ID ${foodItemId} deleted successfully`);
                         resolve({ success: true, message: `Establishment with ID ${establishmentID} deleted successfully` });
+                        console.log(`Establishment with ID ${establishmentID} deleted successfully`);
                     } else {
-                        console.log(`No food item found with ID ${foodItemId}`);
+                        console.log(`No Establishment found with ID ${establishmentID}`);
                         resolve({ success: false, message: `No Establishments found with ID ${establishmentID}` });
                     }
                 }
@@ -104,115 +112,194 @@ export async function deleteEstablishmentById(establishmentID) {
     });
 }
 
-// 3.c, function to update a specific item
-export async function updateEstablishment(establishmentID, updates) {
+export async function getEstablishmentsWithAvailableBags() {
     const db = await dbConnection.openConnection();
-    
-    // Build the SET part of the SQL query dynamically based on provided updates
-    const updateFields = [];
-    const values = [];
-    
-    if (updates.name !== undefined) {
-        updateFields.push('Name = ?');
-        values.push(updates.name);
-    }
-    
-    if (updates.address !== undefined) {
-        updateFields.push('Address = ?');
-        values.push(updates.address);
-    }
-
-    if (updates.number !== undefined) {
-        updateFields.push('PhoneNumber = ?');
-        values.push(updates.number);
-    }
-
-    if (updates.type !== undefined) {
-        updateFields.push('Type = ?');
-        values.push(updates.type);
-    }
-
-    if (updates.category !== undefined) {
-        updateFields.push('Category = ?');
-        values.push(updates.category);
-    }
-
-    //TODO: Update Bags -> HOW?
-    
-    // If no updates provided, return early for efficiency
-    if (updateFields.length === 0) {
-        return Promise.resolve({ 
-            success: false, 
-            message: 'No updates provided' 
-        });
-    }
-    
-    // Add the ID to the values array
-    values.push(establishmentID);
-    
-    const sql = `UPDATE Establishment SET ${updateFields.join(', ')} WHERE EstablishmentID = ?`;
-    
     return new Promise((resolve, reject) => {
-        db.run(sql, values, function(err) {
-            if (err) {
-                reject(err);
-                console.error('Error updating Establishment:', err.message);
-            } else {
-                if (this.changes > 0) {
-                    resolve({ 
-                        success: true, 
-                        message: `Establishment with ID ${establishmentID} updated successfully`,
-                        changes: this.changes
-                    });
+        db.all(
+            `SELECT DISTINCT e.* 
+             FROM establishments e
+             JOIN bags b ON e.id = b.establishmentId
+             WHERE b.status = 'available'
+             AND b.pickupStart > datetime('now')
+             ORDER BY e.name ASC`,
+            [],
+            (err, rows) => {
+                if (err) {
+                    reject(err);
                 } else {
-                    console.log(`No Establishment found with ID ${establishmentID} or no changes made`);
-                    resolve({ 
-                        success: false, 
-                        message: `No Establishments found with ID ${establishmentID} or no changes made` 
-                    });
+                    const establishments = rows.map(row => new Establishment(
+                        row.EstablishmentID,
+                        row.Name,
+                        row.Address,
+                        row.PhoneNumber,
+                        row.Category,
+                        row.Type,
+                        row.Content, 
+                        row.CreationDate
+                    ));
+                    resolve(establishments);
+                    console.log(establishments.display());
                 }
             }
-        });
+        );
     });
 }
 
-// 3.c, function to update quantity for multiple food items wrt given condition
-export async function updateMultipleEstablishmentAddress(quantityChange, condition) {
+export async function getEstablishmentsByCategory(category) {
     const db = await dbConnection.openConnection();
-    
-    let sql = 'UPDATE Establishment SET Address = Address + ?';
-    const values = [quantityChange];
-    
-    if (condition) {
-        sql += ` WHERE ${condition.field} ${condition.operator} ?`;
-        values.push(condition.value);
-    }
-    
     return new Promise((resolve, reject) => {
-        db.run(sql, values, function(err) {
-            if (err) {
-                reject(err);
-                console.error('Error updating Establishment:', err.message);
-            } else {
-                console.log(`${this.changes} Establishments updated successfully`);
-                resolve({ 
-                    success: true, 
-                    message: `${this.changes} Establishments updated successfully`,
-                    changes: this.changes
-                });
+        db.all(
+            `SELECT * FROM Establishment 
+             WHERE Category = ? 
+             ORDER BY name ASC`,
+            [category],
+            (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    // For debugging (remove in production)
+                    if (!rows || rows.length !== 0) {
+                        console.log(`Found ${rows.length} Establishments : `);
+                        rows.forEach(row => {
+                            console.log(`${row.Name}`);
+                        });
+
+                        const establishments = rows.map(row => new Establishment(
+                            row.EstablishmentID,
+                            row.Name,
+                            row.Address,
+                            row.PhoneNumber,
+                            row.Category,
+                            row.Type,
+                            row.Content, 
+                            row.CreationDate
+                        ));
+                        
+                        resolve(establishments);
+                    }
+                    else {
+                        console.log("No Establishments found for this category :(");
+                        resolve(false);
+                    }
+                    
+                }
             }
-        });
+        );
     });
 }
+
+// 3.c, function to update a specific item
+// export async function updateEstablishment(establishmentID, updates) {
+//     const db = await dbConnection.openConnection();
+    
+//     // Build the SET part of the SQL query dynamically based on provided updates
+//     const updateFields = [];
+//     const values = [];
+    
+//     if (updates.name !== undefined) {
+//         updateFields.push('Name = ?');
+//         values.push(updates.name);
+//     }
+    
+//     if (updates.address !== undefined) {
+//         updateFields.push('Address = ?');
+//         values.push(updates.address);
+//     }
+
+//     if (updates.number !== undefined) {
+//         updateFields.push('PhoneNumber = ?');
+//         values.push(updates.number);
+//     }
+
+//     if (updates.type !== undefined) {
+//         updateFields.push('Type = ?');
+//         values.push(updates.type);
+//     }
+
+//     if (updates.category !== undefined) {
+//         updateFields.push('Category = ?');
+//         values.push(updates.category);
+//     }
+
+//     //TODO: Update Bags -> HOW?
+    
+//     // If no updates provided, return early for efficiency
+//     if (updateFields.length === 0) {
+//         return Promise.resolve({ 
+//             success: false, 
+//             message: 'No updates provided' 
+//         });
+//     }
+    
+//     // Add the ID to the values array
+//     values.push(establishmentID);
+    
+//     const sql = `UPDATE Establishment SET ${updateFields.join(', ')} WHERE EstablishmentID = ?`;
+    
+//     return new Promise((resolve, reject) => {
+//         db.run(sql, values, function(err) {
+//             if (err) {
+//                 reject(err);
+//                 console.error('Error updating Establishment:', err.message);
+//             } else {
+//                 if (this.changes > 0) {
+//                     resolve({ 
+//                         success: true, 
+//                         message: `Establishment with ID ${establishmentID} updated successfully`,
+//                         changes: this.changes
+//                     });
+//                 } else {
+//                     console.log(`No Establishment found with ID ${establishmentID} or no changes made`);
+//                     resolve({ 
+//                         success: false, 
+//                         message: `No Establishments found with ID ${establishmentID} or no changes made` 
+//                     });
+//                 }
+//             }
+//         });
+//     });
+// }
+
+// // 3.c, function to update quantity for multiple food items wrt given condition
+// export async function updateMultipleEstablishmentAddress(quantityChange, condition) {
+//     const db = await dbConnection.openConnection();
+    
+//     let sql = 'UPDATE Establishment SET Address = Address + ?';
+//     const values = [quantityChange];
+    
+//     if (condition) {
+//         sql += ` WHERE ${condition.field} ${condition.operator} ?`;
+//         values.push(condition.value);
+//     }
+    
+//     return new Promise((resolve, reject) => {
+//         db.run(sql, values, function(err) {
+//             if (err) {
+//                 reject(err);
+//                 console.error('Error updating Establishment:', err.message);
+//             } else {
+//                 console.log(`${this.changes} Establishments updated successfully`);
+//                 resolve({ 
+//                     success: true, 
+//                     message: `${this.changes} Establishments updated successfully`,
+//                     changes: this.changes
+//                 });
+//             }
+//         });
+//     });
+// }
+
 
 
 
 
 
 export default {getAllEstablishments,
-                updateEstablishment,
-                updateMultipleEstablishmentAddress,
+                // updateEstablishment,
+                // updateMultipleEstablishmentAddress,
                 deleteEstablishmentById,
                 createEstablishment,
-                searchEstablishmetByName 
+                searchEstablishmetByName, 
+                getEstablishmentsWithAvailableBags,
+                getEstablishmentsByCategory
 }; 

@@ -6,12 +6,12 @@ import dayjs from 'dayjs';
 export async function getAllFoodItems() {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM FoodItem', [], (err, rows) => {
+        db.all('SELECT * FROM FoodItem', [], (err, rows) => { // stores every foodItem in a row
             if (err) {
                 reject(err);
             } else {
                 // Map fields of result from database to fields of FoodItem constructor
-                const foodItems = rows.map(row => new FoodItem(
+                const foodItems = rows.map(row => new FoodItem(  
                     row.FoodItemID,  // Map fooditem to id
                     row.Name,        // Map name to name
                     row.Quantity,    // Map Quantity to quantity
@@ -26,7 +26,7 @@ export async function getAllFoodItems() {
 // 2.b, function for searching for food items matching with name substring
 export async function searchFoodItemsByName(nameSubstring) {
     const db = await dbConnection.openConnection();
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {   // NOTE THE NEXT STEP !!!
         db.all('SELECT * FROM FoodItem WHERE Name LIKE ?', [`%${nameSubstring}%`], (err, rows) => { //LIKE operator is used for pattern matching
             if (err) {
                 reject(err);
@@ -48,14 +48,14 @@ export async function createFoodItem(name, quantity) {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
         db.run(
-            'INSERT INTO FoodItem (Name, Quantity) VALUES (?, ?)',
+            'INSERT INTO FoodItem (Name, Quantity) VALUES (?, ?)',  // NOTE THIS STEP !!
             [name, quantity],
             function(err) {
                 if (err) {
                     reject(err);
                     console.error('Error creating food item:', err.message);
                 } else {
-                    console.log(`Food item created successfully with ID: ${this.lastID}`);
+                    console.log(`Food item created successfully with ID: ${this.lastID}`);          // ASK !! WHAT IS LASTID?
                     // Modified to return an instance of FoodItem instead of a plain object.
                     // This ensures that the returned object has the display() method and other functionalities.
                     // Previously, the function returned a simple JavaScript object without methods, 
@@ -75,7 +75,7 @@ export async function createFoodItem(name, quantity) {
 export async function deleteFoodItemById(foodItemId) {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
-        db.run(
+        db.run(       //  NOTE DB.RUN !!
             'DELETE FROM FoodItem WHERE FoodItemID = ?',
             [foodItemId],
             function(err) {
@@ -83,7 +83,7 @@ export async function deleteFoodItemById(foodItemId) {
                     reject(err);
                     console.error('Error deleting food item:', err.message);
                 } else {
-                    if (this.changes > 0) { //this.changes is the number of rows affected by the operation
+                    if (this.changes > 0) { //this.changes is the number of rows affected by the operation    // NOTE THIS STEP !!
                         // Commented out the console.log to avoid duplicate printing of the success message. 
                         // The success message is already included in the resolve() response, 
                         // so logging it again would be redundant and could clutter the logs.
@@ -100,7 +100,7 @@ export async function deleteFoodItemById(foodItemId) {
 }
 
 // 3.c, function to update a specific item
-export async function updateFoodItem(foodItemId, updates) {
+export async function updateFoodItem(foodItemId, updates) {   // IMPORTANT ! NOTE THIS STEP !!
     const db = await dbConnection.openConnection();
     
     // Build the SET part of the SQL query dynamically based on provided updates
@@ -144,7 +144,7 @@ export async function updateFoodItem(foodItemId, updates) {
                     resolve({ 
                         success: true, 
                         message: `Food item with ID ${foodItemId} updated successfully`,
-                        changes: this.changes
+                        changes: this.changes  // NOTE THIS STEP !!
                     });
                 } else {
                     console.log(`No food item found with ID ${foodItemId} or no changes made`);
@@ -166,7 +166,7 @@ export async function updateMultipleFoodItemsQuantity(quantityChange, condition)
     const values = [quantityChange];
     
     if (condition) {
-        sql += ` WHERE ${condition.field} ${condition.operator} ?`;
+        sql += ` WHERE ${condition.field} ${condition.operator} ?`; // NOTE THIS STEP !!
         values.push(condition.value);
     }
     
@@ -187,7 +187,7 @@ export async function updateMultipleFoodItemsQuantity(quantityChange, condition)
     });
 }
 
-export default { 
+export default {    // NOTE THIS STEP !!
     getAllFoodItems, 
     searchFoodItemsByName, 
     createFoodItem, 

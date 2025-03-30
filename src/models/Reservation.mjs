@@ -54,6 +54,7 @@ function Reservation(id, timestamp, status="active", bags=[], userId=null, creat
     };   
 
     this.display = function() {
+        console.log('~~~~~~~~');
         console.log(`Reservation ID: ${this.id}`);
         console.log(`User ID: ${this.userId}`);
         console.log(`Timestamp: ${this.timestamp}`);
@@ -66,7 +67,6 @@ function Reservation(id, timestamp, status="active", bags=[], userId=null, creat
         } else {
             console.log("No bags to display.");
         }        
-        console.log('--------------------------');
     }
 }
 

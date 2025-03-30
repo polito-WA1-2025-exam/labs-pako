@@ -20,11 +20,11 @@ function BagCollection() {
     }
 
     this.getAvailable = function () {
-        return this.bags.filter(bag => bag.state === "available");
+        return this.bags.filter(bag => bag.state.toLowerCase() === "available");
     }
 
     this.getReserved = function () {
-        return this.bags.filter(bag => bag.state === "reserved");
+        return this.bags.filter(bag => bag.state.toLowerCase() === "reserved");
     }
 
     this.getByEstablishment = function (establishmentId) {

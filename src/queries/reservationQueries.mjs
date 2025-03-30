@@ -23,7 +23,7 @@ export async function getAllReservations() {
                 u.UserID as UserID, 
                 u.Username as UserName,  
                 u.Email as UserEmail
-            FROM Reservation r
+            FROM Reservation r, Bag b
             LEFT JOIN Bag b ON r.BagID = b.BagID
             LEFT JOIN User u ON r.UserID = u.UserID;
         `, [], (err, rows) => {

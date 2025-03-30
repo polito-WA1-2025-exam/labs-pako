@@ -12,12 +12,13 @@ import ShoppingCartCollection from '../models/ShoppingCartCollection.mjs';
 import User from '../models/User.mjs';
 import UserCollection from '../models/UserCollection.mjs';
 import foodItemQueries from '../queries/foodItemQueries.mjs'; //Getting the functions all-in-one from each file 
-import establishmentQueries from '../queries/establishmentQueries.mjs';
+import establishmentQueries, { createEstablishment, deleteEstablishmentById, getEstablishmentsByCategory } from '../queries/establishmentQueries.mjs';
 import userQueries from '../queries/userQueries.mjs';
-import bagQueries from '../queries/bagQueries.mjs';
+import bagQueries, {getAllRemovedItems } from '../queries/bagQueries.mjs';
 import reservationQueries from '../queries/reservationQueries.mjs';
 import shoppingCartQueries from '../queries/shoppingCartQueries.mjs';
 import dbConnection from '../db/dbConnection.mjs';
+
 export function createObjects() {
     // Create global collections
     const foodItems = new FoodItemCollection();
@@ -73,8 +74,9 @@ export function createObjects() {
     establishment5.addBag(regularBag5);
 
     // Create reservation
-    const reservation1 = reservations.add(new Reservation(201, "user123", [surpriseBag1], dayjs().format('YYYY-MM-DD HH:mm')));
-    const reservation2 = reservations.add(new Reservation(202, "user456", [regularBag2], dayjs().format('YYYY-MM-DD HH:mm')));
+    const reservation1 = reservations.add(new Reservation(201, dayjs().format('YYYY-MM-DD HH:mm'), "active", [surpriseBag1], "user123"));
+    const reservation2 = reservations.add(new Reservation(202, dayjs().format('YYYY-MM-DD HH:mm'), "active", [regularBag2, surpriseBag4], "user456", dayjs().format('YYYY-MM-DD HH:mm')));
+    
     
     // Add reservations to users
     user1.addReservation(reservation1);
@@ -286,3 +288,29 @@ export async function testDatabaseOperations() {
     await dbConnection.closeConnection();
 }
 
+export async function testEstablishmentQueries() {
+    const objects = await createObjects();
+    console.log("=======================================================");
+    // getAllEstablishments();
+    // searchEstablishmetByName("Fresh");
+    // createEstablishment("Pizzeria X", "Via Russo, 28, Torino", "3748935544", "Italian", "restaurant");
+    // deleteEstablishmentById(7);
+
+    // await dbConnection.closeConnection();
+    getEstablishmentsByCategory("Grocery");
+}
+
+export async function testBagQueries() {
+    console.log("=======================================================");
+    const objects = createObjects();
+    const bag1 = objects.bags.getById(2);
+    bag1.addFoodItem(objects.foodItems(1));
+    bag1.removeFoodItem(objects.foodItems(2));
+    // console.log(bag1.display());
+    getAllRemovedItems(2);
+}
+
+export async function testReservationQueries() {
+    console.log("=======================================================");
+    
+}

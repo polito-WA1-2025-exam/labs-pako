@@ -101,18 +101,20 @@ function Bag(id, type, size, content = [], price, establishmentId, daysToPickUp,
         console.log(`Price: ${this.price}`);
         console.log(`Establishment ID: ${this.establishmentId}`);
         console.log(`Time to pick up: ${this.timeToPickUp}`);
-        console.log("Removed Items:");
-        this.removedItems.forEach(item => {
-            console.log(`RemovedItemID: ${item.RemovedItemID}, Quantity: ${item.Quantity}, CreationDate: ${item.CreationDate}`);
-        });
         console.log(`State: ${this.state}`);
         if (this.type.toLowerCase() === "regular") {
             console.log("Contents Item For Regular Bag:");
             this.content.forEach(item => {
-                console.log(`Food Item ID: ${item.FoodItemID}, Quantity: ${item.Quantity}`);
+                console.log(`Food Item ID: ${item.id}, Name: ${item.name}, Quantity: ${item.quantity}`);
             })
         }
-        console.log('--------------------------');
+        if (removedItems.length > 0) {
+            console.log("Removed Items:");
+            this.removedItems.forEach(item => {
+                console.log(`RemovedItemID: ${item.id},  Name: ${item.name}, Quantity: ${item.quantity}`);
+            });
+        }
+        console.log('-----');
     }    
 }
 

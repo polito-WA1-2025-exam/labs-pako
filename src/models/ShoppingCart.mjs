@@ -38,6 +38,10 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
         return false;
     };
 
+    this.getReservationById = (reservationId) => {
+        return this.reservations[reservationId];
+    };
+
     // Adds an allergy to the list
     this.addAllergy = (allergy) => {
         this.allergies.push(allergy);
@@ -55,7 +59,7 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
     // Calculates the total price of all reservations in the cart
     this.totalPrice = () =>
         this.reservations.reduce((total, reservation) => {
-            if (reservation.bags && reservation.bags.length > 0) {
+            if (reservation.bags && Array.isArray(reservation.bags) && reservation.bags.length > 0) {
                 return total + reservation.bags.reduce((sum, bag) => sum + bag.price, 0);
             }
             return total; // Se non ci sono borse, ritorna il totale senza aggiungere nulla
@@ -118,11 +122,13 @@ function ShoppingCart(id, userId = null, reservations = [], allergies = [], requ
         console.log(`Total Price: $${this.totalPrice().toFixed(2)}`);
         console.log(`Reservations:`);
         this.reservations.forEach(reservation => {
-            console.log(`Reservation ID: ${reservation.ReservationID}`);
-            console.log(`Timestamp: ${reservation.TimeStamp}`);
-            console.log(`BagId: ${reservation.BagID}`);
-            console.log(`Status: ${reservation.Status}`);
-            console.log("UserID: ", reservation.UserID);    
+            // console.log("...........");
+            console.log(reservation.display());
+            // console.log(`Reservation ID: ${reservation.ReservationID}`);
+            // console.log(`Timestamp: ${reservation.TimeStamp}`);
+            // console.log(`BagId: ${reservation.BagID}`);
+            // console.log(`Status: ${reservation.Status}`);
+            // console.log("UserID: ", reservation.UserID);    
         });
         console.log('--------------------------');
     };

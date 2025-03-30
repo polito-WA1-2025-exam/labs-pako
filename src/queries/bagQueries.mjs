@@ -2,23 +2,27 @@ import dbConnection from "../db/dbConnection.mjs";
 import Bag from "../models/Bag.mjs";
 
 // Function to get all removed items for a specific BagID
-async function getAllRemovedItems(BagID) {
+export async function getAllRemovedItems(BagID) {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM RemovedItems WHERE BagID = ?', [BagID], (err, rows) => {
+        db.all('SELECT RemovedItems FROM Bag WHERE BagID = ?', [BagID], (err, rows) => {
             if (err) {
                 reject(err);
             } else {        
                 resolve(rows);
+                console.log("Items removed : ")
+                console.log(rows.forEach(row => {
+                    console.log(row);
+                }));
             }
         });
     });
 }
 // Function to get all removed items for a specific BagID
-async function gettAllBagFoodItems(BagID) {
+async function getAllBagFoodItems(BagID) {
     const db = await dbConnection.openConnection();
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM BagFoodItem WHERE BagID = ?', [BagID], (err, rows) => {
+        db.all('SELECT  FROM BagFoodItem WHERE BagID = ?', [BagID], (err, rows) => {
             if (err) {
                 reject(err);
             } else {        
@@ -273,6 +277,8 @@ export async function updateBag(bagID, updates) {
 
 
 export default { getAllBags,
+                 getAllRemovedItems,
+                 getAllBagFoodItems,
                  getBagsByDateRange,
                  createBag,
                  updateBag,
