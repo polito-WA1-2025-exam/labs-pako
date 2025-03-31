@@ -101,7 +101,7 @@ The project uses the following dependencies:
 To install dependencies, run:
 ```sh
 npm init # if not already done
-npm install express dayjs sqlite3 morgan bootstrap
+npm install express dayjs sqlite3 morgan bootstrap react-bootstrap bootstrap-icons
 npm install --save-dev nodemon
 ```
 
