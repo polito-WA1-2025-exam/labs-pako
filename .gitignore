@@ -21,3 +21,6 @@ Thumbs.db
 *.log
 *.bak
 *.swp
+
+# Lab 4
+public/
