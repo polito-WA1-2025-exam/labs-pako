@@ -84,3 +84,63 @@
   .social-icon:hover {
     color: var(--accent-color);
   }
+
+  .bag-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .bag-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .bag-card .card-body .bag-info {
+    flex-grow: 1;
+  }
+  
+  .bag-card .card-body .bag-contents {
+    min-height: 60px; /* Assicura che ci sia spazio per i contenuti, modifica il valore se necessario */
+  }
+  
+  .bag-card .card-footer {
+    margin-top: auto;
+  }
+  
+  .bag-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bag-card .card-header {
+    padding: 0.5rem 1rem;
+  }
+  
+  .bag-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .bag-info i {
+    color: var(--primary-color);
+  }
+  
+  .bag-contents-list {
+    max-height: 100px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .reserved-bag {
+    opacity: 0.7;
+  }
+  
+  .reserved-bag:hover {
+    opacity: 1;
+  }
