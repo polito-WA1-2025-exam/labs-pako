@@ -9,7 +9,7 @@ import EstablishmentsList from './components/establishment/EstablishmentsList';
 import InfoSection from './components/InfoSection';
 import BagsPage from './components/bag/BagsPage';
 import Footer from './components/Footer';
-import { Container } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,10 +41,19 @@ const HomePage = () => (
       subtitle="Join our mission to reduce food waste by rescuing surplus food from local stores and restaurants at discounted prices." 
     />
 
-    <Container fluid className="mt-4">
-      <EstablishmentsList />
-      <InfoSection />
+    <Container fluid className="pt-4 bg-light justify-content-center">
+      <Row className="justify-content-center">
+        <Col md={10} >
+          <EstablishmentsList />
+        </Col>
+      </Row>
+      <Row className="justify-content-center">
+        <Col md={10}>
+          <InfoSection />
+        </Col>
+      </Row>         
     </Container>
+
   </>
 );
 
