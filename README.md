@@ -10,6 +10,7 @@
 - [Prerequisites](#prerequisites)
     - [Dependencies](#dependencies)
         - [Development Dependencies](#development-dependencies)
+    - [Setting Up React](#setting-up-react)
     - [Database Management](#database-management)
 - [Project Structure](#project-structure)
     - [Folder and File Descriptions](#folder-and-file-descriptions)
@@ -62,6 +63,7 @@
         - [Design](#design)
         - [Implemented Features](#implemented-features)
         - [Conclusion](#conclusion)
+    - [Lab 5](#lab-5)
 
 <!-- /TOC -->
 
@@ -79,8 +81,6 @@
 # Style approach
 
 We will loosely follow the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html). This means we’ll always insert semicolons after each statement (as mentioned by our professor in the first lesson).
-
-Here's the updated version of the README section with Bootstrap added to the dependencies:
 
 # Prerequisites
 
@@ -104,6 +104,32 @@ npm init # if not already done
 npm install express dayjs sqlite3 morgan bootstrap
 npm install --save-dev nodemon
 ```
+
+## Setting Up React
+
+To set up the React frontend, use [Vite](https://vitejs.dev/), a fast build tool for modern web applications.
+
+Run the following commands:
+
+```sh
+npm create vite@latest my-app
+```
+
+From the menu, select:
+- **React**
+- **JavaScript**
+
+Then navigate to the project folder and start the development server:
+
+```sh
+cd my-app
+npm install  # Install dependencies
+npm run dev  # Start the development server
+```
+
+After the installation (approximately 65 MB), open your browser and visit:
+
+[http://localhost:5173](http://localhost:5173)
 
 ## Database Management
 If you want to browse the content of the database, you can use one of the following tools:
@@ -1133,3 +1159,6 @@ At this stage of the project, no dynamic functionality or user interactions were
 
 ### Conclusion
 This lab provided an opportunity to gain hands-on experience in structuring and designing a web application using HTML and Bootstrap. The process involved customizing Bootstrap components with CSS to create a visually appealing webpage. While the challenge of personalizing colors and CSS variables was encountered, it was successfully overcome with the help of available online resources. The foundation for a fully functional web application has been laid, with further enhancements planned for future stages.
+
+## [Lab 5](https://polito-webapp1.github.io/lab-2025/Lab05/Lab05.pdf)
+
