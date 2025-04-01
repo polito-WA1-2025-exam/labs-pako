@@ -11,6 +11,7 @@ import EstablishmentsList from './components/establishment/EstablishmentsList';
 import InfoSection from './components/InfoSection';
 import BagsPage from './components/bag/BagsPage';
 import Footer from './components/Footer';
+import { CartProvider } from './components/context/CartContext';  // Importa il provider
 
 // Nuovo componente per il carrello
 import ShoppingCart from './components/cart/ShoppingCart';
@@ -26,22 +27,24 @@ function App() {
   };
 
   return (
-    <Router>
-      <NavBar onLogin={handleLogin} cartItemCount={0} /> {/* Gestione del conteggio è fatta in ShoppingCart */}
-      <Routes>
-        <Route path="/" element={!isLoggedIn ? <HomePage /> : <Navigate to="/bags" />} />
-        <Route 
-          path="/bags" 
-          element={isLoggedIn ? <BagsPage /> : <Navigate to="/" />} 
-        />
-        {/* Nuova route per il carrello */}
-        <Route 
-            path="/cart" 
-            element={isLoggedIn ? <ShoppingCart /> : <Navigate to="/" />} 
+    <CartProvider>  {/* Avvolge l'intera applicazione */}
+      <Router>
+        <NavBar onLogin={handleLogin} cartItemCount={0} /> {/* Gestione del conteggio è fatta in ShoppingCart */}
+        <Routes>
+          <Route path="/" element={!isLoggedIn ? <HomePage /> : <Navigate to="/bags" />} />
+          <Route 
+            path="/bags" 
+            element={isLoggedIn ? <BagsPage /> : <Navigate to="/" />} 
           />
-      </Routes>
-      <Footer />
-    </Router>
+          {/* Nuova route per il carrello */}
+          <Route 
+              path="/cart" 
+              element={isLoggedIn ? <ShoppingCart /> : <Navigate to="/" />} 
+            />
+        </Routes>
+        <Footer />
+      </Router>
+    </CartProvider>
   );
 }
 

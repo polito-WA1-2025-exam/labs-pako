@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, Badge, Button, Form } from 'react-bootstrap';
 import BagContents from './BagContents';
-
-// Componente per visualizzare una singola borsa:
+import { useCart } from '../context/CartContext';  // Importa il contesto per il carrello
 
 function BagCard({ bag }) {
   const { type, size, price, establishment, pickupTimeRange, status, contents } = bag;
+  const { addToCart } = useCart();  // Usa il contesto per aggiungere al carrello
   
   // Determina lo stile del badge in base allo stato
   const getStatusBadgeVariant = () => {
@@ -72,7 +72,13 @@ function BagCard({ bag }) {
                 <option>3</option>
               </Form.Select>
             </Form.Group>
-            <Button variant="primary" className="w-100">Add to Cart</Button>
+            <Button 
+              variant="primary" 
+              className="w-100" 
+              onClick={() => addToCart(bag)}  // Aggiungi la borsa al carrello
+            >
+              Add to Cart
+            </Button>
           </div>
         )}
       </Card.Body>

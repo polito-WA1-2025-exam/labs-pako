@@ -6,29 +6,28 @@ const CartItem = ({ item, onRemove }) => {
       <h3>{item.name}</h3>
       <p>€{item.price.toFixed(2)}</p>
       
-      {item.type === 'regular' && (
+      {item.type === 'regular' && item.items && Array.isArray(item.items) && (
         <div className="item-details">
-          <h4>Contents:</h4>
-          <ul>
+            <h4>Contents:</h4>
+            <ul>
             {item.items.map(foodItem => (
-              <li key={foodItem.id}>
+                <li key={foodItem.id}>
                 {foodItem.name} x{foodItem.quantity}
                 {item.removedItems && item.removedItems.length < 2 && (
-                  <button className="btn btn-sm btn-outline-danger ms-2">
+                    <button className="btn btn-sm btn-outline-danger ms-2">
                     <i className="bi bi-trash"></i>
-                  </button>
+                    </button>
                 )}
-              </li>
+                </li>
             ))}
-          </ul>
-          <p className="removed-note">
+            </ul>
+            <p className="removed-note">
             {item.removedItems && item.removedItems.length > 0 
-              ? `Items removed: ${item.removedItems.length}/2` 
-              : 'You can remove up to 2 items'}
-          </p>
+                ? `Items removed: ${item.removedItems.length}/2` 
+                : 'You can remove up to 2 items'}
+            </p>
         </div>
-      )}
-
+        )}
       {item.type === 'surprise' && (
         <div className="surprise-note">
           <i className="bi bi-gift"></i>

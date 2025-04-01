@@ -1,14 +1,13 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import BagCard from './BagCard';
-// Componente per visualizzare l'elenco delle borse:
 
-function BagsList({ bags }) {
+function BagsList({ bags, addToCart }) {
   return (
-    <Row xs={1} md={2} lg={3} className="g-4 pb-4">
+    <Row>
       {bags.map(bag => (
-        <Col key={bag.id}>
-          <BagCard bag={bag} />
+        <Col key={bag.id} md={4} className="mb-4">
+          <BagCard bag={bag} addToCart={addToCart} />
         </Col>
       ))}
     </Row>
