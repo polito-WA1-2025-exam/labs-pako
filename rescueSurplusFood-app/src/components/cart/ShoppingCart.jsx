@@ -1,20 +1,31 @@
 import React, { useState } from "react";
-import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap'; // Importa i componenti di React-Bootstrap
-import { useCart } from '../context/CartContext';  // Importa il contesto
-import AllergiesForm from './AllergiesForm';  // Form per le allergie
+import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap';
+import { useCart } from '../context/CartContext';
 
 const ShoppingCart = () => {  
-  const { cartItems, removeFromCart } = useCart();  // Usa il contesto per ottenere gli articoli del carrello
+  const { cartItems, removeFromCart } = useCart();
   const [allergies, setAllergies] = useState('');
+  const [specialRequests, setSpecialRequests] = useState('');
+  const [removedItems, setRemovedItems] = useState({});
 
-  // Calcola il totale del carrello
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => total + item.price, 0);
   };
 
-  // Funzione per determinare il badge dello stato
   const getStatusBadgeVariant = (status) => {
     return status === 'available' ? 'success' : 'warning';
+  };
+
+  const handleRemoveItem = (bagId, contentIndex) => {
+    setRemovedItems((prev) => {
+      const removedCount = prev[bagId]?.length || 0;
+      if (removedCount >= 2) return prev; 
+
+      return {
+        ...prev,
+        [bagId]: [...(prev[bagId] || []), contentIndex]
+      };
+    });
   };
 
   return (
@@ -24,9 +35,7 @@ const ShoppingCart = () => {
         <div className="empty-cart text-center">
           <i className="bi bi-cart-x" style={{ fontSize: '3rem' }}></i>
           <p>Your cart is empty</p>
-          <a href="/bags" className="btn btn-primary">
-            Browse Food Bags
-          </a>
+          <a href="/bags" className="btn btn-primary">Browse Food Bags</a>
         </div>
       ) : (
         <>
@@ -62,7 +71,21 @@ const ShoppingCart = () => {
                       <strong>Contents:</strong>
                       <ul>
                         {item.contents.map((content, idx) => (
-                          <li key={idx}>{content.quantity} x {content.item}</li>
+                          !removedItems[item.id]?.includes(idx) && (
+                            <li key={idx}>
+                              {content.quantity} x {content.item} 
+                              {item.type.toLowerCase() === 'regular' && (removedItems[item.id]?.length || 0) < 2 && (
+                                <Button 
+                                  variant="outline-danger" 
+                                  size="sm" 
+                                  className="ms-2"
+                                  onClick={() => handleRemoveItem(item.id, idx)}
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            </li>
+                          )
                         ))}
                       </ul>
                     </div>
@@ -75,46 +98,36 @@ const ShoppingCart = () => {
             ))}
           </div>
 
-          {/* Allergies Form Section */}
-          <Card className="mt-4 shadow-sm border-light">
-            <Card.Body>
-              <h5 className="mb-3">Any Allergies?</h5>
-              <Form.Group controlId="formAllergies">
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={allergies}
-                  onChange={(e) => setAllergies(e.target.value)}
-                  placeholder="Let us know if you have any allergies"
-                  className="mb-3"
-                />
-                <Button variant="primary" onClick={() => alert("Allergies noted!")}>
-                  Submit Allergies
-                </Button>
-              </Form.Group>
-            </Card.Body>
-          </Card>
-
           {/* Order Summary Section */}
           <Card className="mt-4 shadow-sm border-light">
             <Card.Body>
               <h3 className="mb-4">Order Summary</h3>
               <Row className="mb-2">
-                <Col sm={6}>
-                  <span>Items ({cartItems.length}):</span>
-                </Col>
-                <Col sm={6} className="text-end">
-                  <span>€{calculateTotal().toFixed(2)}</span>
-                </Col>
+                <Col sm={6}><span>Items ({cartItems.length}):</span></Col>
+                <Col sm={6} className="text-end"><span>€{calculateTotal().toFixed(2)}</span></Col>
               </Row>
               <Row className="mb-2">
-                <Col sm={6}>
-                  <strong>Total:</strong>
-                </Col>
-                <Col sm={6} className="text-end">
-                  <strong>€{calculateTotal().toFixed(2)}</strong>
-                </Col>
+                <Col sm={6}><strong>Total:</strong></Col>
+                <Col sm={6} className="text-end"><strong>€{calculateTotal().toFixed(2)}</strong></Col>
               </Row>
+              <Form.Group className="mb-3">
+                <Form.Label>Allergies:</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Specify any allergies"
+                  value={allergies}
+                  onChange={(e) => setAllergies(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Special Requests:</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Specify any special requests"
+                  value={specialRequests}
+                  onChange={(e) => setSpecialRequests(e.target.value)}
+                />
+              </Form.Group>
               <Button variant="success" className="w-100">
                 <i className="bi bi-check-circle"></i> Confirm Order
               </Button>
