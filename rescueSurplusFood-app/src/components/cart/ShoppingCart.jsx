@@ -3,11 +3,12 @@ import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap';
 import { useCart } from '../context/CartContext';
 
 const ShoppingCart = () => {  
-  const { cartItems, removeFromCart } = useCart();
+  const { cartItems, removeFromCart, clearCart } = useCart();
   const [allergies, setAllergies] = useState('');
   const [specialRequests, setSpecialRequests] = useState('');
   const [removedItems, setRemovedItems] = useState({});
-
+  const [unavailableItems, setUnavailableItems] = useState([]);
+  
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => total + item.price, 0);
   };
@@ -28,6 +29,20 @@ const ShoppingCart = () => {
     });
   };
 
+  const handleConfirmOrder = () => {
+    // Simulate items becoming unavailable
+    const newlyUnavailable = cartItems.filter(() => Math.random() < 0.3); // 30% chance
+    if (newlyUnavailable.length > 0) {
+      setUnavailableItems(newlyUnavailable.map(item => item.id));
+      setTimeout(() => {
+        setUnavailableItems([]);
+        clearCart();
+      }, 5000);
+    } else {
+      alert("Order Confirmed!");
+    }
+  };
+
   return (
     <div className="shopping-cart p-4">
       <h2 className="text-center mb-4">Your Shopping Cart</h2>
@@ -41,7 +56,7 @@ const ShoppingCart = () => {
         <>
           <div className="cart-items mb-4">
             {cartItems.map((item, index) => (
-              <Card key={`${item.id}-${index}`} className="mb-3">
+              <Card key={`${item.id}-${index}`} className={`mb-3 ${unavailableItems.includes(item.id) ? 'bg-danger text-white' : ''}`}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                   <div>
                     <Badge bg="primary" className="me-1">
@@ -128,7 +143,7 @@ const ShoppingCart = () => {
                   onChange={(e) => setSpecialRequests(e.target.value)}
                 />
               </Form.Group>
-              <Button variant="success" className="w-100">
+              <Button variant="success" className="w-100" onClick={handleConfirmOrder}>
                 <i className="bi bi-check-circle"></i> Confirm Order
               </Button>
             </Card.Body>
