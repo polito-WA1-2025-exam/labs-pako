@@ -38,6 +38,7 @@ const ShoppingCart = () => {
         setUnavailableItems([]);
         clearCart();
       }, 5000);
+      alert("Problem with the order!");
     } else {
       alert("Order Confirmed!");
     }
