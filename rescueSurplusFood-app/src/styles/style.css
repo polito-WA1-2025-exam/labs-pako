@@ -144,3 +144,17 @@
   .reserved-bag:hover {
     opacity: 1;
   }
+
+  .same-height-cards {
+    display: flex;
+    flex-wrap: wrap; /* Permette alle card di andare a capo su schermi più piccoli */
+  }
+  
+  .same-height-cards > .col {
+    display: flex;
+    flex-direction: column; /* Assicura che il contenuto della colonna si allinei dall'alto */
+  }
+  
+  .bag-card {
+    flex-grow: 1; /* Fa sì che la card si estenda per riempire lo spazio disponibile nella colonna */
+  }
