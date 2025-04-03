@@ -64,6 +64,16 @@
         - [Implemented Features](#implemented-features)
         - [Conclusion](#conclusion)
     - [Lab 5](#lab-5)
+        - [Objective](#objective)
+        - [Screenshots](#screenshots)
+        - [Activities and Learning](#activities-and-learning)
+            - [Creating and Configuring the React Application](#creating-and-configuring-the-react-application)
+            - [Restructuring the Page into Components Separation of Concerns](#restructuring-the-page-into-components-separation-of-concerns)
+            - [Identifying and Implementing State and Props](#identifying-and-implementing-state-and-props)
+            - [Displaying the Collection of Items](#displaying-the-collection-of-items)
+        - [Challenges and Solutions](#challenges-and-solutions)
+        - [Further Steps](#further-steps)
+        - [Conclusion](#conclusion)
 
 <!-- /TOC -->
 
@@ -144,6 +154,45 @@ The project structure is organized as follows:
 ```
 docs
 node_modules
+rescueSurplusFood-app
+├── node_modules
+├── public
+│   └── food-donation-icon.svg
+├── src
+│   ├── assets
+│   │   └── react.svg
+│   ├── components
+│   │   ├── bag
+│   │   │   ├── BagCard.jsx
+│   │   │   ├── BagContents.jsx
+│   │   │   ├── BagsFilter.jsx
+│   │   │   ├── BagsList.jsx
+│   │   │   ├── BagsPage.jsx
+│   │   │   └── BagsSummary.jsx
+│   │   ├── cart
+│   │   │   ├── AllergiesForm.jsx
+│   │   │   ├── CartItem.jsx
+│   │   │   ├── ShoppingCart.jsx
+│   │   │   └── UnavailableBadge.jsx
+│   │   ├── context
+│   │   │   └── CartContext.jsx
+│   │   ├── establishment
+│   │   │   ├── EstablishmentCard.jsx
+│   │   │   └── EstablishmentsList.jsx
+│   │   ├── Footer.jsx
+│   │   ├── HeroSection.jsx
+│   │   ├── InfoSection.jsx
+│   │   └── NavBar.jsx
+│   ├── styles
+│   ├── App.jsx
+│   └── main.jsx
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+└── README.md
+└── vite.config.js
 src
 ├── controllers
 │   ├── establishmentController.mjs
@@ -1162,3 +1211,107 @@ This lab provided an opportunity to gain hands-on experience in structuring and 
 
 ## [Lab 5](https://polito-webapp1.github.io/lab-2025/Lab05/Lab05.pdf)
 
+### Objective
+
+The primary goal of this lab was to begin the front-end development of our food waste reduction web application using React. We focused on restructuring the layout developed in the previous lab (Lab 4) to adopt React's component-based architecture. This involved breaking down the application into smaller, reusable components and defining the initial state and props needed to display our data. We also configured a new React application using Vite and integrated React Bootstrap for styling and layout.
+
+### Screenshots
+
+![Lab05-01](./docs/images/lab05-01.png)
+![Lab05-02](./docs/images/lab05-02.png)
+![Lab05-03](./docs/images/lab05-03.png)
+
+### Activities and Learning
+
+#### 1. Creating and Configuring the React Application
+
+We started by creating a new React application using Vite. This provided a fast and efficient development environment. The command used was:
+
+```bash
+npm create vite@latest food-waste-app -- --template react
+cd food-waste-app
+npm install
+```
+
+Next, we installed React Bootstrap and its peer dependencies:
+
+```bash
+npm install react-bootstrap bootstrap
+```
+
+We then configured Bootstrap in our main entry point (`main.jsx` or `App.jsx`) by importing the Bootstrap CSS:
+
+```javascript
+import 'bootstrap/dist/css/bootstrap.min.css';
+// ... other imports
+```
+
+#### 2. Restructuring the Page into Components (Separation of Concerns)
+
+A key aspect of this lab was to move away from a monolithic structure and embrace React's component-based approach. We identified different logical sections of our application and created separate functional components for each. This promotes the principle of **separation of concerns**, making the codebase more organized, maintainable, and easier to reason about.
+
+We established a `components` folder in the `src` directory to house our custom React components. This organizational structure helps in locating and managing the different parts of our UI.
+
+For example, we created the following components (as seen in the collaborative sessions):
+
+* **`BagsPage.jsx`:** This component serves as a container for displaying the list of available food bags, filtering options, and a summary of available/reserved bags. It holds the state for the bags data (initially stubbed).
+* **`BagsList.jsx`:** This component is responsible for rendering the actual list of `BagItem` components. It receives the `bags` data as props.
+* **`BagItem.jsx`:** (While not explicitly shown in the initial code, this would be a component to render the details of a single food bag.)
+* **`BagsFilter.jsx`:** This component would contain UI elements for filtering the list of bags (though not made interactive in this lab).
+* **`BagsSummary.jsx`:** This component displays a summary of the number of available and reserved bags, receiving these counts as props.
+* **`HeroSection.jsx`:** A reusable component for the main title and subtitle section of a page.
+* **`EstablishmentsList.jsx`:** This component is responsible for fetching (or using stubbed data) and displaying a list of participating establishments using `EstablishmentCard` components.
+* **`EstablishmentCard.jsx`:** This component renders the details of a single establishment, receiving establishment data as props.
+
+By breaking down the UI into these distinct components, we achieved a more modular and manageable codebase. Each component has a specific responsibility, making it easier to develop, test, and reuse parts of the application.
+
+#### 3. Identifying and Implementing State and Props
+
+We then focused on defining the necessary state and props for our components to store and display data.
+
+* **State:** The `BagsPage` component used the `useState` hook to manage the `bags` array. This array initially held stubbed data representing the available food bags. The `EstablishmentsList` component also used `useState` to manage the `establishments` array, initially populated with stubbed data as well. State is used for data that can change within a component.
+* **Props:** Data was passed down from parent components to child components using props. For example, in `BagsPage`, the `bags` array (state) was passed as a prop to the `BagsList` component. Similarly, individual `establishment` objects were passed as props to the `EstablishmentCard` component from within the `EstablishmentsList`. Props allow for the flow of data downwards in the component tree.
+
+We initialized the state with JavaScript data structures (arrays of objects) that mirrored the expected data format from our future API. This allowed us to start building the UI and its layout using realistic data structures.
+
+#### 4. Displaying the Collection of Items
+
+The `map` function in JavaScript was crucial for iterating over the arrays of bags and establishments and rendering the corresponding components (`BagItem` within `BagsList`, and `EstablishmentCard` within `EstablishmentsList`). This dynamic rendering based on the data is a fundamental concept in React.
+
+For example, in `BagsList`:
+
+```javascript
+{bags.map(bag => (
+  <BagItem key={bag.id} bag={bag} />
+))}
+```
+
+And in `EstablishmentsList`:
+
+```javascript
+{establishments.map(establishment => (
+  <Col key={establishment.id}>
+    <EstablishmentCard establishment={establishment} />
+  </Col>
+))}
+```
+
+The `key` prop is essential when rendering lists in React as it helps React identify which items have changed, been added, or been removed.
+
+### Challenges and Solutions
+
+* **Understanding the Flow of Data:** Initially, it required some thought to determine which component should hold the state and how that data should be passed down as props to other components. We addressed this by identifying the component that is most directly concerned with managing the collection of items (e.g., `BagsPage` for bags, `EstablishmentsList` for establishments) as the owner of the state.
+* **Mapping API Data to Component Props:** We learned how to transform the structure of data received (or expected) from an API to match the props that our individual components expect. This often involves using the `map` function and creating new objects with the desired properties.
+
+### Further Steps
+
+For the next lab, we will focus on making the page interactive. This will involve:
+
+* Implementing event handlers to respond to user interactions (e.g., button clicks, form submissions).
+* Updating the state based on these interactions.
+* Potentially integrating with a backend API to fetch and persist data dynamically.
+* Adding filtering and sorting functionality to the lists of bags and establishments.
+
+### Conclusion
+
+This lab provided a solid foundation for building our food waste reduction web application using React. We successfully restructured our initial layout into a component-based architecture, leveraging the principles of separation of concerns. We also gained practical experience in defining and passing state and props, and in dynamically rendering lists of items. The use of React Bootstrap significantly streamlined the styling and layout process. We are now well-prepared to add interactivity and dynamic data fetching in the subsequent labs.
