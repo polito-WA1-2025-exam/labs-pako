@@ -3,79 +3,105 @@ import { Container, Row, Col } from 'react-bootstrap';
 import EstablishmentCard from './EstablishmentCard';
 
 function EstablishmentsList() {
-  // Questo array potrebbe venire da un API in un'implementazione reale
-  const establishments = [
+  // Questo è lo "stub" dei dati API per gli stabilimenti con il campo "content"
+  const apiEstablishmentsStub = [
     {
-      id: 1,
-      name: "Artisan Bakery",
-      cuisineType: "Bakery",
-      address: "45 Piazza Roma, Turin",
-      phone: "+39 011 987 6543",
-      description: "Freshly baked breads, pastries, and desserts made with locally sourced ingredients."
+      "id": 1,
+      "name": "Green Grocers",
+      "address": "123 Main St, Springfield",
+      "phoneNumber": "555-1234",
+      "category": "Grocery",
+      "type": "Supermarket",
+      "bags": [],
+      "content": "Ampia selezione di prodotti freschi, latticini e pane appena sfornato. Offerte speciali sui prodotti locali ogni settimana."
     },
     {
-      id: 2,
-      name: "Asian Fusion",
-      cuisineType: "Asian",
-      address: "54 Via Po, Turin",
-      phone: "+39 011 678 9012",
-      description: "Modern restaurant combining flavors from various Asian cuisines with a contemporary twist."
+      "id": 2,
+      "name": "Fresh Mart",
+      "address": "456 Elm St, Springfield",
+      "phoneNumber": "555-5678",
+      "category": "Grocery",
+      "type": "Convenience Store",
+      "bags": [],
+      "content": "Il tuo negozio di fiducia per acquisti veloci. Trova snack, bevande, articoli per la casa e una piccola selezione di frutta e verdura fresca."
     },
     {
-      id: 3,
-      name: "Bella Pizza",
-      cuisineType: "Pizzeria",
-      address: "78 Via Napoli, Turin",
-      phone: "+39 011 345 6789",
-      description: "Traditional Neapolitan pizzas baked in a wood-fired oven with premium toppings."
+      "id": 3,
+      "name": "Organic Heaven",
+      "address": "789 Oak St, Springfield",
+      "phoneNumber": "555-9101",
+      "category": "Grocery",
+      "type": "Organic Store",
+      "bags": [],
+      "content": "Prodotti biologici certificati, alimenti senza glutine e una vasta gamma di opzioni vegane. Scopri sapori naturali e sostenibili."
     },
     {
-      id: 4,
-      name: "Café Milano",
-      cuisineType: "Café",
-      address: "15 Via Milano, Turin",
-      phone: "+39 011 456 7890",
-      description: "Cozy café offering specialty coffees, sandwiches, and homemade pastries."
+      "id": 4,
+      "name": "The Daily Bread",
+      "address": "10 Downing St, London",
+      "phoneNumber": "+44 20 7946 0917",
+      "category": "Bakery",
+      "type": "Artisan",
+      "bags": [],
+      "content": "Panetteria artigianale che sforna ogni giorno pane con lievito madre, croissant fragranti e dolci tradizionali. Ingredienti di alta qualità e passione per la panificazione."
     },
     {
-      id: 5,
-      name: "Fresh Market",
-      cuisineType: "Grocery",
-      address: "32 Corso Francia, Turin",
-      phone: "+39 011 567 8901",
-      description: "Local grocery store with fresh produce, dairy products, and organic food options."
+      "id": 5,
+      "name": "Spice Route",
+      "address": "221B Baker St, London",
+      "phoneNumber": "+44 20 7224 3688",
+      "category": "Restaurant",
+      "type": "Indian",
+      "bags": [],
+      "content": "Autentica cucina indiana con un menu ricco di curry aromatici, tandoori succulenti e specialità regionali. Spezie fresche e ricette tradizionali per un'esperienza di gusto unica."
     },
     {
-      id: 6,
-      name: "Pasta Paradise",
-      cuisineType: "Italian",
-      address: "123 Main Street, Turin",
-      phone: "+39 011 234 5678",
-      description: "Authentic Italian restaurant specializing in homemade pasta and regional specialties."
+      "id": 6,
+      "name": "Pizza Place",
+      "address": "5th Ave, New York",
+      "phoneNumber": "212-555-1212",
+      "category": "Restaurant",
+      "type": "Pizzeria",
+      "bags": [],
+      "content": "Le migliori pizze di New York, cotte nel forno a legna con ingredienti freschi e di stagione. Dalle classiche Margherita alle creazioni gourmet, ce n'è per tutti i gusti."
     },
     {
-      id: 7,
-      name: "Vegan Delight",
-      cuisineType: "Vegan",
-      address: "67 Via Verdi, Turin",
-      phone: "+39 011 890 1234",
-      description: "Plant-based restaurant with creative dishes made from seasonal, organic ingredients."
+      "id": 7,
+      "name": "Coffee Corner",
+      "address": "Wall Street, New York",
+      "phoneNumber": "212-555-0000",
+      "category": "Café",
+      "type": "Specialty Coffee",
+      "bags": [],
+      "content": "Caffè d'eccellenza da chicchi selezionati, preparato con cura dai nostri baristi esperti. Offriamo anche una varietà di tè, pasticcini e opzioni per la colazione e il pranzo."
     },
     {
-      id: 8,
-      name: "Wine & Dine",
-      cuisineType: "Fine Dining",
-      address: "90 Corso Vittorio, Turin",
-      phone: "+39 011 901 2345",
-      description: "Elegant restaurant specializing in refined Italian cuisine paired with selected wines."
+      "id": 8,
+      "name": "Healthy Harvest",
+      "address": "Sunset Blvd, Los Angeles",
+      "phoneNumber": "310-555-9876",
+      "category": "Market",
+      "type": "Farmers Market",
+      "bags": [],
+      "content": "Mercato agricolo con prodotti freschi locali, frutta e verdura di stagione, formaggi artigianali e altri prodotti alimentari di piccoli produttori. Un'esperienza di shopping all'insegna della gioia."
     }
   ];
+
+  // Trasformiamo lo stub dei dati API nel formato che EstablishmentCard si aspetta
+  const establishments = apiEstablishmentsStub.map(est => ({
+    id: est.id,
+    name: est.name,
+    cuisineType: est.category || est.type || 'N/A',
+    address: est.address,
+    phone: est.phoneNumber,
+    description: est.content // Usiamo il campo "content" come descrizione
+  }));
 
   return (
     <Container>
       <h2 className="page-title">Participating Establishments</h2>
       <p className="mb-4">Browse our partners who are committed to reducing food waste. All establishments are displayed in alphabetical order.</p>
-      
+
       <Row xs={1} md={2} lg={3} className="g-4 mb-5">
         {establishments.map(establishment => (
           <Col key={establishment.id}>
