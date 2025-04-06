@@ -3,7 +3,7 @@ const db = new sqlite3.Database('database.db'); // Assumiamo che il database sia
 const {Bags,Cart,Reservations,pantry,Website} = require('./lab1.js');
 function getAllBags() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM Bags'; // Query per ottenere tutte le righe dalla tabella Bags
+        const query = 'SELECT * FROM bags'; // Query per ottenere tutte le righe dalla tabella Bags
         db.all(query, [], (err, rows) => {
             if (err) {
                 reject(err);
@@ -16,7 +16,7 @@ function getAllBags() {
 
 function getAllEstablishments() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM Establishments'; // Query per ottenere tutte le righe dalla tabella Establishments
+        const query = 'SELECT * FROM establishments'; // Query per ottenere tutte le righe dalla tabella Establishments
         db.all(query, [], (err, rows) => {
             if (err) {
                 reject(err);
@@ -29,7 +29,7 @@ function getAllEstablishments() {
 
 function getAllPantryItems() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM Pantry'; // Query per ottenere tutti gli oggetti dalla tabella Pantry
+        const query = 'SELECT * FROM pantry'; // Query per ottenere tutti gli oggetti dalla tabella Pantry
         db.all(query, [], (err, rows) => {
             if (err) {
                 reject(err);
@@ -42,7 +42,7 @@ function getAllPantryItems() {
 
 function getAllShoppingCarts() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM ShoppingCart'; // Query per ottenere tutti gli oggetti dalla tabella ShoppingCart
+        const query = 'SELECT * FROM shoppingCart'; // Query per ottenere tutti gli oggetti dalla tabella ShoppingCart
         db.all(query, [], (err, rows) => {
             if (err) {
                 reject(err);
@@ -55,7 +55,7 @@ function getAllShoppingCarts() {
 
 function getAllReservations() {
     return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM Reservations'; // Query per ottenere tutte le righe dalla tabella Reservations
+        const query = 'SELECT * FROM reservations'; // Query per ottenere tutte le righe dalla tabella Reservations
         db.all(query, [], (err, rows) => {
             if (err) {
                 reject(err);

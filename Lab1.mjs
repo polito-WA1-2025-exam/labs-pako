@@ -1,8 +1,5 @@
 
 import dayjs from 'dayjs'
-import sqlite3Init from 'sqlite3';
-const sqlite3 = sqlite3Init.verbose();
-import './database.js';
 const pantry={
  TotalFood:[],
  add : function(Food_Name,Quantity){
@@ -206,4 +203,134 @@ function showData() {
 // Esegui le funzioni
 initializeData();
 showData();
-export{ Bags,Cart,Reservations,pantry,Website};
+
+// LAB 2
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+
+// Abilita modalità verbose per il debug
+sqlite3.verbose();
+
+// Funzione per aprire la connessione al database
+async function openDb() {
+    return await open({
+        filename: 'Database.db', // Modifica con il tuo nome di file se diverso
+        driver: sqlite3.Database
+    });
+}
+
+// Funzione per recuperare tutti gli oggetti dalla tabella "Bags"
+async function getAllBags() {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Bags');
+    return rows; // Restituisce tutte le righe come array di oggetti
+}
+
+// Funzione per recuperare gli oggetti che soddisfano una condizione (esempio: tutte le borse con "State" uguale a "Available")
+async function getBagsByState(state) {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Bags WHERE State = ?', [state]);
+    return rows; // Restituisce le righe che corrispondono alla condizione
+}
+
+async function getAllFood() {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Food'); // Assicurati che la tabella Food esista nel tuo DB
+    return rows; // Restituisce tutte le righe come array di oggetti
+}
+
+// Funzione per recuperare tutti gli oggetti con una condizione specifica dalla tabella "Food" (esempio: per nome di cibo)
+async function getFoodByName(foodName) {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Food WHERE Food_Name LIKE ?', [`%${foodName}%`]);
+    return rows; // Restituisce tutte le righe che corrispondono al nome di cibo
+}
+// Funzione per recuperare tutti gli oggetti dalla tabella "Cart"
+async function getAllCarts() {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Cart'); // Assicurati che la tabella Cart esista nel tuo DB
+    return rows; // Restituisce tutte le righe come array di oggetti
+}
+
+// Funzione per recuperare gli oggetti che soddisfano una condizione (esempio: per un User_ID specifico)
+async function getCartByUserID(userID) {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Cart WHERE User_ID = ?', [userID]);
+    return rows; // Restituisce le righe che corrispondono al User_ID
+}
+// Funzione per recuperare tutte le prenotazioni
+async function getAllReservations() {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Reservations'); // Assicurati che la tabella Reservations esista nel tuo DB
+    return rows; // Restituisce tutte le righe come array di oggetti
+}
+
+// Funzione per recuperare le prenotazioni per stato (esempio: "Active" o "Cancelled")
+async function getReservationsByStatus(status) {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Reservations WHERE Status = ?', [status]);
+    return rows; // Restituisce le righe che corrispondono allo stato
+}
+// Funzione per recuperare tutti gli oggetti dalla tabella "Establishment"
+async function getAllEstablishments() {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Establishments'); // Assicurati che la tabella Establishments esista nel tuo DB
+    return rows; // Restituisce tutte le righe come array di oggetti
+}
+
+// Funzione per recuperare gli stabilimenti di un tipo specifico (esempio: "Restaurant" o "Store")
+async function getEstablishmentsByType(type) {
+    const db = await openDb();
+    const rows = await db.all('SELECT * FROM Establishments WHERE Type_Of_Est = ?', [type]);
+    return rows; // Restituisce le righe che corrispondono al tipo di stabilimento
+}
+async function showData() {
+    // Mostra tutti gli alimenti
+    const allFood = await getAllFood();
+    console.log('All Food:', allFood);
+
+    // Mostra gli alimenti che contengono "Tomato" nel nome
+    const foodByName = await getFoodByName('Tomato');
+    console.log('Food containing "Tomato":', foodByName);
+
+    // Mostra tutte le borse
+    const allBags = await getAllBags();
+    console.log('All Bags:', allBags);
+
+    // Mostra le borse disponibili
+    const availableBags = await getBagsByState('Available');
+    console.log('Available Bags:', availableBags);
+
+    // Mostra le borse di tipo "Regular"
+    const regularBags = await getBagsByType('Regular');
+    console.log('Regular Bags:', regularBags);
+
+    // Mostra le borse di tipo "Surprise"
+    const surpriseBags = await getBagsByType('Surprise');
+    console.log('Surprise Bags:', surpriseBags);
+
+    // Mostra tutti i carrelli
+    const allCarts = await getAllCarts();
+    console.log('All Carts:', allCarts);
+
+    // Mostra i carrelli di un determinato utente (esempio User_ID = 101)
+    const cartByUser = await getCartByUserID(101);
+    console.log('Cart for User 101:', cartByUser);
+
+    // Mostra tutte le prenotazioni
+    const allReservations = await getAllReservations();
+    console.log('All Reservations:', allReservations);
+
+    // Mostra le prenotazioni "Active"
+    const activeReservations = await getReservationsByStatus('Active');
+    console.log('Active Reservations:', activeReservations);
+
+    // Mostra tutti gli stabilimenti
+    const allEstablishments = await getAllEstablishments();
+    console.log('All Establishments:', allEstablishments);
+
+    // Mostra solo i ristoranti
+    const restaurants = await getEstablishmentsByType('Restaurant');
+    console.log('Restaurants:', restaurants);
+}
+showData();

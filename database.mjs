@@ -1,4 +1,15 @@
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
+// Abilita modalità verbose
+sqlite3.verbose();
+
+const db = await open({
+  filename: 'food_bags.db',
+  driver: sqlite3.Database
+});
+
+export default db;
 // Crea (o apre) un database SQLite
 const db = new sqlite3.Database('food_bags.db', (err) => {
     if (err) {
