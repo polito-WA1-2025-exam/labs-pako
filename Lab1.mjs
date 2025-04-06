@@ -205,3 +205,4 @@ function showData() {
 // Esegui le funzioni
 initializeData();
 showData();
+module.exports{Bags,Cart,Reservations,pantry,Website};

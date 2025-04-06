@@ -1,0 +1,198 @@
+const sqlite3 = require('sqlite3').verbose(); // Per interagire con il database
+const db = new sqlite3.Database('database.db'); // Assumiamo che il database sia 'database.db'
+const {Bags,Cart,Reservations,pantry,Website} = require('./lab1.js');
+function getAllBags() {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM Bags'; // Query per ottenere tutte le righe dalla tabella Bags
+        db.all(query, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+function getAllEstablishments() {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM Establishments'; // Query per ottenere tutte le righe dalla tabella Establishments
+        db.all(query, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+function getAllPantryItems() {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM Pantry'; // Query per ottenere tutti gli oggetti dalla tabella Pantry
+        db.all(query, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+function getAllShoppingCarts() {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM ShoppingCart'; // Query per ottenere tutti gli oggetti dalla tabella ShoppingCart
+        db.all(query, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+function getAllReservations() {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM Reservations'; // Query per ottenere tutte le righe dalla tabella Reservations
+        db.all(query, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+// Funzione per mostrare tutti i dati recuperati
+function showAllData() {
+    // Recupera e mostra tutti i dati dalle tabelle
+    Promise.all([
+        getAllBags(),
+        getAllEstablishments(),
+        getAllPantryItems(),
+        getAllShoppingCarts(),
+        getAllReservations()
+    ])
+    .then(([bags, establishments, pantry, carts, reservations]) => {
+        console.log('All Bags:', bags);
+        console.log('All Establishments:', establishments);
+        console.log('All Pantry Items:', pantry);
+        console.log('All Shopping Carts:', carts);
+        console.log('All Reservations:', reservations);
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+
+// Chiama la funzione per visualizzare i dati
+showAllData();
+
+Bags.getAvailableBags = function() {
+    const availableBags = this.Borse.filter(bag => bag.State === 'Available');
+    return availableBags;
+}
+Bags.getBagsByType = function(type) {
+    const filteredBags = this.Borse.filter(bag => bag.Type === type);
+    return filteredBags;
+}
+Bags.getBagsByEstablishment = function(establishmentId) {
+    const filteredBags = this.Borse.filter(bag => bag.Establishment_ID === establishmentId);
+    return filteredBags;
+}
+
+pantry.getFoodsByMinQuantity = function(minQuantity) {
+    const filteredFoods = this.TotalFood.filter(food => food.Quantity >= minQuantity);
+    return filteredFoods;
+}
+
+// Aggiungi un metodo per ottenere un Food specifico per nome
+pantry.getFoodByName = function(name) {
+    const food = this.TotalFood.find(food => food.Food_Name === name);
+    return food;
+}
+Website.getEstablishmentsByFoodCategory = function(category) {
+    const filteredEstablishments = this.List.filter(establishment => establishment.Food_Category === category);
+    return filteredEstablishments;
+}
+
+// Aggiungi un metodo per ottenere tutti gli Establishments di un tipo specifico (Store o Restaurant)
+Website.getEstablishmentsByType = function(type) {
+    const filteredEstablishments = this.List.filter(establishment => establishment.Type_Of_Est === type);
+    return filteredEstablishments;
+}
+
+Reservations.getActiveReservations = function() {
+    return this.Prenotazioni.filter(reservation => reservation.Status === 'Active');
+}
+
+// Aggiungi un metodo per ottenere tutte le Reservations di un utente specifico
+Reservations.getReservationsByUser = function(userId) {
+    return this.Prenotazioni.filter(reservation => reservation.User_ID === userId);
+}
+
+// Aggiungi un metodo per ottenere tutte le Reservations in un determinato intervallo di tempo
+Reservations.getReservationsByTimeRange = function(startTime, endTime) {
+    return this.Prenotazioni.filter(reservation => {
+        const timestamp = dayjs(reservation.Timestamp);
+        return timestamp.isBetween(dayjs(startTime), dayjs(endTime), null, '[]');
+    });
+}
+
+Cart.getCartsByUser = function(userId) {
+    return this.Carrello.filter(cart => cart.User_ID === userId);
+}
+
+// Aggiungi un metodo per ottenere tutti i Carrelli con un certo tipo di richiesta
+Cart.getCartsByRequest = function(request) {
+    return this.Carrello.filter(cart => cart.Requests.includes(request));
+}
+
+// Esempi di utilizzo per ottenere tutti gli oggetti dalle tabelle
+
+// Mostra tutti i dati recuperati
+showAllData();
+
+// Esempi di utilizzo per filtrare le Bags
+const availableBags = Bags.getAvailableBags();
+console.log("Available Bags:", availableBags);
+
+const largeBags = Bags.getBagsByType("Large");
+console.log("Large Bags:", largeBags);
+
+const bagsForEstablishment = Bags.getBagsByEstablishment(1);
+console.log("Bags for Establishment 1:", bagsForEstablishment);
+
+// Esempi di utilizzo per filtrare gli Establishments
+const italianEstablishments = Website.getEstablishmentsByFoodCategory("Italian");
+console.log("Italian Establishments:", italianEstablishments);
+
+const restaurantEstablishments = Website.getEstablishmentsByType("Restaurant");
+console.log("Restaurant Establishments:", restaurantEstablishments);
+
+// Esempi di utilizzo per filtrare le Pantry Items
+const foodsWithMinQuantity = pantry.getFoodsByMinQuantity(5);
+console.log("Foods with quantity >= 5:", foodsWithMinQuantity);
+
+const banana = pantry.getFoodByName("Banana");
+console.log("Banana:", banana);
+
+// Esempi di utilizzo per filtrare le Reservations
+const activeReservations = Reservations.getActiveReservations();
+console.log("Active Reservations:", activeReservations);
+
+const userReservations = Reservations.getReservationsByUser(101);
+console.log("Reservations for User 101:", userReservations);
+
+const reservationsInTimeRange = Reservations.getReservationsByTimeRange("2025-04-01", "2025-04-10");
+console.log("Reservations between 2025-04-01 and 2025-04-10:", reservationsInTimeRange);
+
+// Esempi di utilizzo per filtrare gli Shopping Carts
+const userCarts = Cart.getCartsByUser(101);
+console.log("Carts for User 101:", userCarts);
+
+const expressCarts = Cart.getCartsByRequest("Express");
+console.log("Carts with 'Express' request:", expressCarts);
