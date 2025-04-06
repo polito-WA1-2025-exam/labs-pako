@@ -1,0 +1,22 @@
+{
+  "name": "labs-pako",
+  "version": "1.0.0",
+  "description": "- s348016 Lucio Fuoco\r # Exercise \"Rescuing Surplus Food\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polito-WA1-2025-exam/labs-pako.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/polito-WA1-2025-exam/labs-pako/issues"
+  },
+  "homepage": "https://github.com/polito-WA1-2025-exam/labs-pako#readme",
+  "dependencies": {
+    "dayjs": "^1.11.13"
+  }
+}
