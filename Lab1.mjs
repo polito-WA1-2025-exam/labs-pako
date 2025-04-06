@@ -1,7 +1,8 @@
 
 import dayjs from 'dayjs'
-const sqlite3 = require('sqlite3').verbose(); // Per interagire con il database
-require('./database.js'); // Includi il file database.js
+import sqlite3Init from 'sqlite3';
+const sqlite3 = sqlite3Init.verbose();
+import './database.js';
 const pantry={
  TotalFood:[],
  add : function(Food_Name,Quantity){
@@ -205,4 +206,4 @@ function showData() {
 // Esegui le funzioni
 initializeData();
 showData();
-module.exports{Bags,Cart,Reservations,pantry,Website};
+export{ Bags,Cart,Reservations,pantry,Website};

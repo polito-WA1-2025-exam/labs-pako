@@ -1,5 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();  // Importa il modulo sqlite3
-const {Bags,Cart,Reservations,pantry,Website} = require('./lab1.js');
+
 // Crea (o apre) un database SQLite
 const db = new sqlite3.Database('food_bags.db', (err) => {
     if (err) {
