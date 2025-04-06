@@ -70,3 +70,64 @@ here the following structure that I made reading the document:
 - One `User` can have multiple `Reservations`.
 - One `Reservation` links one `User` to one `Bag`.  
 
+# Lab 3
+# API Documentation
+
+Questa API consente di gestire diverse entità nel sistema, tra cui **Food**, **Bags**, **Cart**, **Reservations**, e **Establishments**. Supporta le operazioni CRUD (Create, Read, Update, Delete).
+
+## Indice
+
+1. [Food API](#food-api)
+2. [Bags API](#bags-api)
+3. [Cart API](#cart-api)
+4. [Reservations API](#reservations-api)
+5. [Establishments API](#establishments-api)
+
+---
+
+## Food API
+
+La **Food API** consente di gestire gli alimenti nel sistema.
+
+### [GET] /food
+
+Restituisce una lista di tutti gli alimenti. È possibile filtrare per **quantità**.
+
+**Query Parameters**:
+- `quantity` (opzionale): Filtro per la quantità degli alimenti.
+
+**Esempio di richiesta**:
+```http
+    GET /food?quantity=10
+    Risposte:
+    [
+        { "id": 1, "Food_Name": "Apple", "Quantity": 10 }
+    ]
+    
+    {
+        "error": "Error message"
+    }
+```
+### [GET] /food/:id
+Restituisce un singolo alimento dato il suo ID.
+
+**Esempio di richiesta**:
+```http
+GET /food/1
+Risposte
+{
+    "id": 1,
+    "Food_Name": "Apple",
+    "Quantity": 10
+}
+```
+e simili per altri casi.
+Errori Comuni:
+400 Bad Request: La richiesta è malformata o manca di parametri obbligatori.
+
+404 Not Found: La risorsa non è stata trovata.
+
+500 Internal Server Error: Errore interno del server.
+
+
+
