@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/polito-WA1-2025-exam/labs-pako#readme",
   "dependencies": {
+    "bootstrap": "^5.3.5",
     "dayjs": "^1.11.13"
   }
 }
