@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import EstablishmentCard from './EstablishmentCard';
+import EstablishmentForm from './EstablishmentForm';
 
 function EstablishmentsList() {
-  // Questo è lo "stub" dei dati API per gli stabilimenti con il campo "content"
-  const apiEstablishmentsStub = [
+  // Dati iniziali degli establishment
+  const initialEstablishments = [
     {
       "id": 1,
       "name": "Green Grocers",
@@ -87,28 +88,82 @@ function EstablishmentsList() {
     }
   ];
 
-  // Trasformiamo lo stub dei dati API nel formato che EstablishmentCard si aspetta
-  const establishments = apiEstablishmentsStub.map(est => ({
+  // Stato per memorizzare gli establishment
+  const [apiEstablishments, setApiEstablishments] = useState(initialEstablishments);
+  
+  // Stato per tenere traccia dell'establishment da modificare
+  const [establishmentToEdit, setEstablishmentToEdit] = useState(null);
+
+  // Funzione per aggiungere un nuovo establishment
+  const handleAddEstablishment = (newEstablishment) => {
+    setApiEstablishments([...apiEstablishments, newEstablishment]);
+  };
+
+  // Funzione per aggiornare un establishment esistente
+  const handleUpdateEstablishment = (updatedEstablishment) => {
+    setApiEstablishments(
+      apiEstablishments.map(est => 
+        est.id === updatedEstablishment.id ? updatedEstablishment : est
+      )
+    );
+    // Reset dell'establishment da modificare
+    setEstablishmentToEdit(null);
+  };
+
+  // Funzione per impostare un establishment da modificare
+  const handleEditEstablishment = (id) => {
+    const estToEdit = apiEstablishments.find(est => est.id === id);
+    if (estToEdit) {
+      setEstablishmentToEdit(estToEdit);
+      // Scorriamo la pagina fino al form
+      setTimeout(() => {
+        document.getElementById('establishment-form-section').scrollIntoView({ 
+          behavior: 'smooth' 
+        });
+      }, 100);
+    }
+  };
+
+  // Funzione per annullare la modifica
+  const handleCancelEdit = () => {
+    setEstablishmentToEdit(null);
+  };
+
+  // Trasformiamo lo stato degli establishment nel formato che EstablishmentCard si aspetta
+  const establishments = apiEstablishments.map(est => ({
     id: est.id,
     name: est.name,
     cuisineType: est.category || est.type || 'N/A',
     address: est.address,
     phone: est.phoneNumber,
-    description: est.content // Usiamo il campo "content" come descrizione
+    description: est.content
   }));
 
   return (
     <Container>
       <h2 className="page-title">Participating Establishments</h2>
       <p className="mb-4">Browse our partners who are committed to reducing food waste. All establishments are displayed in alphabetical order.</p>
-
+      
       <Row xs={1} md={2} lg={3} className="g-4 mb-5">
         {establishments.map(establishment => (
           <Col key={establishment.id}>
-            <EstablishmentCard establishment={establishment} />
+            <EstablishmentCard 
+              establishment={establishment} 
+              onEdit={handleEditEstablishment}
+            />
           </Col>
         ))}
       </Row>
+      
+      {/* Aggiungiamo un ID per poter scorrere fino a questo punto quando si fa clic su Edit */}
+      <div id="establishment-form-section">
+        <EstablishmentForm 
+          onAddEstablishment={handleAddEstablishment}
+          onUpdateEstablishment={handleUpdateEstablishment}
+          establishmentToEdit={establishmentToEdit}
+          onCancelEdit={handleCancelEdit}
+        />
+      </div>
     </Container>
   );
 }
