@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Alert } from 'react-bootstrap';
 import EstablishmentCard from './EstablishmentCard';
 import EstablishmentForm from './EstablishmentForm';
 
@@ -87,18 +87,21 @@ function EstablishmentsList() {
       "content": "Mercato agricolo con prodotti freschi locali, frutta e verdura di stagione, formaggi artigianali e altri prodotti alimentari di piccoli produttori. Un'esperienza di shopping all'insegna della gioia."
     }
   ];
-
+  
   // Stato per memorizzare gli establishment
   const [apiEstablishments, setApiEstablishments] = useState(initialEstablishments);
   
   // Stato per tenere traccia dell'establishment da modificare
   const [establishmentToEdit, setEstablishmentToEdit] = useState(null);
-
+  
+  // Stato per mostrare il messaggio di successo dell'eliminazione
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  
   // Funzione per aggiungere un nuovo establishment
   const handleAddEstablishment = (newEstablishment) => {
     setApiEstablishments([...apiEstablishments, newEstablishment]);
   };
-
+  
   // Funzione per aggiornare un establishment esistente
   const handleUpdateEstablishment = (updatedEstablishment) => {
     setApiEstablishments(
@@ -109,7 +112,26 @@ function EstablishmentsList() {
     // Reset dell'establishment da modificare
     setEstablishmentToEdit(null);
   };
-
+  
+  // Funzione per eliminare un establishment
+  const handleDeleteEstablishment = (id) => {
+    // Filtriamo gli establishment per rimuovere quello con l'id corrispondente
+    setApiEstablishments(
+      apiEstablishments.filter(est => est.id !== id)
+    );
+    
+    // Mostriamo un messaggio di conferma dell'eliminazione
+    setDeleteSuccess(true);
+    setTimeout(() => {
+      setDeleteSuccess(false);
+    }, 3000);
+    
+    // Se stiamo eliminando l'establishment che stavamo modificando, resettiamo lo stato
+    if (establishmentToEdit && establishmentToEdit.id === id) {
+      setEstablishmentToEdit(null);
+    }
+  };
+  
   // Funzione per impostare un establishment da modificare
   const handleEditEstablishment = (id) => {
     const estToEdit = apiEstablishments.find(est => est.id === id);
@@ -123,12 +145,12 @@ function EstablishmentsList() {
       }, 100);
     }
   };
-
+  
   // Funzione per annullare la modifica
   const handleCancelEdit = () => {
     setEstablishmentToEdit(null);
   };
-
+  
   // Trasformiamo lo stato degli establishment nel formato che EstablishmentCard si aspetta
   const establishments = apiEstablishments.map(est => ({
     id: est.id,
@@ -138,11 +160,17 @@ function EstablishmentsList() {
     phone: est.phoneNumber,
     description: est.content
   }));
-
+  
   return (
     <Container>
       <h2 className="page-title">Participating Establishments</h2>
       <p className="mb-4">Browse our partners who are committed to reducing food waste. All establishments are displayed in alphabetical order.</p>
+      
+      {deleteSuccess && (
+        <Alert variant="success" onClose={() => setDeleteSuccess(false)} dismissible>
+          Establishment deleted successfully!
+        </Alert>
+      )}
       
       <Row xs={1} md={2} lg={3} className="g-4 mb-5">
         {establishments.map(establishment => (
@@ -150,6 +178,7 @@ function EstablishmentsList() {
             <EstablishmentCard 
               establishment={establishment} 
               onEdit={handleEditEstablishment}
+              onDelete={handleDeleteEstablishment}
             />
           </Col>
         ))}
