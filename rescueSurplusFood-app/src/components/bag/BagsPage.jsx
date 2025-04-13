@@ -5,6 +5,7 @@ import BagsFilter from './BagsFilter';
 import BagsSummary from './BagsSummary';
 import BagForm from './BagForm';
 import HeroSection from '../HeroSection';
+import dayjs from 'dayjs';
 
 function BagsPage() {
   const [bags, setBags] = useState([]);
@@ -103,17 +104,17 @@ function BagsPage() {
         }
       ];
   
-      const today = new Date("2025-04-13T00:00:00");  // la data corrente stabilita
-      const now = new Date("2025-04-13T18:00:00");   // supponiamo siano le 18:00
-  
+      const today = dayjs("2025-04-13T00:00:00");  // la data corrente stabilita
+      const now = dayjs("2025-04-13T18:00:00");   // supponiamo siano le 18:00
+        
       const filteredBags = apiBagsData.filter(bag => {
         if (!bag.timeToPickUp) return false;
   
         let bagDate;
         if (bag.timeToPickUp.includes("T")) {
-          bagDate = new Date(bag.timeToPickUp);
+          bagDate = dayjs(bag.timeToPickUp); 
         } else {
-          bagDate = new Date(bag.timeToPickUp.replace(" ", "T"));
+          bagDate = dayjs(bag.timeToPickUp.replace(" ", "T"));  // Usa dayjs anche qui
         }
   
         // La bag è valida se il tempo è nel futuro

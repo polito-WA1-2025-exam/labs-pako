@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Row, Col, Alert } from 'react-bootstrap';
+import dayjs from 'dayjs';
 
 function BagForm({ onAddBag, onUpdateBag, bagToEdit = null, establishments = [] }) {
   // Stato iniziale del form
@@ -143,9 +144,9 @@ function BagForm({ onAddBag, onUpdateBag, bagToEdit = null, establishments = [] 
       newErrors.timeToPickUp = 'Orario di ritiro obbligatorio';
     } else {
       // Verifica che il ritiro sia nel futuro
-      const pickupDateTime = new Date(formData.timeToPickUp);
-      const currentTime = new Date();
-      if (pickupDateTime <= currentTime) {
+      const pickupDateTime = dayjs(formData.timeToPickUp);
+      const currentTime = dayjs();
+      if (pickupDateTime.isBefore(currentTime, 'minute')) {
         newErrors.timeToPickUp = 'L\'orario di ritiro deve essere nel futuro';
       }
     }
@@ -189,13 +190,15 @@ function BagForm({ onAddBag, onUpdateBag, bagToEdit = null, establishments = [] 
       // Prepara i dati da inviare
       const bagData = {
         ...formData,
-        timeToPickUp: formattedTimeToPickUp, // Data formattata correttamente
+        timeToPickUp: dayjs(formData.timeToPickUp).format('YYYY-MM-DDTHH:mm'), // Data formattata correttamente
         // Se siamo in modalità modifica, mantieni l'ID esistente, altrimenti generane uno nuovo
-        id: isEditMode ? formData.id : Date.now(),
+        id: isEditMode ? formData.id : dayjs().valueOf(), // Usa dayjs per generare un timestamp
         state: isEditMode ? formData.state : 'available',
         userId: null,
         removedItems: [],
-        creationDate: isEditMode ? formData.creationDate : new Date().toISOString().replace('T', ' ').substring(0, 16)
+        creationDate: isEditMode 
+          ? formData.creationDate 
+          : dayjs().format('YYYY-MM-DD HH:mm') // Usa dayjs per formattare la data
       };
       
       // Converti la dimensione in formato numerico
@@ -341,7 +344,7 @@ function BagForm({ onAddBag, onUpdateBag, bagToEdit = null, establishments = [] 
               value={formData.timeToPickUp}
               onChange={handleChange}
               isInvalid={formSubmitted && errors.timeToPickUp}
-              min={new Date().toISOString().slice(0, 16)}
+              min={dayjs().toISOString().slice(0, 16)} // Usa dayjs per ottenere il minimo
             />
             <Form.Control.Feedback type="invalid">
               {errors.timeToPickUp}
