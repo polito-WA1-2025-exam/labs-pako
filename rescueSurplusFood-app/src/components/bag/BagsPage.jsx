@@ -15,7 +15,6 @@ function BagsPage() {
   // Simuleremo una chiamata API qui
   useEffect(() => {
     const fetchBags = async () => {
-      // In una vera applicazione, faresti una chiamata fetch qui
       const apiBagsData = [
         {
           "id": 1,
@@ -30,7 +29,7 @@ function BagsPage() {
             { "BagID": 1, "FoodItemID": 1, "Quantity": 2 },
             { "BagID": 1, "FoodItemID": 2, "Quantity": 1 }
           ],
-          "timeToPickUp": "2025-04-04 12:00",
+          "timeToPickUp": "2025-04-04 12:00",  // << questo è il 4 aprile, quindi PASSATO
           "creationDate": "2025-03-16 09:01"
         },
         {
@@ -47,7 +46,7 @@ function BagsPage() {
           "content": [
             { "BagID": 2, "FoodItemID": 3, "Quantity": 3 }
           ],
-          "timeToPickUp": "2025-04-04 14:00",
+          "timeToPickUp": "2025-04-13 20:00", // << QUESTO va bene se l'ora attuale è prima delle 20:00
           "creationDate": "2025-03-16 09:01"
         },
         {
@@ -63,7 +62,7 @@ function BagsPage() {
             { "BagID": 3, "FoodItemID": 4, "Quantity": 1 },
             { "BagID": 3, "FoodItemID": 5, "Quantity": 2 }
           ],
-          "timeToPickUp": "2025-04-04 11:30",
+          "timeToPickUp": "2025-04-14 11:30",  // << FUTURO
           "creationDate": "2025-03-20 15:45"
         },
         {
@@ -78,7 +77,7 @@ function BagsPage() {
           "content": [
             { "BagID": 4, "FoodItemID": 6, "Quantity": 4 }
           ],
-          "timeToPickUp": "2025-04-04 18:00",
+          "timeToPickUp": "2025-04-15 18:00",  // << FUTURO
           "creationDate": "2025-03-25 10:20"
         },
         {
@@ -95,15 +94,35 @@ function BagsPage() {
             { "BagID": 5, "FoodItemID": 8, "Quantity": 1 },
             { "BagID": 5, "FoodItemID": 9, "Quantity": 3 }
           ],
-          "timeToPickUp": "2025-04-04 19:15",
+          "timeToPickUp": "2025-04-16 19:15", // << FUTURO
           "creationDate": "2025-03-28 08:55"
         }
       ];
-      const transformedBags = apiBagsData.map(bag => transformBagData(bag));
+  
+      const today = new Date("2025-04-13T00:00:00");  // la data corrente stabilita
+      const now = new Date("2025-04-13T18:00:00");   // supponiamo siano le 18:00
+  
+      const filteredBags = apiBagsData.filter(bag => {
+        if (!bag.timeToPickUp) return false;
+  
+        let bagDate;
+        if (bag.timeToPickUp.includes("T")) {
+          bagDate = new Date(bag.timeToPickUp);
+        } else {
+          bagDate = new Date(bag.timeToPickUp.replace(" ", "T"));
+        }
+  
+        // La bag è valida se il tempo è nel futuro
+        return bagDate > now;
+      });
+  
+      const transformedBags = filteredBags.map(bag => transformBagData(bag));
       setBags(transformedBags);
     };
+  
     fetchBags();
   }, []);
+  
 
   // Funzione per trasformare i dati della bag nel formato corretto
   const transformBagData = (bag) => {
