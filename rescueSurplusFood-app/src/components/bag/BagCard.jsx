@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card, Badge, Button, Form } from 'react-bootstrap';
+import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap';
 import BagContents from './BagContents';
-import { useCart } from '../context/CartContext';  // Importa il contesto per il carrello
+import { useCart } from '../context/CartContext';
 
-function BagCard({ bag }) {
+function BagCard({ bag, onEdit }) { // Aggiungiamo la prop onEdit
   const { type, size, price, establishment, pickupTimeRange, status, contents } = bag;
-  const { addToCart } = useCart();  // Usa il contesto per aggiungere al carrello
+  const { addToCart } = useCart();
   
   // Determina lo stile del badge in base allo stato
   const getStatusBadgeVariant = () => {
@@ -26,7 +26,7 @@ function BagCard({ bag }) {
       default: return 'secondary';
     }
   };
-
+  
   return (
     <Card className={`bag-card ${status === 'reserved' ? 'reserved-bag' : ''}`}>
       <Card.Header className="d-flex justify-content-between align-items-center">
@@ -38,9 +38,20 @@ function BagCard({ bag }) {
             {size.charAt(0).toUpperCase() + size.slice(1)}
           </Badge>
         </div>
-        <Badge bg={getStatusBadgeVariant()}>
-          {status === 'available' ? 'Available' : 'Reserved'}
-        </Badge>
+        <div>
+          <Badge bg={getStatusBadgeVariant()} className="me-2">
+            {status === 'available' ? 'Available' : 'Reserved'}
+          </Badge>
+          {status === 'available' && (
+            <Button 
+              variant="outline-secondary" 
+              size="sm" 
+              onClick={() => onEdit(bag)}
+            >
+              <i className="bi bi-pencil"></i>
+            </Button>
+          )}
+        </div>
       </Card.Header>
       
       <Card.Body>
@@ -53,7 +64,7 @@ function BagCard({ bag }) {
         
         <div className="bag-info mb-3">
           <i className="bi bi-tag me-2"></i>
-          <span className="fw-bold">${price.toFixed(2)}</span>
+          <span className="fw-bold">${Number(price).toFixed(2)}</span>
         </div>
         
         {type === 'regular' && contents && (
@@ -75,7 +86,7 @@ function BagCard({ bag }) {
             <Button 
               variant="primary" 
               className="w-100" 
-              onClick={() => addToCart(bag)}  // Aggiungi la borsa al carrello
+              onClick={() => addToCart(bag)}
             >
               Add to Cart
             </Button>

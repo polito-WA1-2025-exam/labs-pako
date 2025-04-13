@@ -1,14 +1,24 @@
 import React from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Alert } from 'react-bootstrap';
 import BagCard from './BagCard';
-import '../../styles/style.css'; // Importa un file CSS
+import '../../styles/style.css'; // Importa il tuo CSS personalizzato
 
-function BagsList({ bags }) {
+function BagsList({ bags, onEditBag }) {
+  // Gestione del caso in cui non ci sono borse
+  if (!bags || bags.length === 0) {
+    return (
+      <Alert variant="info">
+        Non ci sono borse disponibili al momento. Riprova più tardi.
+      </Alert>
+    );
+  }
+
   return (
-    <Row className="row-cols-1 row-cols-md-3 g-4 same-height-cards pb-4"> {/* Aggiungi la classe custom */}
+    <Row className="row-cols-1 row-cols-md-3 g-4 same-height-cards pb-4">
       {bags.map(bag => (
         <Col key={bag.id}>
-          <BagCard bag={bag} />
+          {/* Passa la funzione onEditBag alla BagCard */}
+          <BagCard bag={bag} onEdit={onEditBag} />
         </Col>
       ))}
     </Row>
