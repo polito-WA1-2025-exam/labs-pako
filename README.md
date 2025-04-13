@@ -1,7 +1,5 @@
 # Table of contents
 
-<!-- TOC -->
-
 - [Table of contents](#table-of-contents)
 - [Group "PAKO"](#group-pako)
     - [Members](#members)
@@ -74,8 +72,9 @@
         - [Challenges and Solutions](#challenges-and-solutions)
         - [Further Steps](#further-steps)
         - [Conclusion](#conclusion)
-
-<!-- /TOC -->
+    - [Lab 6](#lab-6)
+        - [Objectives](#objectives)
+        - [Key Concepts](#key-concepts)
 
 # Group "PAKO"
 
@@ -165,6 +164,7 @@ rescueSurplusFood-app
 │   │   ├── bag
 │   │   │   ├── BagCard.jsx
 │   │   │   ├── BagContents.jsx
+│   │   │   ├── BagForm.jsx
 │   │   │   ├── BagsFilter.jsx
 │   │   │   ├── BagsList.jsx
 │   │   │   ├── BagsPage.jsx
@@ -178,6 +178,7 @@ rescueSurplusFood-app
 │   │   │   └── CartContext.jsx
 │   │   ├── establishment
 │   │   │   ├── EstablishmentCard.jsx
+│   │   │   ├── EstablishmentForm.jsx
 │   │   │   └── EstablishmentsList.jsx
 │   │   ├── Footer.jsx
 │   │   ├── HeroSection.jsx
@@ -1315,3 +1316,28 @@ For the next lab, we will focus on making the page interactive. This will involv
 ### Conclusion
 
 This lab provided a solid foundation for building our food waste reduction web application using React. We successfully restructured our initial layout into a component-based architecture, leveraging the principles of separation of concerns. We also gained practical experience in defining and passing state and props, and in dynamically rendering lists of items. The use of React Bootstrap significantly streamlined the styling and layout process. We are now well-prepared to add interactivity and dynamic data fetching in the subsequent labs.
+
+## [Lab 6](https://polito-webapp1.github.io/lab-2025/Lab06/Lab06.pdf)
+
+In this lab, we focused on enhancing the interactive capabilities of a React-based web application by implementing forms with dynamic functionalities. The main objectives were to create and manage forms that allow users to insert new items, edit existing ones, and validate the inputs before submission.
+
+### Objectives
+1. **Form Creation and User Interaction**:
+   - We updated our web application by creating a form that allows users to either add new items or modify existing ones. If an item is being edited, the form is pre-filled with the information of the selected item.
+  
+2. **State Management**:
+   - Upon form submission, the newly inserted or updated item is added to the state(s) managing the item list. The updates are automatically reflected in the UI without requiring any additional user interaction.
+
+3. **Form Validation**:
+   - Proper validation was implemented for all input fields within the form. Before submission, the form is fully validated. If any validation fails, the submission is canceled, and relevant error messages are displayed to guide the user. 
+   - We used JavaScript logic within the form's submission method to ensure more advanced validation, checking for proper input formats and conditions.
+
+4. **Real-Time Update**:
+   - As new items are added or existing ones are modified, the changes are automatically visualized in the list, providing a smooth user experience without needing to reload or manually trigger updates.
+
+### Key Concepts
+- **State Management in React**: We used React state to manage the list of items and dynamically updated the UI when items were added or edited.
+- **Form Validation**: Ensuring user inputs are correct before submission is critical for data integrity. This was achieved by adding checks and providing users with error messages when validation failed.
+- **Dynamic Rendering**: The form automatically updates the displayed list of items, reflecting changes instantly once the form is successfully submitted.
+
+By completing this lab, we strengthened our understanding of form handling in React, including how to manage state changes and implement validation in interactive applications. The ability to pre-fill forms and automatically update the UI after changes helps improve the usability and functionality of web applications.
