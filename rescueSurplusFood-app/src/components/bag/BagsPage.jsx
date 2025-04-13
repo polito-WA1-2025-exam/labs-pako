@@ -126,16 +126,20 @@ function BagsPage() {
     let pickupTime = 'N/A';
     let pickupTimeRange = 'N/A';
     if (bag.timeToPickUp) {
-      // Controlla se il formato è ISO (contiene 'T') o il formato con spazio
+      let date = '';
+      let time = '';
       if (bag.timeToPickUp.includes('T')) {
-        // Formato ISO da datetime-local (2025-04-14T20:00)
-        const time = bag.timeToPickUp.split('T')[1].slice(0, 5);
-        pickupTime = time;
+        // Formato ISO
+        const [fullDate, fullTime] = bag.timeToPickUp.split('T');
+        date = fullDate;
+        time = fullTime.slice(0, 5);
       } else {
-        // Formato con spazio (2025-04-04 12:00)
-        pickupTime = bag.timeToPickUp.split(' ')[1].slice(0, 5);
+        // Formato con spazio
+        const [fullDate, fullTime] = bag.timeToPickUp.split(' ');
+        date = fullDate;
+        time = fullTime.slice(0, 5);
       }
-      pickupTimeRange = `${pickupTime} - ${pickupTime}`;
+      pickupTimeRange = `${date} ${time}`;
     }
 
     const contents = bag.content ? bag.content.map(item => ({
