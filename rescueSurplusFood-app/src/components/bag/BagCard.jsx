@@ -3,7 +3,7 @@ import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap';
 import BagContents from './BagContents';
 import { useCart } from '../context/CartContext';
 
-function BagCard({ bag, onEdit }) { // Aggiungiamo la prop onEdit
+function BagCard({ bag, onEdit, onDelete }) { // Aggiungiamo la prop onDelete
   const { type, size, price, establishment, pickupTimeRange, status, contents } = bag;
   const { addToCart } = useCart();
   
@@ -43,13 +43,23 @@ function BagCard({ bag, onEdit }) { // Aggiungiamo la prop onEdit
             {status === 'available' ? 'Available' : 'Reserved'}
           </Badge>
           {status === 'available' && (
-            <Button 
-              variant="outline-secondary" 
-              size="sm" 
-              onClick={() => onEdit(bag)}
-            >
-              <i className="bi bi-pencil"></i>
-            </Button>
+            <>
+              <Button 
+                variant="outline-secondary" 
+                size="sm" 
+                onClick={() => onEdit(bag)}
+                className="me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </Button>
+              <Button 
+                variant="outline-danger" 
+                size="sm" 
+                onClick={() => onDelete(bag)}
+              >
+                <i className="bi bi-trash"></i>
+              </Button>
+            </>
           )}
         </div>
       </Card.Header>

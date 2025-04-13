@@ -11,6 +11,10 @@ function BagsPage() {
   const [showForm, setShowForm] = useState(false);
   const [currentBag, setCurrentBag] = useState(null);
   const [modalTitle, setModalTitle] = useState("Aggiungi una Nuova Bag");
+  
+  // Aggiungi stato per il modal di conferma eliminazione
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bagToDelete, setBagToDelete] = useState(null);
 
   // Simuleremo una chiamata API qui
   useEffect(() => {
@@ -123,7 +127,6 @@ function BagsPage() {
     fetchBags();
   }, []);
   
-
   // Funzione per trasformare i dati della bag nel formato corretto
   const transformBagData = (bag) => {
     let sizeText = "";
@@ -140,7 +143,6 @@ function BagsPage() {
       default:
         sizeText = "unknown";
     }
-
     // Gestisci correttamente il formato della data/ora
     let pickupTime = 'N/A';
     let pickupTimeRange = 'N/A';
@@ -160,12 +162,10 @@ function BagsPage() {
       }
       pickupTimeRange = `${date} ${time}`;
     }
-
     const contents = bag.content ? bag.content.map(item => ({
       item: `FoodItem ID ${item.FoodItemID}`,
       quantity: item.Quantity
     })) : [];
-
     return {
       id: bag.id,
       type: bag.type,
@@ -179,21 +179,39 @@ function BagsPage() {
       originalData: bag
     };
   };
-
+  
   // Funzione per aprire il form per aggiungere una nuova bag
   const handleAddNewBag = () => {
     setCurrentBag(null);
     setModalTitle("Aggiungi una Nuova Bag");
     setShowForm(true);
   };
-
+  
   // Funzione per aprire il form per modificare una bag esistente
   const handleEditBag = (bag) => {
     setCurrentBag(bag);
     setModalTitle("Modifica Bag");
     setShowForm(true);
   };
+  
+  // Funzione per gestire la richiesta di eliminazione di una bag
+  const handleDeleteBag = (bag) => {
+    setBagToDelete(bag);
+    setShowDeleteConfirm(true);
+  };
 
+  // Funzione per confermare ed eseguire l'eliminazione
+  const confirmDeleteBag = () => {
+    // In una vera applicazione, faresti una chiamata API per eliminare i dati
+    // Per ora, rimuoviamo semplicemente la bag dallo stato
+    if (bagToDelete) {
+      setBags(prevBags => prevBags.filter(bag => bag.id !== bagToDelete.id));
+    }
+    // Chiudi il modal di conferma
+    setShowDeleteConfirm(false);
+    setBagToDelete(null);
+  };
+  
   // Funzione per aggiungere una nuova bag
   const handleAddBag = (newBagData) => {
     // In una vera applicazione, faresti una chiamata API per salvare i dati
@@ -204,7 +222,7 @@ function BagsPage() {
     // Chiudi il form dopo l'aggiunta
     setShowForm(false);
   };
-
+  
   // Funzione per aggiornare una bag esistente
   const handleUpdateBag = (updatedBagData) => {
     // In una vera applicazione, faresti una chiamata API per aggiornare i dati
@@ -217,15 +235,15 @@ function BagsPage() {
     // Chiudi il form dopo l'aggiornamento
     setShowForm(false);
   };
-
+  
   const countBagsByStatus = () => {
     const available = bags.filter(bag => bag.status === "available").length;
     const reserved = bags.filter(bag => bag.status === "reserved").length;
     return { available, reserved };
   };
-
+  
   const bagCounts = countBagsByStatus();
-
+  
   return (
     <>
       <HeroSection
@@ -256,6 +274,37 @@ function BagsPage() {
             </Button>
           </Col>
         </Row>
+        
+        {/* Modal per la conferma di eliminazione */}
+        <Modal 
+          show={showDeleteConfirm} 
+          onHide={() => setShowDeleteConfirm(false)}
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Conferma Eliminazione</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Sei sicuro di voler eliminare questa bag?
+            {bagToDelete && (
+              <p className="mt-2">
+                <strong>Stabilimento:</strong> {bagToDelete.establishment}<br />
+                <strong>Tipo:</strong> {bagToDelete.type === 'surprise' ? 'Surprise' : 'Regular'}<br />
+                <strong>Prezzo:</strong> ${Number(bagToDelete.price).toFixed(2)}
+              </p>
+            )}
+            <p className="text-danger">Questa azione non può essere annullata.</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+              Annulla
+            </Button>
+            <Button variant="danger" onClick={confirmDeleteBag}>
+              Elimina
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        
         {/* Modal per il form di aggiunta/modifica */}
         <Modal 
           show={showForm} 
@@ -274,7 +323,12 @@ function BagsPage() {
             />
           </Modal.Body>
         </Modal>
-        <BagsList bags={bags} onEditBag={handleEditBag} />
+        
+        <BagsList 
+          bags={bags} 
+          onEditBag={handleEditBag} 
+          onDeleteBag={handleDeleteBag} 
+        />
       </Container>
     </>
   );
