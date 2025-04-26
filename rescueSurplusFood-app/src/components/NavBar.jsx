@@ -1,14 +1,21 @@
 import React from 'react';
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 
-function NavBar({ onLogin, cartItemCount = 0 }) {
+function NavBar({ cartItemCount = 0 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isLoggedIn, login, logout } = useAuth();  
   
   const handleLogin = () => {
-    onLogin(); // Aggiorna lo stato di login nell'App
-    navigate('/bags'); // Reindirizza alla pagina delle borse
+    login();  // Usa la funzione login dal context
+    navigate('/bags');
+  };
+  
+  const handleLogout = () => {
+    logout();  // Usa la funzione logout dal context
+    navigate('/');
   };
   
   return (
@@ -25,7 +32,7 @@ function NavBar({ onLogin, cartItemCount = 0 }) {
             <Nav.Link href="#">About Us</Nav.Link>
             
             {/* Mostra il link al carrello solo quando l'utente è loggato */}
-            {location.pathname !== '/' && (
+            {isLoggedIn && (
               <Nav.Link as={Link} to="/cart">
                 <i className="bi bi-cart"></i> Cart
                 {cartItemCount > 0 && (
@@ -35,10 +42,12 @@ function NavBar({ onLogin, cartItemCount = 0 }) {
             )}
           </Nav>
           <div className="d-flex">
-            {location.pathname === '/' ? (
-              <Button variant="outline-light" onClick={handleLogin}>Login</Button>
+            {!isLoggedIn ? (
+              <Button variant="outline-light" onClick={handleLogin}>
+                Login
+              </Button>
             ) : (
-              <Button variant="outline-danger" onClick={() => navigate('/')}>
+              <Button variant="outline-danger" onClick={handleLogout}>
                 Logout
               </Button>
             )}
