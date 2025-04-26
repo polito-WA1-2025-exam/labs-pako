@@ -1,8 +1,8 @@
 # Table of contents
 
+<!-- TOC -->
+
 - [Table of contents](#table-of-contents)
-- [Group "PAKO"](#group-pako)
-    - [Members](#members)
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
 - [Style approach](#style-approach)
 - [Prerequisites](#prerequisites)
@@ -75,10 +75,11 @@
     - [Lab 6](#lab-6)
         - [Objectives](#objectives)
         - [Key Concepts](#key-concepts)
+    - [Lab 7](#lab-7)
+        - [Define the Pages of your Application](#define-the-pages-of-your-application)
+        - [Enable Routing through React Router](#enable-routing-through-react-router)
 
-# Group "PAKO"
-
-## Members
+<!-- /TOC -->
 - s337165 Simone Pio Candido
 - s348016 Lucio Fuoco
 - s346267 Emre Elçi
@@ -176,10 +177,14 @@ rescueSurplusFood-app
 │   │   │   └── UnavailableBadge.jsx
 │   │   ├── context
 │   │   │   └── CartContext.jsx
+│   │   │   ├── AuthContext.jsx
 │   │   ├── establishment
 │   │   │   ├── EstablishmentCard.jsx
 │   │   │   ├── EstablishmentForm.jsx
+│   │   │   ├── EstablishmentDetail.jsx
 │   │   │   └── EstablishmentsList.jsx
+│   │   ├── notFound
+│   │   │   ├── NotFound.jsx
 │   │   ├── Footer.jsx
 │   │   ├── HeroSection.jsx
 │   │   ├── InfoSection.jsx
@@ -1341,3 +1346,44 @@ In this lab, we focused on enhancing the interactive capabilities of a React-bas
 - **Dynamic Rendering**: The form automatically updates the displayed list of items, reflecting changes instantly once the form is successfully submitted.
 
 By completing this lab, we strengthened our understanding of form handling in React, including how to manage state changes and implement validation in interactive applications. The ability to pre-fill forms and automatically update the UI after changes helps improve the usability and functionality of web applications.
+
+## [Lab 7](https://polito-webapp1.github.io/lab-2025/Lab07/Lab07.pdf)
+
+### 1. Define the Pages of your Application
+
+Based on the provided components, here's a breakdown of the application's pages:
+
+| Page Name          | URL Path            | Components Rendered                                  | Notes                                                              |
+|--------------------|---------------------|------------------------------------------------------|--------------------------------------------------------------------|
+| **Home** | `/`                 | `NavBar`, `HeroSection`, `EstablishmentsList`, `InfoSection`, `Footer` | The main landing page showcasing available establishments.         |
+| **Bags** | `/bags`             | `NavBar`, `BagsPage`, `Footer`                       | Displays a list of available "bags" (requires user authentication). |
+| **Shopping Cart** | `/cart`             | `NavBar`, `ShoppingCart`, `Footer`                   | Shows the user's shopping cart (requires user authentication).      |
+| **Establishment Detail** | `/establishments/:id` | `NavBar`, `EstablishmentDetail`, `Footer`          | Displays detailed information for a specific establishment.        |
+| **Not Found** | `*`                 | `NavBar`, `NotFound`, `Footer`                       | Rendered for any invalid or non-existent URL.                     |
+
+**Explanation of URL Path Best Practices:**
+
+* **`/` (Home):** The root path is conventionally used for the main landing page.
+* **`/bags`:** A clear and concise path indicating the section for "bags". Using plural nouns for collections is a common practice.
+* **`/cart`:** A standard and easily recognizable path for the shopping cart.
+* **`/establishments/:id`:** This path utilizes a dynamic segment (`:id`). The colon indicates that `id` is a parameter that will vary depending on the specific establishment being viewed. This allows for unique URLs for each establishment's details page, which is good for SEO and shareability.
+* **`*` (Not Found):** The wildcard path `*` acts as a catch-all for any URL that doesn't match any of the defined routes, effectively leading to the "Not Found" page.
+
+### 2. Enable Routing through React Router
+
+The provided `main.jsx` and `App.jsx` files already demonstrate the implementation of React Router:
+
+* **`main.jsx`:** Sets up the `createBrowserRouter` with a catch-all route (`/*`) initially pointing to the `App` component. The `RouterProvider` makes the router available to all components within it.
+* **`App.jsx`:** Uses the `Routes` and `Route` components from `react-router-dom` to define the different paths and the components that should be rendered for each path.
+* **Navigation:** The `NavBar` component uses the `Link` component from `react-router-dom` for navigation between different pages without triggering a full page reload.
+* **Dynamic Routes:** The `/establishments/:id` route in `App.jsx` shows how to define a dynamic route parameter. The `EstablishmentDetail` component likely uses the `useParams` hook to access the `id` from the URL.
+* **Protected Routes:** The `ProtectedRoute` component demonstrates how to implement route protection based on the authentication status managed by the `AuthContext`.
+* **Not Found Page:** The route with `path="*"` renders the `NotFound` component when the user navigates to an invalid URL.
+
+**To further ensure the routing is correctly implemented:**
+
+1.  **Verify `react-router-dom` Installation:** Make sure `react-router-dom` is listed in your project's `package.json` file and that you have run `npm install` or `yarn install`.
+2.  **Component Rendering:** Ensure that each component listed in the table above (`BagsPage`, `ShoppingCart`, `EstablishmentDetail`, `NotFound`) is correctly implemented to display the intended content for its respective page.
+3.  **Navigation Links:** Double-check that all navigation links (likely in the `NavBar` component) use the `Link` component and the correct `to` prop to navigate to the defined URL paths.
+4.  **Dynamic Data Fetching:** For the `EstablishmentDetail` component, confirm that it correctly uses the `id` obtained from `useParams` to fetch and display the details of the specific establishment.
+5.  **Invalid URL Handling:** Test navigating to URLs that are not defined in your `Routes` to ensure that the `NotFound` component is correctly rendered.
