@@ -1,8 +1,8 @@
 # Table of contents
 
-<!-- TOC -->
-
 - [Table of contents](#table-of-contents)
+- [Group "PAKO"](#group-pako)
+    - [Members](#members)
 - [Exercise "Rescuing Surplus Food"](#exercise-rescuing-surplus-food)
 - [Style approach](#style-approach)
 - [Prerequisites](#prerequisites)
@@ -79,7 +79,10 @@
         - [Define the Pages of your Application](#define-the-pages-of-your-application)
         - [Enable Routing through React Router](#enable-routing-through-react-router)
 
-<!-- /TOC -->
+# Group "PAKO"
+
+## Members
+
 - s337165 Simone Pio Candido
 - s348016 Lucio Fuoco
 - s346267 Emre Elçi
