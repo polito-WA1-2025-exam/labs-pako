@@ -1,6 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+
 import './styles/style.css';
+
 // Componenti esistenti
 import NavBar from './components/NavBar';
 import HeroSection from './components/HeroSection';
@@ -9,8 +11,9 @@ import EstablishmentDetail from './components/establishment/EstablishmentDetail'
 import InfoSection from './components/InfoSection';
 import BagsPage from './components/bag/BagsPage';
 import Footer from './components/Footer';
-import { CartProvider } from './components/context/CartContext';  
-import { AuthProvider, useAuth  } from './components/context/AuthContext';  
+import { CartProvider } from './components/context/CartContext';
+import { AuthProvider, useAuth } from './components/context/AuthContext';
+
 // Nuovo componente per il carrello
 import ShoppingCart from './components/cart/ShoppingCart';
 import { Container, Row, Col } from 'react-bootstrap';
@@ -28,7 +31,6 @@ function App() {
 
 // Componente che utilizza il context
 function AppContent() {
-  // Tutto il contenuto che richiede accesso al context
   return (
     <>
       <NavBar />
@@ -52,17 +54,11 @@ function ProtectedRoute({ element }) {
 
 // Componente per la route home
 function HomeRoute() {
-  const { isLoggedIn } = useAuth();
-  
-  if (isLoggedIn) {
-    return <Navigate to="/bags" />;
-  }
-  
   return (
     <>
-      <HeroSection 
-        title="Save Food, Save Money, Save Planet" 
-        subtitle="Join our mission to reduce food waste by rescuing surplus food from local stores and restaurants at discounted prices." 
+      <HeroSection
+        title="Save Food, Save Money, Save Planet"
+        subtitle="Join our mission to reduce food waste by rescuing surplus food from local stores and restaurants at discounted prices."
       />
       <Container fluid className="pt-4 bg-light justify-content-center">
         <Row className="justify-content-center">
@@ -74,7 +70,7 @@ function HomeRoute() {
           <Col md={10}>
             <InfoSection />
           </Col>
-        </Row>         
+        </Row>
       </Container>
     </>
   );

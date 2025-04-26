@@ -3,21 +3,21 @@ import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
-function NavBar({ cartItemCount = 0 }) {
+function NavBar({ cartItemCount = 0, bagItemCount = 0 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, login, logout } = useAuth();  
-  
+  const { isLoggedIn, login, logout } = useAuth();
+
   const handleLogin = () => {
-    login();  // Usa la funzione login dal context
+    login(); // Usa la funzione login dal context
     navigate('/bags');
   };
-  
+
   const handleLogout = () => {
-    logout();  // Usa la funzione logout dal context
+    logout(); // Usa la funzione logout dal context
     navigate('/');
   };
-  
+
   return (
     <Navbar expand="lg" variant="dark" sticky="top">
       <Container>
@@ -30,7 +30,17 @@ function NavBar({ cartItemCount = 0 }) {
             <Nav.Link href="/">Home</Nav.Link>
             <Nav.Link href="#">How It Works</Nav.Link>
             <Nav.Link href="#">About Us</Nav.Link>
-            
+
+            {/* Mostra il link alle borse solo quando l'utente è loggato */}
+            {isLoggedIn && (
+              <Nav.Link as={Link} to="/bags">
+                <i className="bi bi-bag-fill me-1"></i> Borse
+                {bagItemCount > 0 && (
+                  <span className="badge bg-success rounded-pill ms-1">{bagItemCount}</span>
+                )}
+              </Nav.Link>
+            )}
+
             {/* Mostra il link al carrello solo quando l'utente è loggato */}
             {isLoggedIn && (
               <Nav.Link as={Link} to="/cart">
