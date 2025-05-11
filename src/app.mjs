@@ -6,7 +6,19 @@ import bagRoute from './routes/bagRoute.mjs';
 import reservationRoute from './routes/reservationRoute.mjs';
 import shoppingCartRoute from './routes/shoppingCartRoute.mjs';
 import userRouter from './routes/userRoutes.mjs';
+import cors from 'cors'; // npm install cors
+
 const app = express();
+
+
+//Enable All CORS Requests (for this server)
+app.use(cors());
+//Use ONLY for development, otherwise restrict domain
+/*
+In production mode, use different domains for React and API servers, NEVER
+allow CORS requests from any origin, always specify origin
+– See also https://github.blog/security/application-security/localhost-dangers-cors-and-dnsrebinding/
+*/
 
 app.use(morgan('dev'));
 app.use(express.static('public'));

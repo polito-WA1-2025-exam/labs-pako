@@ -78,6 +78,8 @@
     - [Lab 7](#lab-7)
         - [Define the Pages of your Application](#define-the-pages-of-your-application)
         - [Enable Routing through React Router](#enable-routing-through-react-router)
+    - [Lab 8](#lab-8)
+        - [Set up CORS](#set-up-cors)
 
 # Group "PAKO"
 
@@ -114,7 +116,7 @@ The project uses the following dependencies:
 To install dependencies, run:
 ```sh
 npm init # if not already done
-npm install express dayjs sqlite3 morgan bootstrap react-bootstrap bootstrap-icons
+npm install express dayjs sqlite3 morgan bootstrap react-bootstrap bootstrap-icons cors
 npm install --save-dev nodemon
 ```
 
@@ -1390,3 +1392,37 @@ The provided `main.jsx` and `App.jsx` files already demonstrate the implementati
 3.  **Navigation Links:** Double-check that all navigation links (likely in the `NavBar` component) use the `Link` component and the correct `to` prop to navigate to the defined URL paths.
 4.  **Dynamic Data Fetching:** For the `EstablishmentDetail` component, confirm that it correctly uses the `id` obtained from `useParams` to fetch and display the details of the specific establishment.
 5.  **Invalid URL Handling:** Test navigating to URLs that are not defined in your `Routes` to ensure that the `NotFound` component is correctly rendered.
+
+## [Lab 8](https://polito-webapp1.github.io/lab-2025/Lab08/Lab08.pdf)
+
+
+### 1. Set up CORS
+
+The first task for this lab was to configure Cross-Origin Resource Sharing (CORS) on the API server that was built in Lab 03. This is crucial to allow the React application, which will likely be served from a different origin (domain, protocol, or port), to make requests to the API server.
+
+To achieve this, the `cors` middleware for Express was installed using npm:
+
+```bash
+npm install cors
+```
+
+Subsequently, the `cors` middleware was integrated into the API server (`app.mjs` in the `src` directory) with the following code:
+
+```javascript
+import cors from 'cors'; // npm install cors
+
+const app = express();
+
+// Enable All CORS Requests (for this server)
+app.use(cors());
+// Use ONLY for development, otherwise restrict domain
+/*
+In production mode, use different domains for React and API servers, NEVER
+allow CORS requests from any origin, always specify origin
+– See also [https://github.blog/security/application-security/localhost-dangers-cors-and-dnsrebinding/](https://github.blog/security/application-security/localhost-dangers-cors-and-dnsrebinding/)
+*/
+[other code]
+```
+
+As indicated in the comments, the current configuration enables all CORS requests. This is suitable for the development phase. However, it's important to note that for a production environment, the CORS configuration should be made more restrictive to enhance security by specifying the allowed origins and HTTP methods. This will prevent unauthorized domains from accessing the API.
+
