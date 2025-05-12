@@ -45,6 +45,7 @@
             - [[DELETE] /food-items/{id}](#delete-food-itemsid)
         - [Establishment](#establishment)
             - [[GET] /establishments](#get-establishments)
+            - [[GET] /establishments/:id](#get-establishmentsid)
         - [Bag APIs](#bag-apis)
             - [[GET] /api/bags](#get-apibags)
             - [[GET] /api/bags/by-date-range](#get-apibagsby-date-range)
@@ -195,6 +196,7 @@ rescueSurplusFood-app
 │   │   ├── InfoSection.jsx
 │   │   └── NavBar.jsx
 │   ├── styles
+│   ├── API.mjs
 │   ├── App.jsx
 │   └── main.jsx
 ├── .gitignore
@@ -642,17 +644,23 @@ Manages user-specific shopping preferences and reservations.
 ---
 
 ### Establishment
-#### 1. [GET] `/establishments`
+
+#### 1. \[GET] `/establishments`
+
 **Description:** Fetch all establishments.
-- **Request:**
-  - **Method:** GET
-  - **URL:** `/establishments`
-- **Sample Request:**  
+
+* **Request:**
+
+  * **Method:** GET
+  * **URL:** `/establishments`
+* **Sample Request:**
+
   ```http
   GET /establishments HTTP/1.1
   Host: example.com
   ```
-- **Sample Response:**  
+* **Sample Response:**
+
   ```json
   [
     {
@@ -690,8 +698,48 @@ Manages user-specific shopping preferences and reservations.
     }
   ]
   ```
-- **Error Response(s):**
-  - `500 Internal Server Error` if there is an error retrieving the establishments.
+* **Error Response(s):**
+
+  * `500 Internal Server Error` if there is an error retrieving the establishments.
+
+---
+
+#### 2. \[GET] `/establishments/:id`
+
+**Description:** Fetch a single establishment by its ID.
+
+* **Request:**
+
+  * **Method:** GET
+  * **URL:** `/establishments/:id`
+  * **URL Params:**
+
+    * `id` — Establishment ID (integer)
+* **Sample Request:**
+
+  ```http
+  GET /establishments/1 HTTP/1.1
+  Host: example.com
+  ```
+* **Sample Response:**
+
+  ```json
+  {
+    "id": 1,
+    "name": "Green Grocers",
+    "address": "123 Main St, Springfield",
+    "phoneNumber": "555-1234",
+    "category": "Grocery",
+    "type": "Supermarket",
+    "bags": [],
+    "content": null,
+    "creationDate": "2025-03-16 09:01"
+  }
+  ```
+* **Error Response(s):**
+
+  * `404 Not Found` if the establishment with the given ID does not exist.
+  * `500 Internal Server Error` if there is an error retrieving the establishment.
 
 ---
 

@@ -9,7 +9,7 @@ GET http://localhost:3002/api/food-items/search?name=Banana HTTP/1.1
 ###
 
 # Test: Get food item by ID
-GET http://localhost:3002/api/food-items/1 HTTP/1.1
+GET http://localhost:3002/api/food-items/106 HTTP/1.1
 
 ###
 
@@ -42,6 +42,10 @@ Content-Type: application/json
 ###
 # Test: Get all establishments
 GET http://localhost:3002/api/establishments HTTP/1.1
+
+###
+# Test: Get a specific establishment
+GET http://localhost:3002/api/establishments/1 HTTP/1.1
 
 ###
 # Test: Get all bags
