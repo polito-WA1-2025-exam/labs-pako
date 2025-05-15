@@ -6,9 +6,14 @@ import BagsSummary from './BagsSummary';
 import BagForm from './BagForm';
 import HeroSection from '../HeroSection';
 import dayjs from 'dayjs';
+import { getAllBags, getEstablishmentById, getFoodItemById } from '../../API.mjs';
 
 function BagsPage() {
   const [bags, setBags] = useState([]);
+  const [establishments, setEstablishments] = useState({});
+  const [foodItems, setFoodItems] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [currentBag, setCurrentBag] = useState(null);
   const [modalTitle, setModalTitle] = useState("Aggiungi una Nuova Bag");
@@ -16,116 +21,108 @@ function BagsPage() {
   // Aggiungi stato per il modal di conferma eliminazione
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bagToDelete, setBagToDelete] = useState(null);
+  
+  // Funzione per caricare i dati dell'establishment
+  const fetchEstablishmentData = async (establishmentId) => {
+    if (!establishmentId) return null; // evita chiamate non valide
+    try {
+      const establishment = await getEstablishmentById(establishmentId);
+      console.log("Establishment data:", establishment);
+      setEstablishments(prev => ({
+        ...prev,
+        [establishmentId]: establishment
+      }));
+      return establishment;
+    } catch (error) {
+      console.error(`Error fetching establishment ${establishmentId}:`, error);
+      return null;
+    }
+  };
 
-  // Simuleremo una chiamata API qui
+  // Funzione per caricare i dati del food item
+  const fetchFoodItemData = async (foodItemId) => {
+    try {
+      const foodItem = await getFoodItemById(foodItemId);
+      console.log("Food item data:", foodItem);
+      setFoodItems(prev => ({
+        ...prev,
+        [foodItemId]: foodItem
+      }));
+      return foodItem;
+    } catch (error) {
+      console.error(`Error fetching food item ${foodItemId}:`, error);
+      return null;
+    }
+  };
+
+  // Carica i dati delle bags dal server
   useEffect(() => {
-    const fetchBags = async () => {
-      const apiBagsData = [
-        {
-          "id": 1,
-          "type": "regular",
-          "size": 1,
-          "price": 10.99,
-          "establishmentId": 1,
-          "state": "available",
-          "userId": 1,
-          "removedItems": [],
-          "content": [
-            { "BagID": 1, "FoodItemID": 1, "Quantity": 2 },
-            { "BagID": 1, "FoodItemID": 2, "Quantity": 1 }
-          ],
-          "timeToPickUp": "2025-04-04 12:00",  // << questo è il 4 aprile, quindi PASSATO
-          "creationDate": "2025-03-16 09:01"
-        },
-        {
-          "id": 2,
-          "type": "surprise",
-          "size": 2,
-          "price": 15.99,
-          "establishmentId": 2,
-          "state": "reserved",
-          "userId": 2,
-          "removedItems": [
-            { "RemovedItemID": 2, "CreationDate": "2025-03-16 09:01:43", "Quantity": 1, "BagID": 2 }
-          ],
-          "content": [
-            { "BagID": 2, "FoodItemID": 3, "Quantity": 3 }
-          ],
-          "timeToPickUp": "2025-04-13 20:00", // << QUESTO va bene se l'ora attuale è prima delle 20:00
-          "creationDate": "2025-03-16 09:01"
-        },
-        {
-          "id": 3,
-          "type": "regular",
-          "size": 0,
-          "price": 8.50,
-          "establishmentId": 3,
-          "state": "available",
-          "userId": null,
-          "removedItems": [],
-          "content": [
-            { "BagID": 3, "FoodItemID": 4, "Quantity": 1 },
-            { "BagID": 3, "FoodItemID": 5, "Quantity": 2 }
-          ],
-          "timeToPickUp": "2025-04-14 11:30",  // << FUTURO
-          "creationDate": "2025-03-20 15:45"
-        },
-        {
-          "id": 4,
-          "type": "surprise",
-          "size": 1,
-          "price": 12.00,
-          "establishmentId": 1,
-          "state": "available",
-          "userId": null,
-          "removedItems": [],
-          "content": [
-            { "BagID": 4, "FoodItemID": 6, "Quantity": 4 }
-          ],
-          "timeToPickUp": "2025-04-15 18:00",  // << FUTURO
-          "creationDate": "2025-03-25 10:20"
-        },
-        {
-          "id": 5,
-          "type": "regular",
-          "size": 2,
-          "price": 19.99,
-          "establishmentId": 4,
-          "state": "reserved",
-          "userId": 3,
-          "removedItems": [],
-          "content": [
-            { "BagID": 5, "FoodItemID": 7, "Quantity": 2 },
-            { "BagID": 5, "FoodItemID": 8, "Quantity": 1 },
-            { "BagID": 5, "FoodItemID": 9, "Quantity": 3 }
-          ],
-          "timeToPickUp": "2025-04-16 19:15", // << FUTURO
-          "creationDate": "2025-03-28 08:55"
-        }
-      ];
-  
-      const today = dayjs("2025-04-13T00:00:00");  // la data corrente stabilita
-      const now = dayjs("2025-04-13T18:00:00");   // supponiamo siano le 18:00
+    const fetchBagsData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
         
-      const filteredBags = apiBagsData.filter(bag => {
-        if (!bag.timeToPickUp) return false;
-  
-        let bagDate;
-        if (bag.timeToPickUp.includes("T")) {
-          bagDate = dayjs(bag.timeToPickUp); 
-        } else {
-          bagDate = dayjs(bag.timeToPickUp.replace(" ", "T"));  // Usa dayjs anche qui
-        }
-  
-        // La bag è valida se il tempo è nel futuro
-        return bagDate > now;
-      });
-  
-      const transformedBags = filteredBags.map(bag => transformBagData(bag));
-      setBags(transformedBags);
+        // Ottieni tutte le bags dal server
+        const bagsData = await getAllBags();
+        
+        // Carica i dati degli establishment per ogni bag
+        const uniqueEstablishmentIds = [...new Set(
+          bagsData
+            .map(bag => bag.establishmentId)
+            .filter(id => id !== undefined && id !== null)
+        )];
+        const establishmentPromises = uniqueEstablishmentIds.map(id => {
+          fetchEstablishmentData(id);
+        });
+
+        await Promise.all(establishmentPromises);
+        
+        // Carica i dati dei food items per ogni bag
+        const uniqueFoodItemIds = new Set();
+        bagsData.forEach(bag => {
+          if (bag.content && Array.isArray(bag.content)) {
+            bag.content.forEach(item => {
+              if (item.FoodItemID) {
+                uniqueFoodItemIds.add(item.FoodItemID);
+              }
+            });
+          }
+        });
+        
+        const foodItemPromises = [...uniqueFoodItemIds].map(id => fetchFoodItemData(id));
+        await Promise.all(foodItemPromises);
+        
+        // Filtra le bags per mostrare solo quelle future
+        const now = dayjs();
+        console.log("bagsData:", bagsData);
+        const filteredBags = bagsData.filter(bag => {
+          if (!bag.timeToPickUp) return false;
+          
+          let bagDate;
+          if (bag.timeToPickUp.includes("T")) {
+            bagDate = dayjs(bag.timeToPickUp);
+          } else {
+            bagDate = dayjs(bag.timeToPickUp.replace(" ", "T"));
+          }
+          console.log("Parsed bagDate:", bagDate.toString(), "Valid?", bagDate.isValid());
+          // La bag è valida se il tempo è nel futuro
+          return bagDate.isAfter(now);
+        });
+
+        
+        // Trasforma i dati delle bags nel formato corretto per il componente
+        const transformedBags = filteredBags.map(bag => transformBagData(bag));
+        setBags(transformedBags);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching bags:", error);
+        setError("Si è verificato un errore durante il caricamento delle bags. Riprova più tardi.");
+        setLoading(false);
+      }
     };
-  
-    fetchBags();
+    
+    fetchBagsData();
   }, []);
   
   // Funzione per trasformare i dati della bag nel formato corretto
@@ -144,8 +141,8 @@ function BagsPage() {
       default:
         sizeText = "unknown";
     }
+    
     // Gestisci correttamente il formato della data/ora
-    let pickupTime = 'N/A';
     let pickupTimeRange = 'N/A';
     if (bag.timeToPickUp) {
       let date = '';
@@ -163,18 +160,30 @@ function BagsPage() {
       }
       pickupTimeRange = `${date} ${time}`;
     }
-    const contents = bag.content ? bag.content.map(item => ({
-      item: `FoodItem ID ${item.FoodItemID}`,
-      quantity: item.Quantity
-    })) : [];
+    
+    // Prepara i contenuti della bag con i nomi reali dei food items se disponibili
+    const contents = bag.content && Array.isArray(bag.content) 
+      ? bag.content.map(item => {
+          const foodItem = foodItems[item.FoodItemID];
+          return {
+            item: foodItem ? foodItem.Name : `FoodItem ID ${item.FoodItemID}`,
+            quantity: item.Quantity
+          };
+        })
+      : [];
+    
+    // Ottieni il nome dell'establishment se disponibile
+    const establishment = establishments[bag.establishmentId];
+    const establishmentName = establishment ? establishment.Name : `Establishment ID ${bag.establishmentId}`;
+    
     return {
       id: bag.id,
       type: bag.type,
       size: sizeText,
       price: bag.price,
-      establishment: `Establishment ID ${bag.establishmentId}`,
+      establishment: establishmentName,
       pickupTimeRange: pickupTimeRange,
-      status: bag.state,
+      status: bag.state.toLowerCase(),
       contents: contents,
       // Aggiungiamo i dati originali per quando abbiamo bisogno di accedervi
       originalData: bag
@@ -200,7 +209,7 @@ function BagsPage() {
     setBagToDelete(bag);
     setShowDeleteConfirm(true);
   };
-
+  
   // Funzione per confermare ed eseguire l'eliminazione
   const confirmDeleteBag = () => {
     // In una vera applicazione, faresti una chiamata API per eliminare i dati
@@ -276,6 +285,10 @@ function BagsPage() {
           </Col>
         </Row>
         
+        {/* Mostra messaggio di caricamento o errore */}
+        {loading && <div className="text-center my-5">Caricamento bags in corso...</div>}
+        {error && <div className="alert alert-danger my-5">{error}</div>}
+        
         {/* Modal per la conferma di eliminazione */}
         <Modal 
           show={showDeleteConfirm} 
@@ -325,11 +338,14 @@ function BagsPage() {
           </Modal.Body>
         </Modal>
         
-        <BagsList 
-          bags={bags} 
-          onEditBag={handleEditBag} 
-          onDeleteBag={handleDeleteBag} 
-        />
+        {/* Mostra le bags solo se non c'è errore e il caricamento è completato */}
+        {!loading && !error && (
+          <BagsList 
+            bags={bags} 
+            onEditBag={handleEditBag} 
+            onDeleteBag={handleDeleteBag} 
+          />
+        )}
       </Container>
     </>
   );

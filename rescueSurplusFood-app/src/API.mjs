@@ -34,6 +34,7 @@ async function getAllEstablishments() {
  */
 async function getEstablishmentById(id) {
   try {
+    console.log("establishment id: " + id); 
     const response = await fetch(`${BASE_URL}/establishments/${id}`);
 
     if (!response.ok) {
