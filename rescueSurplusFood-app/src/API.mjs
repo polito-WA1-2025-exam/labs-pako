@@ -192,6 +192,71 @@ async function getUserReservations(userId) {
   }
 }
 
+/**
+ * Fetch bags belonging to a specific establishment, filtered for future pickup times
+ * @param {string|number} establishmentId - The ID of the establishment
+ * @returns {Promise<Array>} Array of bag objects for the specified establishment
+ */
+async function getBagsByEstablishment(establishmentId) {
+  try {
+    const response = await fetch(`${BASE_URL}/establishments/${establishmentId}/bags`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching bags for establishment ID ${establishmentId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch bags belonging to a specific establishment with date filtering
+ * @param {string|number} establishmentId - The ID of the establishment
+ * @param {string} startDate - Start date in ISO format (YYYY-MM-DD)
+ * @param {string} endDate - End date in ISO format (YYYY-MM-DD)
+ * @returns {Promise<Array>} Array of bag objects within the specified date range
+ */
+async function getBagsByEstablishmentAndDateRange(establishmentId, startDate, endDate) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/establishments/${establishmentId}/bags?startDate=${startDate}&endDate=${endDate}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching bags for establishment ID ${establishmentId} with date range:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch available bags belonging to a specific establishment (with state = "available")
+ * @param {string|number} establishmentId - The ID of the establishment
+ * @returns {Promise<Array>} Array of available bag objects for the specified establishment
+ */
+async function getAvailableBagsByEstablishment(establishmentId) {
+  try {
+    const response = await fetch(`${BASE_URL}/establishments/${establishmentId}/bags/available`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching available bags for establishment ID ${establishmentId}:`, error);
+    throw error;
+  }
+}
+
+
 export {
   getAllEstablishments,
   getEstablishmentById,
@@ -201,5 +266,8 @@ export {
   getAllFoodItems,
   getFoodItemById,
   getUserShoppingCart,
-  getUserReservations
+  getUserReservations,
+  getBagsByEstablishment,
+  getBagsByEstablishmentAndDateRange,
+  getAvailableBagsByEstablishment
 };

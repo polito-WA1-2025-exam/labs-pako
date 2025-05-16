@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Badge, Button, ListGroup, Alert } from 'react-bootstrap';
-import { useCart } from '../context/CartContext'; // Importa il hook useCart
-import { getEstablishmentById } from '../../API.mjs'; // Importa la funzione API
+import { Container, Row, Col, Card, Badge, Button, Alert } from 'react-bootstrap';
+import { useCart } from '../context/CartContext';
+import { getEstablishmentById } from '../../API.mjs';
+import EstablishmentBags from './EstablishmentBags';
 
 function EstablishmentDetail() {
   const { id } = useParams(); // Ottiene l'id dall'URL
   const [establishment, setEstablishment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { addToCart } = useCart(); // Ottieni la funzione addToCart dal contesto
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchEstablishment = async () => {
@@ -24,7 +25,6 @@ function EstablishmentDetail() {
         setLoading(false);
       }
     };
-
     fetchEstablishment();
   }, [id]);
 
@@ -77,7 +77,6 @@ function EstablishmentDetail() {
           </Link>
         </Col>
       </Row>
-
       <Row>
         <Col>
           <Card className="mb-4">
@@ -105,53 +104,14 @@ function EstablishmentDetail() {
               </Row>
             </Card.Body>
           </Card>
-
+          
           <Card>
             <Card.Header>
               <h3>Available Bags</h3>
             </Card.Header>
             <Card.Body>
-              {establishment.bags && establishment.bags.length > 0 ? (
-                <ListGroup>
-                  {establishment.bags.map(bag => (
-                    <ListGroup.Item key={bag.id} className="mb-3">
-                      <Row>
-                        <Col md={8}>
-                          <h5>
-                            {bag.type === "surprise" ? "Surprise Bag" : "Regular Bag"}
-                            <Badge bg={bag.type === "surprise" ? "warning" : "success"} className="ms-2">
-                              {bag.size}
-                            </Badge>
-                          </h5>
-
-                          {bag.type === "regular" && (
-                            <div className="mt-2">
-                              <h6>Contents:</h6>
-                              <ul>
-                                {bag.content && bag.content.map((item, index) => (
-                                  <li key={index}>{item}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          <p className="mt-2 mb-1">
-                            <strong>Pickup Time:</strong> {bag.pickupTime}
-                          </p>
-                        </Col>
-                        <Col md={4} className="d-flex flex-column justify-content-center align-items-end">
-                          <h4 className="text-primary mb-3">${bag.price && bag.price.toFixed(2)}</h4>
-                          <Button variant="primary" onClick={() => addToCart(bag)}> {/* Usa la funzione addToCart */}
-                            Add to Cart
-                          </Button>
-                        </Col>
-                      </Row>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              ) : (
-                <p>No bags are currently available from this establishment.</p>
-              )}
+              {/* Ora utilizziamo il componente EstablishmentBags per gestire la visualizzazione e il filtraggio delle borse */}
+              <EstablishmentBags establishmentId={id} />
             </Card.Body>
           </Card>
         </Col>
