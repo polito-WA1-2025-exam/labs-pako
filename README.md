@@ -185,6 +185,7 @@ rescueSurplusFood-app
 │   │   │   └── CartContext.jsx
 │   │   │   ├── AuthContext.jsx
 │   │   ├── establishment
+│   │   │   ├── EstablishmentBags.jsx
 │   │   │   ├── EstablishmentCard.jsx
 │   │   │   ├── EstablishmentForm.jsx
 │   │   │   ├── EstablishmentDetail.jsx
