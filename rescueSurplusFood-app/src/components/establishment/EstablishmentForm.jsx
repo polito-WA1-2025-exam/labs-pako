@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert, Col, Row } from 'react-bootstrap';
+import { createEstablishment, updateEstablishment } from '../../API.mjs';
 
 function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establishmentToEdit, onCancelEdit }) {
   // Stati per i campi del form
@@ -15,9 +16,12 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
   const [errors, setErrors] = useState({});
   // Stato per mostrare il messaggio di successo
   const [showSuccess, setShowSuccess] = useState(false);
+  // Stato per la gestione del caricamento
+  const [loading, setLoading] = useState(false);
+  // Stato per gli errori API
+  const [apiError, setApiError] = useState(null);
   // Stato per tracciare se siamo in modalità di modifica
   const [isEditing, setIsEditing] = useState(false);
-
   // Categorie predefinite per il dropdown
   const categories = ['Grocery', 'Restaurant', 'Bakery', 'Café', 'Market'];
   
@@ -29,7 +33,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
     'Café': ['Specialty Coffee', 'Brunch Place', 'Tea House'],
     'Market': ['Farmers Market', 'Delicatessen', 'Fish Market', 'Butcher Shop']
   };
-
+  
   // Aggiorniamo il form quando viene passato un establishment da modificare
   useEffect(() => {
     if (establishmentToEdit) {
@@ -43,13 +47,14 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
       setIsEditing(true);
       // Reset degli errori se presenti
       setErrors({});
+      setApiError(null);
     } else {
       // Se non c'è un establishment da modificare, resettiamo il form
       resetForm();
       setIsEditing(false);
     }
   }, [establishmentToEdit]);
-
+  
   // Funzione per resettare il form
   const resetForm = () => {
     setName('');
@@ -60,8 +65,9 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
     setContent('');
     setId(null);
     setErrors({});
+    setApiError(null);
   };
-
+  
   // Funzione di validazione
   const validateForm = () => {
     const newErrors = {};
@@ -108,7 +114,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   // Gestione del cambio di categoria
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
@@ -117,61 +123,84 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
   };
   
   // Gestione dell'invio del form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError(null);
     
     // Validazione del form
     if (validateForm()) {
-      if (isEditing && id) {
-        // Aggiorniamo l'establishment esistente
-        const updatedEstablishment = {
-          id,
-          name,
-          category,
-          type,
-          address,
-          phoneNumber,
-          content,
-          bags: establishmentToEdit?.bags || [] // Manteniamo i bags esistenti
-        };
-        
-        // Invio dell'establishment aggiornato al componente padre
-        onUpdateEstablishment(updatedEstablishment);
-        
-        // Mostra messaggio di successo
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          // Reset del form e della modalità di modifica
+      setLoading(true);
+      
+      try {
+        if (isEditing && id) {
+          // Prepara i dati per l'aggiornamento
+          const establishmentData = {
+            name,
+            category,
+            type,
+            address,
+            phoneNumber,
+            content
+          };
+          
+          // Chiama l'API per aggiornare l'establishment
+          const updatedEstablishment = await updateEstablishment(id, establishmentData);
+          
+          // Invio dell'establishment aggiornato al componente padre
+          if (typeof onUpdateEstablishment === 'function') {
+            onUpdateEstablishment(updatedEstablishment);
+          } else {
+            console.warn('onUpdateEstablishment is not a function');
+          }
+          
+          // Mostra messaggio di successo
+          setShowSuccess(true);
+          setTimeout(() => {
+            setShowSuccess(false);
+            // Reset del form e della modalità di modifica
+            resetForm();
+            setIsEditing(false);
+          }, 3000);
+        } else {
+          // Prepara i dati per la creazione
+          const establishmentData = {
+            name,
+            category,
+            type,
+            address,
+            phoneNumber,
+            content
+          };
+          
+          // Chiama l'API per creare un nuovo establishment
+          const newEstablishment = await createEstablishment(establishmentData);
+          
+          // Invio del nuovo establishment al componente padre
+          if (typeof onAddEstablishment === 'function') {
+            onAddEstablishment(newEstablishment);
+          } else {
+            console.warn('onAddEstablishment is not a function');
+            // Show success even if callback is missing
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
+          }
+          
+          // Reset del form
           resetForm();
-          setIsEditing(false);
-        }, 3000);
-      } else {
-        // Creazione del nuovo establishment
-        const newEstablishment = {
-          id: Date.now(), // Generiamo un ID univoco (in produzione userei una soluzione più robusta)
-          name,
-          category,
-          type,
-          address,
-          phoneNumber,
-          content,
-          bags: [] // Array vuoto per i sacchetti
-        };
-        
-        // Invio del nuovo establishment al componente padre
-        onAddEstablishment(newEstablishment);
-        
-        // Reset del form
-        resetForm();
-        
-        // Mostra messaggio di successo
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
+          
+          // Mostra messaggio di successo
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 3000);
+        }
+      } catch (error) {
+        console.error('Error submitting establishment:', error);
+        setApiError('An error occurred while saving the establishment. Please try again.');
+      } finally {
+        setLoading(false);
       }
     }
   };
-
+  
   // Gestione dell'annullamento della modifica
   const handleCancel = () => {
     resetForm();
@@ -195,6 +224,12 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
           </Alert>
         )}
         
+        {apiError && (
+          <Alert variant="danger" onClose={() => setApiError(null)} dismissible>
+            {apiError}
+          </Alert>
+        )}
+        
         <Form onSubmit={handleSubmit}>
           <Row>
             <Col md={6}>
@@ -206,6 +241,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   isInvalid={!!errors.name}
+                  disabled={loading}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.name}
@@ -220,6 +256,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
                   value={category}
                   onChange={handleCategoryChange}
                   isInvalid={!!errors.category}
+                  disabled={loading}
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -240,7 +277,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
                 <Form.Select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  disabled={!category}
+                  disabled={!category || loading}
                   isInvalid={!!errors.type}
                 >
                   <option value="">Select Type</option>
@@ -267,6 +304,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   isInvalid={!!errors.address}
+                  disabled={loading}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.address}
@@ -283,6 +321,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   isInvalid={!!errors.phoneNumber}
+                  disabled={loading}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.phoneNumber}
@@ -300,6 +339,7 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
               value={content}
               onChange={(e) => setContent(e.target.value)}
               isInvalid={!!errors.content}
+              disabled={loading}
             />
             <Form.Control.Feedback type="invalid">
               {errors.content}
@@ -308,12 +348,12 @@ function EstablishmentForm({ onAddEstablishment, onUpdateEstablishment, establis
           
           <div className="d-flex justify-content-end gap-2">
             {isEditing && (
-              <Button variant="secondary" onClick={handleCancel}>
+              <Button variant="secondary" onClick={handleCancel} disabled={loading}>
                 Cancel
               </Button>
             )}
-            <Button variant="primary" type="submit">
-              {isEditing ? 'Update Establishment' : 'Add Establishment'}
+            <Button variant="primary" type="submit" disabled={loading}>
+              {loading ? 'Saving...' : isEditing ? 'Update Establishment' : 'Add Establishment'}
             </Button>
           </div>
         </Form>

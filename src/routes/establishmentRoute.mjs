@@ -4,11 +4,14 @@ import * as establishmentBagController from '../controllers/establishmentBagCont
 
 const router = express.Router();
 
-// Route esistenti per gli establishment
-router.get('/', establishmentController.fetchAllEstablishments);  // Recupera tutti gli establishment
-router.get('/:id', establishmentController.fetchEstablishmentById); // Recupera un singolo establishment per ID
+// Route per gli establishment
+router.get('/', establishmentController.fetchAllEstablishments);            // Recupera tutti gli establishment
+router.get('/:id', establishmentController.fetchEstablishmentById);         // Recupera un singolo establishment per ID
+router.post('/', establishmentController.createEstablishment);              // Crea un nuovo establishment
+router.put('/:id', establishmentController.updateEstablishment);            // Aggiorna un establishment esistente
+router.delete('/:id', establishmentController.deleteEstablishment);         // Elimina un establishment
 
-// Nuove route per i bags degli establishment
+// Route per i bags degli establishment
 // La route con i filtri deve essere gestita nello stesso handler della route principale dei bags
 // Il controller fetchBagsByEstablishment gestirà entrambi i casi (con e senza parametri di query)
 router.get('/:establishmentId/bags', (req, res) => {

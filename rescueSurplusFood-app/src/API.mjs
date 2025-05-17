@@ -256,6 +256,81 @@ async function getAvailableBagsByEstablishment(establishmentId) {
   }
 }
 
+/**
+ * Create a new establishment
+ * @param {Object} establishment - The establishment object to create
+ * @returns {Promise<Object>} The created establishment with server-assigned ID
+ */
+async function createEstablishment(establishment) {
+  try {
+    const response = await fetch(`${BASE_URL}/establishments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(establishment),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating establishment:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update an existing establishment
+ * @param {string|number} id - The ID of the establishment to update
+ * @param {Object} establishment - The updated establishment data
+ * @returns {Promise<Object>} The updated establishment
+ */
+async function updateEstablishment(id, establishment) {
+  try {
+    const response = await fetch(`${BASE_URL}/establishments/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(establishment),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error updating establishment with ID ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Delete an establishment by ID
+ * @param {string|number} id - The ID of the establishment to delete
+ * @returns {Promise<Object>} Confirmation of deletion
+ */
+async function deleteEstablishment(id) {
+  try {
+    const response = await fetch(`${BASE_URL}/establishments/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error deleting establishment with ID ${id}:`, error);
+    throw error;
+  }
+}
+
 
 export {
   getAllEstablishments,
@@ -269,5 +344,8 @@ export {
   getUserReservations,
   getBagsByEstablishment,
   getBagsByEstablishmentAndDateRange,
-  getAvailableBagsByEstablishment
+  getAvailableBagsByEstablishment,
+  createEstablishment,
+  updateEstablishment,
+  deleteEstablishment
 };

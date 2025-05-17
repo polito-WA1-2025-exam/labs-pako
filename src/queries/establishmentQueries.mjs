@@ -1,4 +1,3 @@
-// establishmentQueries.mjs
 import dbConnection from "../db/dbConnection.mjs";
 import Establishment from "../models/Establishment.mjs";
 
@@ -46,8 +45,6 @@ export async function getEstablishmentById(id) {
                     row.Content,          // Map Content to content
                     row.CreationDate      // Map CreationDate to creationDate
                 );
-                // Potrebbe essere necessario recuperare anche le bags associate a questo establishment
-                // e aggiungerle all'oggetto establishment qui.
                 resolve(establishment);
             } else {
                 resolve(null); // Establishment not found
@@ -56,4 +53,25 @@ export async function getEstablishmentById(id) {
     });
 }
 
-export default { getAllEstablishments, getEstablishmentById };
+// Create a new establishment in the database
+export async function createEstablishment(establishmentData) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        const { name, address, phoneNumber, category, type, content } = establishmentData;
+        
+        db.run(
+            'INSERT INTO Establishment (Name, Address, PhoneNumber, Category, Type, Content) VALUES (?, ?, ?, ?, ?, ?)',
+            [name, address, phoneNumber, category, type, content],
+            function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    // Get the newly created establishment with its assigned ID
+                    getEstablishmentById(this.lastID)
+                        .then(newEstablishment => resolve(newEstablishment))
+                        .catch(err => reject(err));
+                }
+            }
+        );
+    });
+}
