@@ -223,14 +223,92 @@ function BagsPage() {
   };
   
   // Funzione per aggiungere una nuova bag
-  const handleAddBag = (newBagData) => {
-    // In una vera applicazione, faresti una chiamata API per salvare i dati
-    // e poi aggiorneresti lo stato con la risposta del server
-    // Per ora, aggiungiamo semplicemente la nuova bag allo stato
-    const transformedNewBag = transformBagData(newBagData);
-    setBags(prevBags => [...prevBags, transformedNewBag]);
-    // Chiudi il form dopo l'aggiunta
-    setShowForm(false);
+  const fetchAndTransformBags = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Ottieni tutte le bags dal server
+      const bagsData = await getAllBags();
+      
+      // Carica i dati degli establishment per ogni bag
+      const uniqueEstablishmentIds = [...new Set(
+        bagsData
+          .map(bag => bag.establishmentId)
+          .filter(id => id !== undefined && id !== null)
+      )];
+      
+      for (const id of uniqueEstablishmentIds) {
+        if (!establishments[id]) {
+          await fetchEstablishmentData(id);
+        }
+      }
+      
+      // Carica i dati dei food items per ogni bag
+      const uniqueFoodItemIds = new Set();
+      bagsData.forEach(bag => {
+        if (bag.content && Array.isArray(bag.content)) {
+          bag.content.forEach(item => {
+            if (item.FoodItemID && !foodItems[item.FoodItemID]) {
+              uniqueFoodItemIds.add(item.FoodItemID);
+            }
+          });
+        }
+      });
+      
+      for (const id of uniqueFoodItemIds) {
+        await fetchFoodItemData(id);
+      }
+      
+      // Filtra le bags per mostrare solo quelle future
+      const now = dayjs();
+      const filteredBags = bagsData.filter(bag => {
+        if (!bag.timeToPickUp) return false;
+        
+        let bagDate;
+        if (bag.timeToPickUp.includes("T")) {
+          bagDate = dayjs(bag.timeToPickUp);
+        } else {
+          bagDate = dayjs(bag.timeToPickUp.replace(" ", "T"));
+        }
+        
+        return bagDate.isAfter(now);
+      });
+      
+      // Trasforma i dati delle bags nel formato corretto
+      const transformedBags = filteredBags.map(bag => transformBagData(bag));
+      setBags(transformedBags);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching bags:", error);
+      setError("Si è verificato un errore durante il caricamento delle bags. Riprova più tardi.");
+      setLoading(false);
+    }
+  };
+
+  // Modifica l'useEffect per usare la nuova funzione
+  useEffect(() => {
+    fetchAndTransformBags();
+  }, []);
+
+  // Modifica handleAddBag per riusare la stessa logica
+  const handleAddBag = async (newBag) => {
+    try {
+      // Dopo che la bag è stata creata con successo, 
+      // ricarica tutte le bags usando la stessa logica dell'useEffect
+      await fetchAndTransformBags();
+      console.log('Lista bags aggiornata dopo creazione');
+    } catch (error) {
+      console.error('Errore durante il refresh della lista bags:', error);
+      // Fallback: prova a trasformare e aggiungere la bag localmente
+      try {
+        const transformedNewBag = transformBagData(newBag);
+        setBags(prevBags => [...prevBags, transformedNewBag]);
+      } catch (transformError) {
+        console.error('Errore nella trasformazione della bag:', transformError);
+      }
+    }
   };
   
   // Funzione per aggiornare una bag esistente

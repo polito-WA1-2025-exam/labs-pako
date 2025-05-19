@@ -331,6 +331,33 @@ async function deleteEstablishment(id) {
   }
 }
 
+/**
+ * Create a new bag
+ * @param {Object} bagData - The bag data to create
+ * @returns {Promise<Object>} The created bag
+ */
+async function createBag(bagData) {
+  try {
+    const response = await fetch(`${BASE_URL}/bags`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bagData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating bag:', error);
+    throw error;
+  }
+}
+
 
 export {
   getAllEstablishments,
@@ -347,5 +374,6 @@ export {
   getAvailableBagsByEstablishment,
   createEstablishment,
   updateEstablishment,
-  deleteEstablishment
+  deleteEstablishment,
+  createBag,
 };

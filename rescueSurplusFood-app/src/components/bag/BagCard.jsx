@@ -26,6 +26,14 @@ function BagCard({ bag, onEdit, onDelete }) { // Aggiungiamo la prop onDelete
       default: return 'secondary';
     }
   };
+
+  // Helper function to safely capitalize the size
+  const formatSize = (size) => {
+    if (!size || typeof size !== 'string') {
+      return 'Unknown';
+    }
+    return size.charAt(0).toUpperCase() + size.slice(1);
+  };
   
   return (
     <Card className={`bag-card ${status === 'reserved' ? 'reserved-bag' : ''}`}>
@@ -35,7 +43,7 @@ function BagCard({ bag, onEdit, onDelete }) { // Aggiungiamo la prop onDelete
             {type === 'surprise' ? 'Surprise' : 'Regular'}
           </Badge>
           <Badge bg={getSizeBadgeVariant()}>
-            {size.charAt(0).toUpperCase() + size.slice(1)}
+            {formatSize(size)}
           </Badge>
         </div>
         <div>

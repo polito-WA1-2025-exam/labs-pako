@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Row, Col, Alert } from 'react-bootstrap';
 import dayjs from 'dayjs';
+import { createBag } from '../../API.mjs';
 
 function BagForm({ onAddBag, onUpdateBag, bagToEdit = null, establishments = [] }) {
   // Stato iniziale del form
@@ -177,71 +178,78 @@ function BagForm({ onAddBag, onUpdateBag, bagToEdit = null, establishments = [] 
   };
 
   // Funzione di submit del form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormSubmitted(true);
     
     if (validateForm()) {
-      // Formatta la data nel formato corretto (YYYY-MM-DD HH:MM)
-      const formattedTimeToPickUp = formData.timeToPickUp
-        ? formData.timeToPickUp.replace('T', ' ')
-        : null;
-      
-      // Prepara i dati da inviare
-      const bagData = {
-        ...formData,
-        timeToPickUp: dayjs(formData.timeToPickUp).format('YYYY-MM-DDTHH:mm'), // Data formattata correttamente
-        // Se siamo in modalità modifica, mantieni l'ID esistente, altrimenti generane uno nuovo
-        id: isEditMode ? formData.id : dayjs().valueOf(), // Usa dayjs per generare un timestamp
-        state: isEditMode ? formData.state : 'available',
-        userId: null,
-        removedItems: [],
-        creationDate: isEditMode 
-          ? formData.creationDate 
-          : dayjs().format('YYYY-MM-DD HH:mm') // Usa dayjs per formattare la data
-      };
-      
-      // Converti la dimensione in formato numerico
-      switch (bagData.size) {
-        case 'small':
-          bagData.size = 0;
-          break;
-        case 'medium':
-          bagData.size = 1;
-          break;
-        case 'large':
-          bagData.size = 2;
-          break;
-        default:
-          bagData.size = 1; // Valore predefinito medium
+      try {
+        // Prepara i dati da inviare
+        const bagData = {
+          ...formData,
+          timeToPickUp: dayjs(formData.timeToPickUp).format('YYYY-MM-DD HH:mm:ss'),
+          id: isEditMode ? formData.id : dayjs().valueOf(),
+          state: isEditMode ? formData.state : 'available',
+          userId: null,
+          removedItems: [],
+          creationDate: isEditMode 
+            ? formData.creationDate 
+            : dayjs().format('YYYY-MM-DD HH:mm:ss')
+        };
+        
+        // Converti la dimensione in formato numerico
+        switch (bagData.size) {
+          case 'small':
+            bagData.size = 0;
+            break;
+          case 'medium':
+            bagData.size = 1;
+            break;
+          case 'large':
+            bagData.size = 2;
+            break;
+          default:
+            bagData.size = 1;
+        }
+        
+        // Trasforma il contenuto
+        bagData.content = bagData.content.map(item => ({
+          BagID: bagData.id,
+          FoodItemID: parseInt(item.foodItemId),
+          Quantity: parseInt(item.quantity)
+        }));
+        
+        console.log('Dati della borsa inviati:', bagData);
+        
+        // Chiamata all'API
+        if (isEditMode) {
+          // Per ora mantieni la funzione onUpdateBag esistente
+          onUpdateBag(bagData);
+        } else {
+          // Crea la bag sul server
+          const newBag = await createBag(bagData);
+          console.log('Bag creata sul server:', newBag);
+          
+          // Chiama onAddBag per aggiornare la lista locale
+          onAddBag(newBag);
+        }
+        
+        // Reset del form e mostra messaggio di successo
+        setFormData(initialFormState);
+        setErrors({});
+        setFormSubmitted(false);
+        setShowSuccess(true);
+        
+        // Nascondi il messaggio di successo dopo 3 secondi
+        setTimeout(() => {
+          setShowSuccess(false);
+        }, 3000);
+        
+      } catch (error) {
+        console.error('Errore durante la creazione della bag:', error);
+        // Potresti voler mostrare un messaggio di errore all'utente
+        alert('Errore durante la creazione della bag: ' + error.message);
       }
-      
-      // Trasforma il contenuto
-      bagData.content = bagData.content.map(item => ({
-        BagID: bagData.id,
-        FoodItemID: parseInt(item.foodItemId),
-        Quantity: parseInt(item.quantity)
-      }));
-      
-      console.log('Dati della borsa inviati:', bagData);
-      
-      // In base alla modalità, chiama la funzione appropriata
-      if (isEditMode) {
-        onUpdateBag(bagData);
-      } else {
-        onAddBag(bagData);
-      }
-      
-      // Reset del form e mostra messaggio di successo
-      setFormData(initialFormState);
-      setErrors({});
-      setFormSubmitted(false);
-      setShowSuccess(true);
-      
-      // Nascondi il messaggio di successo dopo 3 secondi
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 3000);
     }
   };
 
