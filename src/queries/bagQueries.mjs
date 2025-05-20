@@ -1,5 +1,6 @@
 import dbConnection from "../db/dbConnection.mjs";
 import Bag from "../models/Bag.mjs";
+import dayjs from 'dayjs';
 
 // TODO: implemented api call for all removed items ?
 // Function to get all removed items for a specific BagID
@@ -157,4 +158,108 @@ export async function getBagsByDateRange(startDate, endDate) {
     });
 }
 
-export default { getAllBags, getBagsByDateRange };
+// Function to create a new bag in the database
+export async function createBag(bagData) {
+    const db = await dbConnection.openConnection();
+    
+    try {
+        return new Promise((resolve, reject) => {
+            // Start a transaction to ensure data consistency
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
+                
+                // Insert the bag into the Bag table
+                db.run(
+                    `INSERT INTO Bag (BagID, Type, Size, Price, EstablishmentID, TimeToPickUp, State, UserID) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        bagData.id,
+                        bagData.type,
+                        bagData.size,
+                        bagData.price,
+                        bagData.establishmentId,
+                        bagData.timeToPickUp,
+                        bagData.state || 'available',
+                        bagData.userId || null
+                    ],
+                    function(err) {
+                        if (err) {
+                            db.run('ROLLBACK');
+                            reject(err);
+                            return;
+                        }
+                        
+                        // If the bag is regular and has content, insert into BagFoodItem table
+                        if (bagData.type === 'regular' && bagData.content && bagData.content.length > 0) {
+                            const insertPromises = bagData.content.map(item => {
+                                return new Promise((resolveItem, rejectItem) => {
+                                    db.run(
+                                        'INSERT INTO BagFoodItem (BagID, FoodItemID, Quantity) VALUES (?, ?, ?)',
+                                        [bagData.id, item.FoodItemID, item.Quantity],
+                                        function(itemErr) {
+                                            if (itemErr) {
+                                                rejectItem(itemErr);
+                                            } else {
+                                                resolveItem();
+                                            }
+                                        }
+                                    );
+                                });
+                            });
+                            
+                            Promise.all(insertPromises)
+                                .then(() => {
+                                    db.run('COMMIT');
+                                    
+                                    // Create and return the new Bag object
+                                    const newBag = new Bag(
+                                        bagData.id,
+                                        bagData.type,
+                                        bagData.size,
+                                        bagData.content || [],
+                                        bagData.price,
+                                        bagData.establishmentId,
+                                        bagData.timeToPickUp,
+                                        bagData.state || 'available',
+                                        bagData.userId || null,
+                                        [], // removedItems starts empty
+                                        dayjs().format('YYYY-MM-DD HH:mm:ss')
+                                    );
+                                    
+                                    resolve(newBag);
+                                })
+                                .catch(itemErr => {
+                                    db.run('ROLLBACK');
+                                    reject(itemErr);
+                                });
+                        } else {
+                            // For surprise bags or regular bags without content
+                            db.run('COMMIT');
+                            
+                            const newBag = new Bag(
+                                bagData.id,
+                                bagData.type,
+                                bagData.size,
+                                [],
+                                bagData.price,
+                                bagData.establishmentId,
+                                bagData.timeToPickUp,
+                                bagData.state || 'available',
+                                bagData.userId || null,
+                                [],
+                                dayjs().format('YYYY-MM-DD HH:mm:ss')
+                            );
+                            
+                            resolve(newBag);
+                        }
+                    }
+                );
+            });
+        });
+    } catch (error) {
+        console.error('Error creating bag:', error);
+        throw error;
+    }
+}
+
+export default { getAllBags, getBagsByDateRange, createBag };
