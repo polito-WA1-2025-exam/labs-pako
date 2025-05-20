@@ -1,11 +1,14 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap';
 import BagContents from './BagContents';
 import { useCart } from '../context/CartContext';
 
-function BagCard({ bag, onEdit, onDelete }) { // Aggiungiamo la prop onDelete
+function BagCard({ bag, onEdit, onDelete }) {
   const { type, size, price, establishment, pickupTimeRange, status, contents } = bag;
   const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   
   // Determina lo stile del badge in base allo stato
   const getStatusBadgeVariant = () => {
@@ -26,7 +29,7 @@ function BagCard({ bag, onEdit, onDelete }) { // Aggiungiamo la prop onDelete
       default: return 'secondary';
     }
   };
-
+  
   // Helper function to safely capitalize the size
   const formatSize = (size) => {
     if (!size || typeof size !== 'string') {
@@ -35,80 +38,99 @@ function BagCard({ bag, onEdit, onDelete }) { // Aggiungiamo la prop onDelete
     return size.charAt(0).toUpperCase() + size.slice(1);
   };
   
+  // Handle add to cart with server communication
+  const handleAddToCart = async () => {
+    try {
+      setIsAdding(true);
+      await addToCart(bag);
+      setIsAdding(false);
+    } catch (error) {
+      setIsAdding(false);
+      console.error("Failed to add bag to cart:", error);
+    }
+  };
+  
   return (
-    <Card className={`bag-card ${status === 'reserved' ? 'reserved-bag' : ''}`}>
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <div>
-          <Badge bg={getTypeBadgeVariant()} className="me-1">
-            {type === 'surprise' ? 'Surprise' : 'Regular'}
-          </Badge>
-          <Badge bg={getSizeBadgeVariant()}>
-            {formatSize(size)}
-          </Badge>
-        </div>
-        <div>
-          <Badge bg={getStatusBadgeVariant()} className="me-2">
-            {status === 'available' ? 'Available' : 'Reserved'}
-          </Badge>
-          {status === 'available' && (
-            <>
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
-                onClick={() => onEdit(bag)}
-                className="me-1"
-              >
-                <i className="bi bi-pencil"></i>
-              </Button>
-              <Button 
-                variant="outline-danger" 
-                size="sm" 
-                onClick={() => onDelete(bag)}
-              >
-                <i className="bi bi-trash"></i>
-              </Button>
-            </>
-          )}
-        </div>
+    <Card className="mb-3 h-100">
+      <Card.Header>
+        <Row className="align-items-center">
+          <Col xs={8}>
+            <Badge bg={getTypeBadgeVariant()} className="me-2">
+              {type === 'surprise' ? 'Surprise' : 'Regular'}
+            </Badge>
+            <Badge bg={getSizeBadgeVariant()}>
+              {formatSize(size)}
+            </Badge>
+          </Col>
+          <Col xs={4} className="text-end">
+            <Badge bg={getStatusBadgeVariant()}>
+              {status === 'available' ? 'Available' : 'Reserved'}
+            </Badge>
+            {status === 'available' && (
+              <>
+                <Button 
+                  variant="outline-primary" 
+                  size="sm" 
+                  onClick={() => onEdit(bag)}
+                  className="me-1"
+                >
+                  Edit
+                </Button>
+                <Button 
+                  variant="outline-danger" 
+                  size="sm" 
+                  onClick={() => onDelete(bag)}
+                >
+                  Delete
+                </Button>
+              </>
+            )}
+          </Col>
+        </Row>
       </Card.Header>
-      
       <Card.Body>
-        <Card.Title className="mb-3">{establishment}</Card.Title>
-        
-        <div className="bag-info mb-2">
-          <i className="bi bi-clock me-2"></i>
-          <span>Pickup: {pickupTimeRange}</span>
-        </div>
-        
-        <div className="bag-info mb-3">
-          <i className="bi bi-tag me-2"></i>
-          <span className="fw-bold">${Number(price).toFixed(2)}</span>
-        </div>
-        
+        <Card.Title>
+          {establishment}
+        </Card.Title>
+        <Card.Text>
+          <small className="text-muted">
+            Pickup: {pickupTimeRange}
+          </small>
+        </Card.Text>
+        <Card.Text>
+          <strong>
+            ${Number(price).toFixed(2)}
+          </strong>
+        </Card.Text>
         {type === 'regular' && contents && (
-          <div className="bag-contents">
-            <BagContents contents={contents} />
-          </div>
+          <BagContents contents={contents} />
         )}
         
         {status === 'available' && (
-          <div className="mt-3">
-            <Form.Group className="mb-2">
+          <Row className="mt-3">
+            <Col xs={4}>
               <Form.Label>Quantity</Form.Label>
-              <Form.Select size="sm">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
+              <Form.Select 
+                size="sm" 
+                value={quantity} 
+                onChange={(e) => setQuantity(Number(e.target.value))}
+              >
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
               </Form.Select>
-            </Form.Group>
-            <Button 
-              variant="primary" 
-              className="w-100" 
-              onClick={() => addToCart(bag)}
-            >
-              Add to Cart
-            </Button>
-          </div>
+            </Col>
+            <Col xs={8} className="d-flex align-items-end">
+              <Button 
+                variant="primary" 
+                className="w-100" 
+                onClick={handleAddToCart}
+                disabled={isAdding}
+              >
+                {isAdding ? 'Adding...' : 'Add to Cart'}
+              </Button>
+            </Col>
+          </Row>
         )}
       </Card.Body>
     </Card>

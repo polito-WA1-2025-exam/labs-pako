@@ -133,6 +133,12 @@ const ShoppingCart = () => {
     }
   };
   
+  // Helper function to safely capitalize a string
+  const capitalizeString = (str) => {
+    if (typeof str !== 'string' || !str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+  
   return (
     <div className="shopping-cart p-4">
       <h2 className="text-center mb-4">Your Shopping Cart</h2>
@@ -166,10 +172,10 @@ const ShoppingCart = () => {
                 <Card.Header className="d-flex justify-content-between align-items-center">
                   <div>
                     <Badge bg="primary" className="me-1">
-                      {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                      {capitalizeString(item.type)}
                     </Badge>
                     <Badge bg="secondary">
-                      {item.size.charAt(0).toUpperCase() + item.size.slice(1)}
+                      {typeof item.size === 'string' ? capitalizeString(item.size) : String(item.size)}
                     </Badge>
                   </div>
                   <Badge bg={getStatusBadgeVariant(item.status)}>
@@ -186,7 +192,7 @@ const ShoppingCart = () => {
                     <i className="bi bi-tag me-2"></i>
                     <span className="fw-bold">€{item.price.toFixed(2)}</span>
                   </div>
-                  {item.contents && item.type.toLowerCase() === 'regular' && (
+                  {item.contents && item.type && item.type.toLowerCase() === 'regular' && (
                     <div className="mb-3">
                       <strong>Contents:</strong>
                       <ul>

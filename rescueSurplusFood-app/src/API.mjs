@@ -358,6 +358,33 @@ async function createBag(bagData) {
   }
 }
 
+/**
+ * Add a bag to user's shopping cart
+ * @param {number} userId - The user ID
+ * @param {number} bagId - The bag ID to add to cart
+ * @returns {Promise<Object>} The result of adding the bag
+ */
+async function addBagToCart(userId, bagId) {
+  try {
+    const response = await fetch(`http://localhost:3002/api/shopping-carts/${userId}/items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bagId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error adding bag to cart: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error adding bag to cart:', error);
+    throw error;
+  }
+}
 
 export {
   getAllEstablishments,
@@ -376,4 +403,5 @@ export {
   updateEstablishment,
   deleteEstablishment,
   createBag,
+  addBagToCart
 };
