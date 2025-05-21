@@ -4,6 +4,18 @@ import * as establishmentBagController from '../controllers/establishmentBagCont
 
 const router = express.Router();
 
+// Middleware to handle JSON parsing errors
+const handleJsonErrors = (err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        console.error('JSON parsing error:', err.message);
+        return res.status(400).json({ error: 'Invalid JSON in request body' });
+    }
+    next();
+};
+
+// Apply the middleware to this router
+router.use(handleJsonErrors);
+
 // Route per gli establishment
 router.get('/', establishmentController.fetchAllEstablishments);            // Recupera tutti gli establishment
 router.get('/:id', establishmentController.fetchEstablishmentById);         // Recupera un singolo establishment per ID

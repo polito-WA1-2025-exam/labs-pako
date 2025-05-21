@@ -64,14 +64,46 @@ export const updateEstablishment = async (req, res) => {
 export const deleteEstablishment = async (req, res) => {
     try {
         const id = req.params.id;
-        const result = await establishmentService.deleteEstablishment(id);
-        if (result) {
-            res.json({ message: 'Establishment deleted successfully' });
+        
+        // Log attempt to delete establishment
+        console.log(`Attempting to delete establishment with ID: ${id}`);
+        
+        // Validate that the ID is a number
+        const numericId = parseInt(id, 10);
+        if (isNaN(numericId)) {
+            console.error(`Invalid establishment ID format: ${id}`);
+            return res.status(400).json({ error: 'Invalid establishment ID format' });
+        }
+        
+        // Call the service to delete the establishment
+        const result = await establishmentService.deleteEstablishment(numericId);
+        
+        // Check the result and send appropriate response
+        if (result === true) {
+            console.log(`Successfully deleted establishment with ID: ${id}`);
+            return res.json({ message: 'Establishment deleted successfully' });
         } else {
-            res.status(404).json({ message: 'Establishment not found' });
+            console.log(`Establishment with ID ${id} not found`);
+            return res.status(404).json({ error: 'Establishment not found' });
         }
     } catch (err) {
+        // Log the full error for debugging
         console.error(`Error deleting establishment with ID ${req.params.id}:`, err);
-        res.status(500).json({ error: 'Error deleting establishment' });
+        
+        // Send a more specific error message based on the error type
+        let errorMessage = 'Error deleting establishment';
+        let statusCode = 500;
+        
+        // Check if the error is related to constraints
+        if (err.message && (
+            err.message.includes('constraint') || 
+            err.message.includes('FOREIGN KEY') ||
+            err.message.includes('referenced')
+        )) {
+            errorMessage = 'Cannot delete establishment because it is referenced by other records';
+            statusCode = 409; // Conflict
+        }
+        
+        res.status(statusCode).json({ error: errorMessage });
     }
 };

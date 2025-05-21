@@ -75,3 +75,152 @@ export async function createEstablishment(establishmentData) {
         );
     });
 }
+
+// Update an existing establishment in the database
+export async function updateEstablishment(id, establishmentData) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        const { name, address, phoneNumber, category, type, content } = establishmentData;
+        
+        db.run(
+            'UPDATE Establishment SET Name = ?, Address = ?, PhoneNumber = ?, Category = ?, Type = ?, Content = ? WHERE EstablishmentID = ?',
+            [name, address, phoneNumber, category, type, content, id],
+            function(err) {
+                if (err) {
+                    reject(err);
+                } else if (this.changes === 0) {
+                    resolve(null); // Establishment not found
+                } else {
+                    // Get the updated establishment
+                    getEstablishmentById(id)
+                        .then(updatedEstablishment => resolve(updatedEstablishment))
+                        .catch(err => reject(err));
+                }
+            }
+        );
+    });
+}
+
+// Delete an establishment from the database
+export async function deleteEstablishment(id) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        // Start a transaction to ensure referential integrity
+        db.run('BEGIN TRANSACTION', (err) => {
+            if (err) {
+                return reject(err);
+            }
+
+            // Check if the establishment exists
+            db.get('SELECT EstablishmentID FROM Establishment WHERE EstablishmentID = ?', [id], (err, row) => {
+                if (err) {
+                    db.run('ROLLBACK', () => {
+                        reject(err);
+                    });
+                } else if (!row) {
+                    db.run('ROLLBACK', () => {
+                        resolve(false); // Establishment not found
+                    });
+                } else {
+                    // First, check if there are any references to this establishment in other tables
+                    db.get('SELECT BagID FROM Bag WHERE EstablishmentID = ? LIMIT 1', [id], (err, bagRow) => {
+                        if (err) {
+                            return db.run('ROLLBACK', () => {
+                                reject(err);
+                            });
+                        }
+                        
+                        // If there are related bags, clean them up manually to avoid constraint issues
+                        if (bagRow) {
+                            const cleanupBags = () => {
+                                // Delete related BagFoodItem records
+                                db.run('DELETE FROM BagFoodItem WHERE BagID IN (SELECT BagID FROM Bag WHERE EstablishmentID = ?)', [id], (err) => {
+                                    if (err) {
+                                        return db.run('ROLLBACK', () => {
+                                            reject(new Error(`Failed to delete related BagFoodItem records: ${err.message}`));
+                                        });
+                                    }
+                                    
+                                    // Delete related RemovedItems records
+                                    db.run('DELETE FROM RemovedItems WHERE BagID IN (SELECT BagID FROM Bag WHERE EstablishmentID = ?)', [id], (err) => {
+                                        if (err) {
+                                            return db.run('ROLLBACK', () => {
+                                                reject(new Error(`Failed to delete related RemovedItems records: ${err.message}`));
+                                            });
+                                        }
+                                        
+                                        // Delete related ShoppingCart records via Reservation
+                                        db.run('DELETE FROM ShoppingCart WHERE ReservationID IN (SELECT ReservationID FROM Reservation WHERE BagID IN (SELECT BagID FROM Bag WHERE EstablishmentID = ?))', [id], (err) => {
+                                            if (err) {
+                                                return db.run('ROLLBACK', () => {
+                                                    reject(new Error(`Failed to delete related ShoppingCart records: ${err.message}`));
+                                                });
+                                            }
+                                            
+                                            // Delete related Reservation records
+                                            db.run('DELETE FROM Reservation WHERE BagID IN (SELECT BagID FROM Bag WHERE EstablishmentID = ?)', [id], (err) => {
+                                                if (err) {
+                                                    return db.run('ROLLBACK', () => {
+                                                        reject(new Error(`Failed to delete related Reservation records: ${err.message}`));
+                                                    });
+                                                }
+                                                
+                                                // Delete related Bag records
+                                                db.run('DELETE FROM Bag WHERE EstablishmentID = ?', [id], (err) => {
+                                                    if (err) {
+                                                        return db.run('ROLLBACK', () => {
+                                                            reject(new Error(`Failed to delete related Bag records: ${err.message}`));
+                                                        });
+                                                    }
+                                                    
+                                                    // Now it's safe to delete the establishment
+                                                    finalizeEstablishmentDeletion();
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            };
+                            
+                            // Call the cleanup function
+                            cleanupBags();
+                        } else {
+                            // No related bags, safe to delete directly
+                            finalizeEstablishmentDeletion();
+                        }
+                        
+                        // Helper function to delete the establishment after all dependencies are handled
+                        function finalizeEstablishmentDeletion() {
+                            db.run('DELETE FROM Establishment WHERE EstablishmentID = ?', [id], function(err) {
+                                if (err) {
+                                    return db.run('ROLLBACK', () => {
+                                        reject(new Error(`Failed to delete establishment: ${err.message}`));
+                                    });
+                                }
+                                
+                                // If no rows were affected, the establishment might have been deleted elsewhere
+                                if (this.changes === 0) {
+                                    return db.run('ROLLBACK', () => {
+                                        resolve(false); // No establishment found to delete
+                                    });
+                                }
+                                
+                                // Commit the transaction
+                                db.run('COMMIT', (err) => {
+                                    if (err) {
+                                        return db.run('ROLLBACK', () => {
+                                            reject(new Error(`Failed to commit transaction: ${err.message}`));
+                                        });
+                                    }
+                                    
+                                    // Success! The establishment and all related records have been deleted
+                                    resolve(true);
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+}

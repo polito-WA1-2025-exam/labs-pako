@@ -1,13 +1,15 @@
 import express from 'express';
-import * as shoppingCartController from '../controllers/shoppingCartController.mjs';  // Import the controller
+import * as shoppingCartController from '../controllers/shoppingCartController.mjs';
 
 const router = express.Router();
 
-// Existing route to fetch all shopping carts (might be removed or require auth later)
+// Route to fetch all shopping carts
 router.get('/', shoppingCartController.fetchAllShoppingCarts);
 
-// New route to fetch shopping cart for a specific user by User ID
-// This matches the client-side API call GET /api/shopping-carts/:userId
+// Route to fetch shopping cart for a specific user by User ID
 router.get('/:userId', shoppingCartController.fetchShoppingCartByUser);
+
+// New route to add a bag to a user's shopping cart
+router.post('/:userId/items', shoppingCartController.addBagToUserCart);
 
 export default router;
