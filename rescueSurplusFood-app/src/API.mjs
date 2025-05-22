@@ -481,6 +481,118 @@ async function addBagToCart(userId, bagId) {
   }
 }
 
+/**
+ * Delete a bag by ID
+ * @param {string|number} id - The ID of the bag to delete
+ * @returns {Promise<Object>} Confirmation of deletion
+ */
+async function deleteBag(id) {
+  try {
+    console.log(`Deleting bag with ID: ${id}`);
+    
+    // Verifica che l'ID sia valido prima di procedere
+    if (!id || isNaN(parseInt(id))) {
+      throw new Error(`Invalid bag ID: ${id}`);
+    }
+    
+    // Aggiungi un timeout per evitare che la richiesta rimanga bloccata troppo a lungo
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 secondi di timeout
+    
+    const response = await fetch(`${BASE_URL}/bags/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        // Aggiungi un header per aiutare a identificare la richiesta nei log del server
+        'X-Request-ID': `delete-bag-${id}-${Date.now()}`,
+      },
+      signal: controller.signal,
+    });
+    
+    // Cancella il timeout poiché la richiesta è completata
+    clearTimeout(timeoutId);
+    
+    // Log più dettagliato della risposta
+    console.log(`Delete response for bag ID ${id}: Status ${response.status} ${response.statusText}`);
+    
+    // Gestione specifica degli errori HTTP
+    if (!response.ok) {
+      let errorMessage = `Failed to delete bag. Server responded with status: ${response.status} ${response.statusText}`;
+      
+      // Tenta di ottenere un messaggio di errore dal server
+      let errorData = null;
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          errorData = await response.json();
+          console.error('Server error details:', errorData);
+          
+          if (errorData && errorData.error) {
+            errorMessage = errorData.error;
+          }
+          
+          if (errorData && errorData.details) {
+            errorMessage += `: ${errorData.details}`;
+          }
+        } catch (jsonError) {
+          console.warn('Could not parse error response as JSON:', jsonError);
+        }
+      } else {
+        // Prova a leggere la risposta come testo se non è JSON
+        try {
+          const textError = await response.text();
+          console.error('Server error response (text):', textError);
+          if (textError) {
+            errorMessage += ` - ${textError}`;
+          }
+        } catch (textError) {
+          console.warn('Could not read error response as text:', textError);
+        }
+      }
+      
+      // Fornisci messaggi più specifici in base al codice di errore
+      if (response.status === 409) {
+        errorMessage = `Cannot delete bag ${id} because it has related records. Please try again.`;
+      } else if (response.status === 500) {
+        errorMessage = `Server error (500) when deleting bag ${id}. This might be due to database constraints or server-side validation. Server message: ${errorMessage}`;
+      } else if (response.status === 404) {
+        errorMessage = `Bag ${id} not found. It may have been already deleted.`;
+      } else if (response.status === 403) {
+        errorMessage = `Permission denied when deleting bag ${id}. You may not have the required access rights.`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+    
+    // Tenta di analizzare la risposta come JSON
+    try {
+      const jsonResponse = await response.json();
+      console.log(`Delete success for bag ID ${id}:`, jsonResponse);
+      return jsonResponse;
+    } catch (jsonError) {
+      // Se la risposta non è JSON, restituisci un oggetto con un messaggio di successo
+      console.log(`Delete success for bag ID ${id} (non-JSON response)`);
+      return { success: true, message: `Bag ${id} deleted successfully` };
+    }
+  } catch (error) {
+    // Log più specifico dell'errore
+    if (error.name === 'AbortError') {
+      console.error(`Delete request for bag ${id} timed out after 10 seconds`);
+      throw new Error(`Request timed out when deleting bag ${id}. The server might be overloaded or unreachable.`);
+    }
+    
+    console.error(`Error deleting bag with ID ${id}:`, error);
+    
+    // Rilanciare l'errore con un messaggio più descrittivo
+    if (!error.message.includes('bag')) {
+      throw new Error(`Error deleting bag ${id}: ${error.message}`);
+    } else {
+      throw error;
+    }
+  }
+}
+
 export {
   getAllEstablishments,
   getEstablishmentById,
@@ -498,5 +610,6 @@ export {
   updateEstablishment,
   deleteEstablishment,
   createBag,
-  addBagToCart
+  addBagToCart,
+  deleteBag
 };

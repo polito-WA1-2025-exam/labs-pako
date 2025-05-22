@@ -6,7 +6,7 @@ import BagsSummary from './BagsSummary';
 import BagForm from './BagForm';
 import HeroSection from '../HeroSection';
 import dayjs from 'dayjs';
-import { getAllBags, getEstablishmentById, getFoodItemById } from '../../API.mjs';
+import { getAllBags, getEstablishmentById, getFoodItemById, deleteBag } from '../../API.mjs';
 
 function BagsPage() {
   const [bags, setBags] = useState([]);
@@ -18,13 +18,15 @@ function BagsPage() {
   const [currentBag, setCurrentBag] = useState(null);
   const [modalTitle, setModalTitle] = useState("Aggiungi una Nuova Bag");
   
-  // Aggiungi stato per il modal di conferma eliminazione
+  // Stato per il modal di conferma eliminazione
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bagToDelete, setBagToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
   
   // Funzione per caricare i dati dell'establishment
   const fetchEstablishmentData = async (establishmentId) => {
-    if (!establishmentId) return null; // evita chiamate non valide
+    if (!establishmentId) return null;
     try {
       const establishment = await getEstablishmentById(establishmentId);
       console.log("Establishment data:", establishment);
@@ -55,76 +57,6 @@ function BagsPage() {
     }
   };
 
-  // Carica i dati delle bags dal server
-  useEffect(() => {
-    const fetchBagsData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Ottieni tutte le bags dal server
-        const bagsData = await getAllBags();
-        
-        // Carica i dati degli establishment per ogni bag
-        const uniqueEstablishmentIds = [...new Set(
-          bagsData
-            .map(bag => bag.establishmentId)
-            .filter(id => id !== undefined && id !== null)
-        )];
-        const establishmentPromises = uniqueEstablishmentIds.map(id => {
-          fetchEstablishmentData(id);
-        });
-
-        await Promise.all(establishmentPromises);
-        
-        // Carica i dati dei food items per ogni bag
-        const uniqueFoodItemIds = new Set();
-        bagsData.forEach(bag => {
-          if (bag.content && Array.isArray(bag.content)) {
-            bag.content.forEach(item => {
-              if (item.FoodItemID) {
-                uniqueFoodItemIds.add(item.FoodItemID);
-              }
-            });
-          }
-        });
-        
-        const foodItemPromises = [...uniqueFoodItemIds].map(id => fetchFoodItemData(id));
-        await Promise.all(foodItemPromises);
-        
-        // Filtra le bags per mostrare solo quelle future
-        const now = dayjs();
-        console.log("bagsData:", bagsData);
-        const filteredBags = bagsData.filter(bag => {
-          if (!bag.timeToPickUp) return false;
-          
-          let bagDate;
-          if (bag.timeToPickUp.includes("T")) {
-            bagDate = dayjs(bag.timeToPickUp);
-          } else {
-            bagDate = dayjs(bag.timeToPickUp.replace(" ", "T"));
-          }
-          console.log("Parsed bagDate:", bagDate.toString(), "Valid?", bagDate.isValid());
-          // La bag è valida se il tempo è nel futuro
-          return bagDate.isAfter(now);
-        });
-
-        
-        // Trasforma i dati delle bags nel formato corretto per il componente
-        const transformedBags = filteredBags.map(bag => transformBagData(bag));
-        setBags(transformedBags);
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching bags:", error);
-        setError("Si è verificato un errore durante il caricamento delle bags. Riprova più tardi.");
-        setLoading(false);
-      }
-    };
-    
-    fetchBagsData();
-  }, []);
-  
   // Funzione per trasformare i dati della bag nel formato corretto
   const transformBagData = (bag) => {
     let sizeText = "";
@@ -189,40 +121,8 @@ function BagsPage() {
       originalData: bag
     };
   };
-  
-  // Funzione per aprire il form per aggiungere una nuova bag
-  const handleAddNewBag = () => {
-    setCurrentBag(null);
-    setModalTitle("Aggiungi una Nuova Bag");
-    setShowForm(true);
-  };
-  
-  // Funzione per aprire il form per modificare una bag esistente
-  const handleEditBag = (bag) => {
-    setCurrentBag(bag);
-    setModalTitle("Modifica Bag");
-    setShowForm(true);
-  };
-  
-  // Funzione per gestire la richiesta di eliminazione di una bag
-  const handleDeleteBag = (bag) => {
-    setBagToDelete(bag);
-    setShowDeleteConfirm(true);
-  };
-  
-  // Funzione per confermare ed eseguire l'eliminazione
-  const confirmDeleteBag = () => {
-    // In una vera applicazione, faresti una chiamata API per eliminare i dati
-    // Per ora, rimuoviamo semplicemente la bag dallo stato
-    if (bagToDelete) {
-      setBags(prevBags => prevBags.filter(bag => bag.id !== bagToDelete.id));
-    }
-    // Chiudi il modal di conferma
-    setShowDeleteConfirm(false);
-    setBagToDelete(null);
-  };
-  
-  // Funzione per aggiungere una nuova bag
+
+  // Funzione per caricare e trasformare tutte le bags
   const fetchAndTransformBags = async () => {
     try {
       setLoading(true);
@@ -287,12 +187,64 @@ function BagsPage() {
     }
   };
 
-  // Modifica l'useEffect per usare la nuova funzione
+  // Carica i dati all'inizializzazione
   useEffect(() => {
     fetchAndTransformBags();
   }, []);
 
-  // Modifica handleAddBag per riusare la stessa logica
+  // Funzione per aprire il form per aggiungere una nuova bag
+  const handleAddNewBag = () => {
+    setCurrentBag(null);
+    setModalTitle("Aggiungi una Nuova Bag");
+    setShowForm(true);
+  };
+  
+  // Funzione per aprire il form per modificare una bag esistente
+  const handleEditBag = (bag) => {
+    setCurrentBag(bag);
+    setModalTitle("Modifica Bag");
+    setShowForm(true);
+  };
+  
+  // Funzione per gestire la richiesta di eliminazione di una bag
+  const handleDeleteBag = (bag) => {
+    setBagToDelete(bag);
+    setDeleteError(null);
+    setShowDeleteConfirm(true);
+  };
+  
+  // Funzione per confermare ed eseguire l'eliminazione con API
+  const confirmDeleteBag = async () => {
+    if (!bagToDelete) return;
+    
+    try {
+      setIsDeleting(true);
+      setDeleteError(null);
+      
+      console.log('Deleting bag with ID:', bagToDelete.id);
+      
+      // Chiama l'API per eliminare la bag
+      const result = await deleteBag(bagToDelete.id);
+      
+      console.log('Bag deleted successfully:', result);
+      
+      // Ricarica tutte le bags per aggiornare la lista
+      await fetchAndTransformBags();
+      
+      // Chiudi il modal di conferma
+      setShowDeleteConfirm(false);
+      setBagToDelete(null);
+      setIsDeleting(false);
+      
+    } catch (error) {
+      console.error('Error deleting bag:', error);
+      setDeleteError(error.message || 'Si è verificato un errore durante l\'eliminazione della bag.');
+      setIsDeleting(false);
+      // Non chiudiamo il modal in caso di errore, così l'utente può vedere il messaggio
+    }
+  };
+  
+  // Funzione per aggiungere una nuova bag
   const handleAddBag = async (newBag) => {
     try {
       // Dopo che la bag è stata creata con successo, 
@@ -377,22 +329,47 @@ function BagsPage() {
             <Modal.Title>Conferma Eliminazione</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            Sei sicuro di voler eliminare questa bag?
+            {deleteError && (
+              <div className="alert alert-danger mb-3">
+                <strong>Errore:</strong> {deleteError}
+              </div>
+            )}
+            
+            <p>Sei sicuro di voler eliminare questa bag?</p>
             {bagToDelete && (
-              <p className="mt-2">
+              <div className="mt-2 p-3 bg-light rounded">
                 <strong>Stabilimento:</strong> {bagToDelete.establishment}<br />
                 <strong>Tipo:</strong> {bagToDelete.type === 'surprise' ? 'Surprise' : 'Regular'}<br />
-                <strong>Prezzo:</strong> ${Number(bagToDelete.price).toFixed(2)}
-              </p>
+                <strong>Dimensione:</strong> {bagToDelete.size}<br />
+                <strong>Prezzo:</strong> ${Number(bagToDelete.price).toFixed(2)}<br />
+                <strong>Pickup:</strong> {bagToDelete.pickupTimeRange}
+              </div>
             )}
-            <p className="text-danger">Questa azione non può essere annullata.</p>
+            <p className="text-danger mt-3 mb-0">
+              <strong>Attenzione:</strong> Questa azione eliminerà definitivamente la bag e tutti i dati correlati (contenuti, prenotazioni, ecc.). L'operazione non può essere annullata.
+            </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+            <Button 
+              variant="secondary" 
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={isDeleting}
+            >
               Annulla
             </Button>
-            <Button variant="danger" onClick={confirmDeleteBag}>
-              Elimina
+            <Button 
+              variant="danger" 
+              onClick={confirmDeleteBag}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Eliminando...
+                </>
+              ) : (
+                'Elimina Definitivamente'
+              )}
             </Button>
           </Modal.Footer>
         </Modal>
