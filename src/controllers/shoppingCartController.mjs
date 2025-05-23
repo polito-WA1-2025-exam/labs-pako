@@ -79,9 +79,82 @@ export const addBagToUserCart = async (req, res) => {
     }
 };
 
-// Export the functions
+// Controller to remove a bag from user's shopping cart
+export const removeBagFromUserCart = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const bagId = parseInt(req.params.bagId);
+        
+        // Validate input
+        if (isNaN(userId)) {
+            return res.status(400).json({ error: 'Invalid User ID provided.' });
+        }
+        
+        if (isNaN(bagId)) {
+            return res.status(400).json({ error: 'Invalid Bag ID provided.' });
+        }
+        
+        console.log(`Controller: Removing bag ${bagId} from user ${userId}'s cart`);
+        
+        // Remove the bag from the user's cart
+        const result = await shoppingCartService.removeBagFromUserCart(userId, bagId);
+        
+        // Return success response
+        res.json(result);
+    } catch (err) {
+        console.error(`Error removing bag ${req.params.bagId} from user ${req.params.userId}'s cart:`, err);
+        
+        // Return appropriate error responses based on the type of error
+        if (err.message === 'Bag not found in user\'s cart or already removed') {
+            return res.status(404).json({ error: err.message });
+        }
+        
+        if (err.message === 'Failed to update bag state') {
+            return res.status(500).json({ error: 'Failed to update bag state in database' });
+        }
+        
+        res.status(500).json({ error: `Failed to remove bag from cart: ${err.message}` });
+    }
+};
+
+// Aggiungi questo nuovo controller
+export const fetchCartItem = async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const itemId = parseInt(req.params.itemId);
+        
+        // Validate input
+        if (isNaN(userId)) {
+            return res.status(400).json({ error: 'Invalid User ID provided.' });
+        }
+        
+        if (isNaN(itemId)) {
+            return res.status(400).json({ error: 'Invalid Item ID provided.' });
+        }
+        
+        // Retrieve the shopping cart for the user
+        const shoppingCart = await shoppingCartService.getShoppingCartByUserId(userId);
+        
+        // Find the specific item in the cart
+        const item = shoppingCart.items.find(item => item.id === itemId);
+        
+        if (!item) {
+            return res.status(404).json({ error: 'Item not found in user cart' });
+        }
+        
+        // Return the found item
+        res.json(item);
+    } catch (err) {
+        console.error(`Error retrieving item ${req.params.itemId} from user ${req.params.userId}'s cart:`, err);
+        res.status(500).json({ error: `Error retrieving item from cart: ${err.message}` });
+    }
+};
+
+// Non dimenticare di aggiungerlo al default export:
 export default {
     fetchAllShoppingCarts,
     fetchShoppingCartByUser,
-    addBagToUserCart
+    fetchCartItem,  // <-- Aggiungi questa linea
+    addBagToUserCart,
+    removeBagFromUserCart
 };

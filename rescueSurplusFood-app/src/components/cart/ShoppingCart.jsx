@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Card, Badge, Button, Form, Row, Col } from 'react-bootstrap';
+import { Card, Badge, Button, Form, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
-import { getUserShoppingCart } from '../../API.mjs';
+import { getUserShoppingCart, removeBagFromCart } from '../../API.mjs';
 
 const ShoppingCart = () => {  
   const { isLoggedIn } = useAuth();
@@ -12,42 +12,43 @@ const ShoppingCart = () => {
   const [specialRequests, setSpecialRequests] = useState('');
   const [removedItems, setRemovedItems] = useState({});
   const [unavailableItems, setUnavailableItems] = useState([]);
+  const [removingItems, setRemovingItems] = useState(new Set()); // Track items being removed
+  const [successMessage, setSuccessMessage] = useState(''); // Success feedback
   
-  // Carica i dati del carrello dell'utente dal server
-  useEffect(() => {
-    const fetchCartData = async () => {
-      if (!isLoggedIn) {
+  // Load user's cart data from server
+  const fetchCartData = async () => {
+    if (!isLoggedIn) {
+      setCartItems([]);
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get user ID from localStorage or other source
+      const userId = localStorage.getItem('userId') || 1;
+      
+      // Get user's cart data from server
+      const cartData = await getUserShoppingCart(userId);
+      
+      // Transform data to correct format for component
+      if (cartData && cartData.items) {
+        setCartItems(cartData.items);
+      } else {
         setCartItems([]);
-        setLoading(false);
-        return;
       }
       
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Recupera l'ID utente dal localStorage o da un'altra fonte
-        // Per semplicità, qui supponiamo di avere l'ID utente 1 quando l'utente è loggato
-        const userId = localStorage.getItem('userId') || 1;
-        
-        // Ottieni i dati del carrello dell'utente dal server
-        const cartData = await getUserShoppingCart(userId);
-        
-        // Trasforma i dati nel formato corretto per il componente
-        if (cartData && cartData.items) {
-          setCartItems(cartData.items);
-        } else {
-          setCartItems([]);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching shopping cart:", error);
-        setError("Si è verificato un errore durante il caricamento del carrello. Riprova più tardi.");
-        setLoading(false);
-      }
-    };
-    
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching shopping cart:", error);
+      setError("Si è verificato un errore durante il caricamento del carrello. Riprova più tardi.");
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchCartData();
   }, [isLoggedIn]);
   
@@ -71,65 +72,89 @@ const ShoppingCart = () => {
   };
   
   const removeFromCart = async (bagId) => {
-    try {
-      // Qui dovresti chiamare l'API per rimuovere l'articolo dal carrello
-      // Per ora, simuliamo la rimozione aggiornando lo stato locale
-      
-      // In un'implementazione reale:
-      // await removeItemFromCart(userId, bagId);
-      
-      setCartItems(cartItems.filter(item => item.id !== bagId));
-    } catch (error) {
-      console.error("Error removing item from cart:", error);
-      // Mostra un messaggio di errore all'utente
-    }
-  };
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // Get user ID
+    const userId = localStorage.getItem('userId') || 1;
+    
+    console.log(`Removing bag ${bagId} from cart for user ${userId}`);
+    
+    // Call the API to remove the bag from cart
+    await removeBagFromCart(userId, bagId);
+    
+    // Update local state by filtering out the removed bag
+    setCartItems(prevItems => prevItems.filter(item => item.id !== bagId));
+    
+    // Also remove from removedItems state if it exists
+    setRemovedItems(prev => {
+      const newRemovedItems = { ...prev };
+      delete newRemovedItems[bagId];
+      return newRemovedItems;
+    });
+    
+    console.log(`Successfully removed bag ${bagId} from cart`);
+    
+  } catch (error) {
+    console.error("Error removing item from cart:", error);
+    setError(`Failed to remove item from cart: ${error.message}`);
+    
+    // Optionally show a user-friendly error message
+    alert(`Error removing item: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
   
   const clearCart = async () => {
     try {
-      // Qui dovresti chiamare l'API per svuotare il carrello
-      // In un'implementazione reale:
-      // const userId = localStorage.getItem('userId') || 1;
-      // await clearUserCart(userId);
+      setError(null);
+      setSuccessMessage('');
       
+      const userId = localStorage.getItem('userId') || 1;
+      
+      // Remove all items one by one
+      const removePromises = cartItems.map(item => removeBagFromCart(userId, item.id));
+      
+      await Promise.all(removePromises);
+      
+      // Clear local state
       setCartItems([]);
+      setSuccessMessage('Cart cleared successfully!');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      
     } catch (error) {
       console.error("Error clearing cart:", error);
-      // Mostra un messaggio di errore all'utente
+      setError(`Failed to clear cart: ${error.message}`);
     }
   };
   
   const handleConfirmOrder = async () => {
     try {
-      // Qui dovresti chiamare l'API per confermare l'ordine
-      // In un'implementazione reale:
-      // const userId = localStorage.getItem('userId') || 1;
-      // const orderData = {
-      //   userId,
-      //   items: cartItems.map(item => item.id),
-      //   allergies,
-      //   specialRequests
-      // };
-      // const response = await confirmOrder(orderData);
-      
-      // Simuliamo la risposta del server con alcuni articoli non disponibili
+      // Here you should call the API to confirm the order
+      // For now, simulate server response with some unavailable items
       const simulateUnavailable = cartItems.filter(() => Math.random() < 0.3); // 30% chance
       
       if (simulateUnavailable.length > 0) {
-        // Alcuni articoli non sono più disponibili
+        // Some items are no longer available
         setUnavailableItems(simulateUnavailable.map(item => item.id));
         setTimeout(() => {
           setUnavailableItems([]);
         }, 5000);
-        alert("Problem with the order! Some items are no longer available.");
+        setError("Problem with the order! Some items are no longer available.");
       } else {
-        // Tutti gli articoli sono disponibili, conferma l'ordine
-        alert("Order Confirmed!");
+        // All items are available, confirm order
+        setSuccessMessage("Order Confirmed!");
         clearCart();
       }
     } catch (error) {
       console.error("Error confirming order:", error);
-      // Mostra un messaggio di errore all'utente
+      setError(`Failed to confirm order: ${error.message}`);
     }
   };
   
@@ -140,130 +165,166 @@ const ShoppingCart = () => {
   };
   
   return (
-    <div className="shopping-cart p-4">
-      <h2 className="text-center mb-4">Your Shopping Cart</h2>
+    <div className="container mt-4">
+      <h2 className="mb-4">Your Shopping Cart</h2>
+      
+      {/* Success Message */}
+      {successMessage && (
+        <Alert variant="success" dismissible onClose={() => setSuccessMessage('')}>
+          {successMessage}
+        </Alert>
+      )}
+      
+      {/* Error Message */}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
       
       {loading && (
         <div className="text-center">
-          <div className="spinner-border" role="status">
+          <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
-          </div>
-          <p>Loading your shopping cart...</p>
-        </div>
-      )}
-      
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
+          </Spinner>
+          <p className="mt-2">Loading your shopping cart...</p>
         </div>
       )}
       
       {!loading && !error && cartItems.length === 0 ? (
-        <div className="empty-cart text-center">
-          <i className="bi bi-cart-x" style={{ fontSize: '3rem' }}></i>
-          <p>Your cart is empty</p>
-          <a href="/bags" className="btn btn-primary">Browse Food Bags</a>
+        <div className="text-center">
+          <h4>Your cart is empty</h4>
+          <Button variant="primary" href="/bags">Browse Food Bags</Button>
         </div>
       ) : (
         <>
-          <div className="cart-items mb-4">
+          <Row>
             {cartItems.map((item, index) => (
-              <Card key={`${item.id}-${index}`} className={`mb-3 ${unavailableItems.includes(item.id) ? 'bg-danger text-white' : ''}`}>
-                <Card.Header className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <Badge bg="primary" className="me-1">
-                      {capitalizeString(item.type)}
-                    </Badge>
-                    <Badge bg="secondary">
-                      {typeof item.size === 'string' ? capitalizeString(item.size) : String(item.size)}
-                    </Badge>
-                  </div>
-                  <Badge bg={getStatusBadgeVariant(item.status)}>
-                    {item.status === 'available' ? 'Available' : 'Reserved'}
-                  </Badge>
-                </Card.Header>
-                <Card.Body>
-                  <Card.Title className="mb-3">{item.establishment}</Card.Title>
-                  <div className="mb-2">
-                    <i className="bi bi-clock me-2"></i>
-                    <span>Pickup: {item.pickupTimeRange}</span>
-                  </div>
-                  <div className="mb-3">
-                    <i className="bi bi-tag me-2"></i>
-                    <span className="fw-bold">€{item.price.toFixed(2)}</span>
-                  </div>
-                  {item.contents && item.type && item.type.toLowerCase() === 'regular' && (
-                    <div className="mb-3">
-                      <strong>Contents:</strong>
-                      <ul>
-                        {item.contents.map((content, idx) => (
-                          !removedItems[item.id]?.includes(idx) && (
-                            <li key={idx}>
-                              {content.quantity} x {content.item} 
-                              {(removedItems[item.id]?.length || 0) < 2 && (
-                                <Button 
-                                  variant="outline-danger" 
-                                  size="sm" 
-                                  className="ms-2"
-                                  onClick={() => handleRemoveItem(item.id, idx)}
-                                >
-                                  Remove
-                                </Button>
-                              )}
-                            </li>
-                          )
-                        ))}
-                      </ul>
+              <Col md={6} lg={4} key={index} className="mb-3">
+                <Card>
+                  <Card.Header>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="fw-bold">
+                        {capitalizeString(item.type)}
+                      </span>
+                      <Badge bg="info">
+                        {typeof item.size === 'string' ? capitalizeString(item.size) : String(item.size)}
+                      </Badge>
                     </div>
-                  )}
-                  <Button variant="danger" onClick={() => removeFromCart(item.id)}>
-                    Remove from Cart
-                  </Button>
-                </Card.Body>
-              </Card>
+                    <Badge bg={getStatusBadgeVariant(item.status)} className="mt-1">
+                      {item.status === 'available' ? 'Available' : 'Reserved'}
+                    </Badge>
+                  </Card.Header>
+                  <Card.Body>
+                    <h6>{item.establishment}</h6>
+                    <p className="text-muted mb-1">
+                      <small>Pickup: {item.pickupTimeRange}</small>
+                    </p>
+                    <p className="h5 text-success">
+                      <strong>€{item.price.toFixed(2)}</strong>
+                    </p>
+                    {item.contents && item.type && item.type.toLowerCase() === 'regular' && (
+                      <div className="mt-2">
+                        <strong>Contents:</strong>
+                        <ul className="list-unstyled mt-1">
+                          {item.contents.map((content, idx) => (
+                            !removedItems[item.id]?.includes(idx) && (
+                              <li key={idx} className="d-flex justify-content-between align-items-center">
+                                <span>{content.quantity} x {content.item}</span>
+                                {(removedItems[item.id]?.length || 0) < 2 && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline-danger"
+                                    onClick={() => handleRemoveItem(item.id, idx)}
+                                  >
+                                    Remove
+                                  </Button>
+                                )}
+                              </li>
+                            )
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <Button 
+                      variant="danger" 
+                      className="w-100"
+                      disabled={removingItems.has(item.id)}
+                      onClick={() => removeFromCart(item.id)}
+                    >
+                      {removingItems.has(item.id) ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="me-2"
+                          />
+                          Removing...
+                        </>
+                      ) : (
+                        'Remove from Cart'
+                      )}
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
             ))}
-          </div>
+          </Row>
           
-          {/* Order Summary Section */}
-          <Card className="mt-4 shadow-sm border-light">
-            <Card.Body>
-              <h3 className="mb-4">Order Summary</h3>
-              <Row className="mb-2">
-                <Col sm={6}><span>Items ({cartItems.length}):</span></Col>
-                <Col sm={6} className="text-end"><span>€{calculateTotal().toFixed(2)}</span></Col>
-              </Row>
-              <Row className="mb-2">
-                <Col sm={6}><strong>Total:</strong></Col>
-                <Col sm={6} className="text-end"><strong>€{calculateTotal().toFixed(2)}</strong></Col>
-              </Row>
-              <Form.Group className="mb-3">
-                <Form.Label>Allergies:</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Specify any allergies"
-                  value={allergies}
-                  onChange={(e) => setAllergies(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Special Requests:</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Specify any special requests"
-                  value={specialRequests}
-                  onChange={(e) => setSpecialRequests(e.target.value)}
-                />
-              </Form.Group>
-              <Button 
-                variant="success" 
-                className="w-100" 
-                onClick={handleConfirmOrder}
-                disabled={cartItems.length === 0}
-              >
-                <i className="bi bi-check-circle"></i> Confirm Order
-              </Button>
-            </Card.Body>
-          </Card>
+          {cartItems.length > 0 && (
+            <Row className="mt-4">
+              <Col md={8} lg={6} className="mx-auto">
+                <Card>
+                  <Card.Header>
+                    <h5>Order Summary</h5>
+                  </Card.Header>
+                  <Card.Body>
+                    <div className="d-flex justify-content-between mb-2">
+                      <span>Items ({cartItems.length}):</span>
+                      <span>€{calculateTotal().toFixed(2)}</span>
+                    </div>
+                    <div className="d-flex justify-content-between mb-3">
+                      <strong>Total:</strong>
+                      <strong>€{calculateTotal().toFixed(2)}</strong>
+                    </div>
+                    
+                    <Form.Group className="mb-3">
+                      <Form.Label>Allergies:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={allergies}
+                        onChange={(e) => setAllergies(e.target.value)}
+                        placeholder="List any allergies..."
+                      />
+                    </Form.Group>
+                    
+                    <Form.Group className="mb-3">
+                      <Form.Label>Special Requests:</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={specialRequests}
+                        onChange={(e) => setSpecialRequests(e.target.value)}
+                        placeholder="Any special requests..."
+                      />
+                    </Form.Group>
+                    
+                    <div className="d-grid gap-2">
+                      <Button variant="success" size="lg" onClick={handleConfirmOrder}>
+                        Confirm Order
+                      </Button>
+                      <Button variant="outline-danger" onClick={clearCart}>
+                        Clear Cart
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          )}
         </>
       )}
     </div>

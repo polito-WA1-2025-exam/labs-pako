@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { getUserShoppingCart, addBagToCart } from '../../API.mjs';
+import { getUserShoppingCart, addBagToCart, removeBagFromCart  } from '../../API.mjs';
 
 // Crea il contesto
 const CartContext = createContext();
@@ -111,22 +111,41 @@ export function CartProvider({ children }) {
   };
   
   // Funzione per rimuovere un articolo dal carrello
-  const removeFromCart = async (itemId) => {
-    try {
-      // In un'implementazione reale, chiameresti un'API per rimuovere l'articolo dal carrello
-      // const userId = localStorage.getItem('userId') || 1;
-      // await removeItemFromCart(userId, itemId);
-      
-      // Per ora, aggiorna solo lo stato locale
-      setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
-      
-      // Ricarica i dati del carrello dal server dopo la rimozione
-      // fetchCartData();
-    } catch (error) {
-      console.error("Error removing item from cart:", error);
-      alert("Failed to remove item from cart");
-    }
-  };
+ const removeFromCart = async (bagId) => {
+  try {
+    setLoading(true);
+    setError(null);
+    
+    // Get user ID
+    const userId = localStorage.getItem('userId') || 1;
+    
+    console.log(`Removing bag ${bagId} from cart for user ${userId}`);
+    
+    // Call the API to remove the bag from cart
+    await removeBagFromCart(userId, bagId);
+    
+    // Update local state by filtering out the removed bag
+    setCartItems(prevItems => prevItems.filter(item => item.id !== bagId));
+    
+    // Also remove from removedItems state if it exists
+    setRemovedItems(prev => {
+      const newRemovedItems = { ...prev };
+      delete newRemovedItems[bagId];
+      return newRemovedItems;
+    });
+    
+    console.log(`Successfully removed bag ${bagId} from cart`);
+    
+  } catch (error) {
+    console.error("Error removing item from cart:", error);
+    setError(`Failed to remove item from cart: ${error.message}`);
+    
+    // Optionally show a user-friendly error message
+    alert(`Error removing item: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
   
   // Funzione per svuotare il carrello
   const clearCart = async () => {

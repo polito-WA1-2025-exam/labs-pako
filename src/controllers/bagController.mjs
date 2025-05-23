@@ -111,3 +111,60 @@ export const createBag = async (req, res) => {
 };
 
 // Add more functions for other operations (create, update, delete, etc.)
+
+// Controller to delete a bag by ID
+export const deleteBag = async (req, res) => {
+    try {
+        const bagId = req.params.id;
+        
+        // Validate that bagId is provided and is a valid number
+        if (!bagId) {
+            return res.status(400).json({ 
+                error: 'Bag ID is required' 
+            });
+        }
+        
+        if (isNaN(parseInt(bagId))) {
+            return res.status(400).json({ 
+                error: 'Bag ID must be a valid number' 
+            });
+        }
+        
+        console.log(`Attempting to delete bag with ID: ${bagId}`);
+        
+        // Call the query function to delete the bag
+        const result = await bagService.deleteBag(parseInt(bagId));
+        
+        // Return success response
+        res.status(200).json({
+            success: true,
+            message: result.message,
+            deletedBagId: result.deletedBagId
+        });
+        
+    } catch (err) {
+        console.error('Error in deleteBag controller:', err);
+        
+        // Handle specific error cases
+        if (err.message && err.message.includes('not found')) {
+            return res.status(404).json({ 
+                error: `Bag with ID ${req.params.id} not found` 
+            });
+        }
+        
+        // Handle database constraint errors
+        if (err.message && err.message.includes('FOREIGN KEY constraint')) {
+            return res.status(409).json({ 
+                error: 'Cannot delete bag due to existing related records' 
+            });
+        }
+        
+        // General server error
+        res.status(500).json({ 
+            error: 'Internal server error while deleting bag',
+            details: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
+};
+
+

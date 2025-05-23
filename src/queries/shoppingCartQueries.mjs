@@ -188,8 +188,98 @@ export async function addBagToUserCart(userId, bagId) {
     });
 }
 
+// Function to remove a bag from user's shopping cart
+export async function removeBagFromUserCart(userId, bagId) {
+    const db = await dbConnection.openConnection();
+    return new Promise(async (resolve, reject) => {
+        // Start a transaction for atomicity
+        db.serialize(() => {
+            db.run('BEGIN TRANSACTION');
+            
+            // 1. Verify the bag belongs to the user and is in their cart
+            db.get(
+                'SELECT * FROM Bag WHERE BagID = ? AND UserID = ?', 
+                [bagId, userId], 
+                (errBag, rowBag) => {
+                    if (errBag) {
+                        db.run('ROLLBACK');
+                        return reject(errBag);
+                    }
+                    
+                    if (!rowBag) {
+                        db.run('ROLLBACK');
+                        return reject(new Error('Bag not found in user\'s cart or already removed'));
+                    }
+                    
+                    // 2. Find and delete any reservations for this bag and user
+                    db.run(
+                        'DELETE FROM Reservation WHERE BagID = ? AND UserID = ?',
+                        [bagId, userId],
+                        function(errDeleteReservation) {
+                            if (errDeleteReservation) {
+                                db.run('ROLLBACK');
+                                return reject(errDeleteReservation);
+                            }
+                            
+                            console.log(`Deleted ${this.changes} reservation(s) for bag ${bagId} and user ${userId}`);
+                            
+                            // 3. Update the bag: remove user association and set back to available
+                            db.run(
+                                'UPDATE Bag SET UserID = NULL, State = "available" WHERE BagID = ?',
+                                [bagId],
+                                function(errUpdateBag) {
+                                    if (errUpdateBag) {
+                                        db.run('ROLLBACK');
+                                        return reject(errUpdateBag);
+                                    }
+                                    
+                                    if (this.changes === 0) {
+                                        db.run('ROLLBACK');
+                                        return reject(new Error('Failed to update bag state'));
+                                    }
+                                    
+                                    console.log(`Updated bag ${bagId}: UserID = NULL, State = "available"`);
+                                    
+                                    // 4. Check if user has any other bags in cart
+                                    db.get(
+                                        'SELECT COUNT(*) as bagCount FROM Bag WHERE UserID = ?',
+                                        [userId],
+                                        (errCount, rowCount) => {
+                                            if (errCount) {
+                                                db.run('ROLLBACK');
+                                                return reject(errCount);
+                                            }
+                                            
+                                            // 5. If no bags left and no reservations, optionally clean up shopping cart
+                                            // (keeping it for now as user might add more items later)
+                                            
+                                            // Commit the transaction
+                                            db.run('COMMIT');
+                                            
+                                            resolve({
+                                                success: true,
+                                                message: 'Bag removed from cart successfully',
+                                                bagId: bagId,
+                                                userId: userId,
+                                                reservationsDeleted: true,
+                                                remainingBagsInCart: rowCount.bagCount
+                                            });
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        });
+    });
+}
+
+// Aggiungere al default export:
 export default {
     getAllShoppingCarts,
     getShoppingCartByUserId,
-    addBagToUserCart
+    addBagToUserCart,
+    removeBagFromUserCart  // <-- AGGIUNGERE QUESTA LINEA
 };

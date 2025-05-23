@@ -68,6 +68,9 @@ Content-Type: application/json
 
 GET http://localhost:3002/api/shopping-carts HTTP/1.1
 
+GET http://localhost:3002/api/shopping-carts/1 HTTP/1.1
+Contet-Type: application/json
+
 ### 
 #Test: Get all users
 GET http://localhost:3002/api/users HTTP/1.1

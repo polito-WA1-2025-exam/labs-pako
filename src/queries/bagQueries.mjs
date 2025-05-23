@@ -262,4 +262,112 @@ export async function createBag(bagData) {
     }
 }
 
-export default { getAllBags, getBagsByDateRange, createBag };
+// Function to delete a bag and all its related records
+export async function deleteBag(bagId) {
+    const db = await dbConnection.openConnection();
+    
+    try {
+        return new Promise((resolve, reject) => {
+            // Start a transaction to ensure data consistency
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
+                
+                // Step 1: Delete from RemovedItems table
+                db.run(
+                    'DELETE FROM RemovedItems WHERE BagID = ?',
+                    [bagId],
+                    function(err) {
+                        if (err) {
+                            console.error('Error deleting from RemovedItems:', err);
+                            db.run('ROLLBACK');
+                            reject(err);
+                            return;
+                        }
+                        console.log(`Deleted ${this.changes} records from RemovedItems for BagID ${bagId}`);
+                        
+                        // Step 2: Delete from BagFoodItem table
+                        db.run(
+                            'DELETE FROM BagFoodItem WHERE BagID = ?',
+                            [bagId],
+                            function(err) {
+                                if (err) {
+                                    console.error('Error deleting from BagFoodItem:', err);
+                                    db.run('ROLLBACK');
+                                    reject(err);
+                                    return;
+                                }
+                                console.log(`Deleted ${this.changes} records from BagFoodItem for BagID ${bagId}`);
+                                
+                                // Step 3: Delete from Reservation table
+                                db.run(
+                                    'DELETE FROM Reservation WHERE BagID = ?',
+                                    [bagId],
+                                    function(err) {
+                                        if (err) {
+                                            console.error('Error deleting from Reservation:', err);
+                                            db.run('ROLLBACK');
+                                            reject(err);
+                                            return;
+                                        }
+                                        console.log(`Deleted ${this.changes} records from Reservation for BagID ${bagId}`);
+                                        
+                                        // Step 4: Finally, delete from Bag table
+                                        db.run(
+                                            'DELETE FROM Bag WHERE BagID = ?',
+                                            [bagId],
+                                            function(err) {
+                                                if (err) {
+                                                    console.error('Error deleting from Bag:', err);
+                                                    db.run('ROLLBACK');
+                                                    reject(err);
+                                                    return;
+                                                }
+                                                
+                                                if (this.changes === 0) {
+                                                    db.run('ROLLBACK');
+                                                    reject(new Error(`Bag with ID ${bagId} not found`));
+                                                    return;
+                                                }
+                                                
+                                                console.log(`Successfully deleted bag with ID ${bagId}`);
+                                                db.run('COMMIT');
+                                                resolve({ 
+                                                    success: true, 
+                                                    message: `Bag ${bagId} and all related records deleted successfully`,
+                                                    deletedBagId: bagId
+                                                });
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            });
+        });
+    } catch (error) {
+        console.error('Error in deleteBag function:', error);
+        throw error;
+    }
+}
+
+export async function updateBagStatus(bagId, status) {
+    const db = await dbConnection.openConnection();
+    return new Promise((resolve, reject) => {
+        db.run(
+            `UPDATE Bag SET State = ? WHERE BagID = ?`,
+            [status, bagId],
+            function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(this.changes > 0);
+                }
+            }
+        );
+    });
+}
+
+// Aggiorna anche l'export default alla fine del file
+export default { getAllBags, getBagsByDateRange, createBag, deleteBag, updateBagStatus };

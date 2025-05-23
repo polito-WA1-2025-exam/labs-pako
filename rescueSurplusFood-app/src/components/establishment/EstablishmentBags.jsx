@@ -57,9 +57,29 @@ function EstablishmentBags({ establishmentId }) {
   }, [establishmentId]);
 
   // Funzione per gestire l'aggiunta al carrello
-  const handleAddToCart = (bag) => {
-    addToCart(bag);
-  };
+  const handleAddToCart = async () => {
+    try {
+        setIsAdding(true);
+        
+        // Qui puoi anche chiamare direttamente createReservation se preferisci
+        // const userId = getCurrentUserId(); // Implementa questa funzione
+        // await createReservation(userId, bag.id);
+        
+        await addToCart(bag);
+        setIsAdding(false);
+        
+        // Opzionale: mostra un messaggio di successo
+        alert('Bag added to cart and reserved successfully!');
+        
+    } catch (error) {
+        setIsAdding(false);
+        console.error("Failed to add bag to cart:", error);
+        
+        // Mostra un messaggio di errore all'utente
+        alert('Failed to add bag to cart. Please try again.');
+    }
+};
+
 
   // Funzione per gestire la richiesta di eliminazione
   const handleDeleteBag = (bag) => {

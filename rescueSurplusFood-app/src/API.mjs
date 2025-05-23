@@ -593,6 +593,100 @@ async function deleteBag(id) {
   }
 }
 
+/**
+ * Remove a bag from user's shopping cart
+ * @param {string|number} userId - The ID of the user
+ * @param {string|number} bagId - The ID of the bag to remove
+ * @returns {Promise<Object>} Confirmation of removal
+ */
+async function removeBagFromCart(userId, bagId) {
+  try {
+    console.log(`Removing bag ${bagId} from user ${userId}'s cart`);
+    
+    // Validate input parameters
+    if (!userId || isNaN(parseInt(userId))) {
+      throw new Error(`Invalid user ID: ${userId}`);
+    }
+    
+    if (!bagId || isNaN(parseInt(bagId))) {
+      throw new Error(`Invalid bag ID: ${bagId}`);
+    }
+    
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+    
+    const response = await fetch(`${BASE_URL}/shopping-carts/${userId}/items/${bagId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Request-ID': `remove-bag-${bagId}-user-${userId}-${Date.now()}`,
+      },
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    console.log(`Remove bag response: Status ${response.status} ${response.statusText}`);
+    
+    if (!response.ok) {
+      let errorMessage = `Failed to remove bag from cart. Server responded with status: ${response.status} ${response.statusText}`;
+      
+      // Try to get error details from server
+      try {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          console.error('Server error details:', errorData);
+          
+          if (errorData && errorData.error) {
+            errorMessage = errorData.error;
+          }
+        }
+      } catch (jsonError) {
+        console.warn('Could not parse error response:', jsonError);
+      }
+      
+      // Provide specific error messages based on status code
+      if (response.status === 404) {
+        errorMessage = `Bag ${bagId} not found in user ${userId}'s cart or already removed.`;
+      } else if (response.status === 403) {
+        errorMessage = `Permission denied when removing bag ${bagId} from cart.`;
+      } else if (response.status === 500) {
+        errorMessage = `Server error when removing bag ${bagId} from cart. ${errorMessage}`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+    
+    // Parse response
+    try {
+      const jsonResponse = await response.json();
+      console.log(`Remove bag success:`, jsonResponse);
+      return jsonResponse;
+    } catch (jsonError) {
+      console.log(`Remove bag success (non-JSON response)`);
+      return { 
+        success: true, 
+        message: `Bag ${bagId} removed from user ${userId}'s cart successfully` 
+      };
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.error(`Remove bag request timed out after 10 seconds`);
+      throw new Error(`Request timed out when removing bag ${bagId} from cart. The server might be overloaded.`);
+    }
+    
+    console.error(`Error removing bag ${bagId} from user ${userId}'s cart:`, error);
+    
+    if (!error.message.includes('bag')) {
+      throw new Error(`Error removing bag ${bagId} from cart: ${error.message}`);
+    } else {
+      throw error;
+    }
+  }
+}
+
 export {
   getAllEstablishments,
   getEstablishmentById,
@@ -611,5 +705,6 @@ export {
   deleteEstablishment,
   createBag,
   addBagToCart,
-  deleteBag
+  deleteBag,
+  removeBagFromCart
 };
